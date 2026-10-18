@@ -8907,7 +8907,7 @@ for(const k in H){const [fx,fy]=FR[k],g=mk('g',{display:'none'},hs);G[k]=g;H[k].
 let cur='splash',hist=[],seen={c:0,m:0},ring=null,tun=0;
 function toast(m){const t=$('toast');t.textContent=m;t.style.opacity=1;clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity=0,1900)}
 function act(to,r){if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
- if(to==='tog'){window.__tuner&&__tuner.pluck();return}
+ if(to==='tog'){go(cur==='tunerOff'?'tunerOk':'tunerOff',0);return}
  if(to==='back'){go(hist.pop()||'inicio',0);return}
  if(to.startsWith('t:')){toast(to.slice(2));return}go(to,1)}
 function go(k,push){if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
@@ -8926,7 +8926,7 @@ function show(k){svg.style.opacity=0;setTimeout(()=>{cur=k;const [x,y,w,h]=FR[k]
  for(const g in G)G[g].setAttribute('display',g===k?'':'none');
  $('ovP').setAttribute('display',k==='practica'?'':'none');$('ovC').setAttribute('display',k==='canciones'?'':'none');
  $('play').style.display=k==='practica'?'block':'none';$('jump').value=k;if(k==='practica')resetP();
- clearInterval(tun);if(window.__tuner){__tuner.stop();if(k.startsWith('tuner'))__tuner.start(k)}
+ clearInterval(tun);
  svg.style.opacity=1},190)}
 // Selector de pantallas
 $('jump').innerHTML=Object.keys(LBL).map(k=>`<option value="${k}">${LBL[k]}</option>`).join('');
@@ -9102,68 +9102,6 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   addEventListener('pointerup',rel);addEventListener('pointercancel',rel);
   window.__btns=btns;
 }
-/* ===== Afinador animado ===== */
-(function(){
- const FRM={tunerOff:[678,4],tunerOk:[36,4]},GREEN='#9dc777',ORANGE='#f5a623',RED='#e01717',WHITE='#ffffff';
- const sc=document.getElementById('scene'),cache={};let run=null,raf=0;
- const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
- const SEQ=[4,-3,3,-4,2,-2];
- function bb(e,fx,fy){const b=e.getBBox(),M=sc.getCTM().inverse().multiply(e.getCTM()),p=sc.createSVGPoint();
-  p.x=b.x;p.y=b.y;const a=p.matrixTransform(M);p.x=b.x+b.width;p.y=b.y+b.height;const c=p.matrixTransform(M);
-  return{x:a.x-fx,y:a.y-fy,w:c.x-a.x,h:c.y-a.y}}
- function collect(k){
-  if(cache[k])return cache[k];
-  const[fx,fy]=FRM[k],o={ticks:[],G:null,n4:null,str:null,hand:null};
-  sc.querySelectorAll('.cls-152,.cls-653,.cls-340,.cls-51,.cls-99,.cls-304,.cls-313').forEach(e=>{
-   if(!/^(path|rect|polygon|text)$/.test(e.tagName)||e.closest('defs,#hs,#ovP,#ovC'))return;
-   let r;try{r=bb(e,fx,fy)}catch(_){return}
-   const c=e.getAttribute('class');
-   if(r.x<-3||r.y<-3||r.x+r.w>326)return;
-   if(c!=='cls-304'&&r.y+r.h>698)return;
-   if(/cls-(152|653|340)$/.test(c)){if(r.y>100&&r.y<215&&r.w<62&&r.h<62)o.ticks.push({e,cx:r.x+r.w/2})}
-   else if(c==='cls-51'&&r.y>150&&r.y<190)o.G=e;
-   else if(c==='cls-99'&&r.y>205&&r.y<230)o.n4=e;
-   else if(c==='cls-304'&&r.h>500&&Math.abs(r.x-168.5)<3)o.str=e;
-   else if(c==='cls-313'&&Math.abs(r.x-222)<3&&Math.abs(r.y-293)<3)o.hand=e;
-  });
-  o.ticks.sort((a,b)=>a.cx-b.cx);o.ticks=o.ticks.map(t=>t.e);
-  o.ok=o.ticks.length===15&&!!o.G&&!!o.str&&!!o.hand;
-  return cache[k]=o}
- function prep(o){[...o.ticks,o.G,o.n4,o.str,o.hand].forEach(e=>{if(!e)return;e.style.transformBox='fill-box';e.style.transformOrigin='50% 50%'});
-  o.ticks.forEach(e=>e.style.transition='fill .14s');o._idx=null}
- function tcol(i){const d=Math.abs(i-7);return d===0?GREEN:d===1?ORANGE:RED}
- function paint(o,idx){if(o._idx===idx)return;o._idx=idx;o.ticks.forEach((e,i)=>{e.style.fill=i===idx?tcol(i):WHITE})}
- function pop(el,s,d,dl){if(!el||!el.animate)return;el.animate([{transform:'scale(1)'},{transform:'scale('+s+')',offset:.4},{transform:'scale(1)'}],{duration:d,delay:dl||0,easing:'cubic-bezier(.34,1.56,.64,1)'})}
- function lockFx(o){o.ticks.forEach((e,i)=>pop(e,i===7?1.3:1.12,460,Math.abs(i-7)*40));pop(o.G,1.1,520);pop(o.n4,1.2,520,60)}
- function pluck(r,t,A){r.pl=t;r.A=A||1.6}
- function nextPluck(r,t){r.i=(r.i+1)%SEQ.length;r.p=SEQ[r.i];r.v=0;r.ph='hold';r.tEnd=t+.9;pluck(r,t)}
- function frame(now){
-  if(!run)return;const r=run,o=r.o,t=(now-r.t0)/1000,dt=Math.min(.05,(now-r.last)/1000);r.last=now;
-  if(r.ph==='hold'){if(t>=r.tEnd){r.ph='tune';r.v=0;r.lockT=0}}
-  else if(r.ph==='tune'){
-   const w=3.2,z=.34,n=4,h=dt/n;
-   for(let i=0;i<n;i++){const a=-w*w*r.p-2*z*w*r.v;r.v+=a*h;r.p+=r.v*h}
-   if(Math.abs(r.p)<.5&&Math.abs(r.v)<1.2)r.lockT+=dt;else r.lockT=0;
-   if(r.lockT>.35){r.ph='lock';r.p=0;r.v=0;r.tEnd=t+2.6;lockFx(o);pluck(r,t,1.1)}
-  }else if(r.ph==='lock'){if(t>=r.tEnd)nextPluck(r,t)}
-  paint(o,7+Math.max(-7,Math.min(7,Math.round(r.p))));
-  const sy=1-.3*Math.abs(Math.sin(r.p*Math.PI/2));
-  if(Math.abs(sy-r.sy)>.002){r.sy=sy;o.hand.style.transform=sy>.999?'':'scaleY('+sy.toFixed(3)+')'}
-  const s=t-r.pl,amp=r.A*Math.exp(-s/.8);
-  if(amp>.03){const a=amp*Math.sin(6.2832*17*s);o.str.style.transform='translateX('+a.toFixed(2)+'px) scaleX('+(1+Math.abs(a)*.45).toFixed(2)+')';r.vib=1}
-  else if(r.vib){o.str.style.transform='';r.vib=0}
-  raf=requestAnimationFrame(frame)}
- function stop(){cancelAnimationFrame(raf);if(!run)return;const o=run.o;
-  o.ticks.forEach(e=>{e.style.fill='';e.style.transition='';e.style.transform=''});
-  [o.G,o.n4,o.str,o.hand].forEach(e=>{if(e)e.style.transform=''});o._idx=null;run=null}
- function start(k){stop();if(rm||!FRM[k])return;const o=collect(k);if(!o||!o.ok)return;prep(o);
-  const now=performance.now(),ok=k==='tunerOk';
-  run={k,o,t0:now,last:now,p:ok?0:-2,v:0,ph:ok?'lock':'hold',tEnd:ok?2.2:1.2,i:-1,pl:-9,A:0,lockT:0,sy:1,vib:0};
-  if(!ok)pluck(run,0);
-  raf=requestAnimationFrame(frame)}
- window.__tuner={start,stop,pluck:()=>{if(run)nextPluck(run,(performance.now()-run.t0)/1000)},get run(){return run}};
-})();
-
 show('splash');
 </script><style>#inst{display:none;position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:99999;max-width:420px;margin:0 auto;background:#fff;color:#073154;border-radius:18px;padding:14px 16px;box-shadow:0 4px 0 rgba(7,49,84,.22);font:500 14px/1.4 Fredoka,system-ui,sans-serif}#inst b{font-weight:600;font-size:15px;display:block;margin-bottom:4px}#inst button{margin-top:10px;border:0;border-radius:12px;background:#51b6e8;color:#fff;font:600 14px Fredoka,system-ui;padding:9px 16px;box-shadow:0 3px 0 #2a86b8}</style>
 <div id="inst" role="dialog"><b>Verlo a pantalla completa</b><span id="instT"></span><br><button id="instX">Entendido</button></div>
