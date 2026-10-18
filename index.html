@@ -9117,11 +9117,12 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
    if(getComputedStyle(e).fill!=='rgb(33, 164, 222)')return;
    let r;try{r=bb(e,fx,fy)}catch(_){return}
    if(r.x<0||r.x+r.w>fw||r.y<fh-110||r.y>fh||r.w<28||r.w>36||r.h<5||r.h>8)return;
-   f={el:e,cx:r.x+r.w/2}});
+   const cx=r.x+r.w/2;let ix=0;NAV.forEach((n,i)=>{if(Math.abs(n-cx)<Math.abs(NAV[ix]-cx))ix=i});f={el:e,cx,ix}});
   return cache[k]=f}
  function slide(a,k){
   const A=find(a),B=find(k);if(!A||!B||!B.el.animate)return;
-  const dx=A.cx-B.cx;if(Math.abs(dx)<1)return;
+  if(A.ix===B.ix)return;   // misma sección del menú: la barra no se mueve (aunque esté dibujada 1-2 px corrida)
+  const dx=A.cx-B.cx;
   const e=B.el;e.style.transformBox='fill-box';e.style.transformOrigin='50% 50%';
   const d=Math.abs(dx),T=t=>'translateX('+t.toFixed(1)+'px)';
   e.animate([
