@@ -9177,7 +9177,7 @@ setApp(MQ.matches);
     const deck=document.createElementNS(NS,'g');deck.setAttribute('clip-path',`url(#${clipId})`);bg.parentNode.insertBefore(deck,bg);
     const liked=[0,0,0];
     const cards=SONGS.map((s,i)=>{
-      const w=document.createElementNS(NS,'g');w.style.transformBox='fill-box';w.style.transformOrigin='50% 100%';
+      const w=document.createElementNS(NS,'g');
       parts.forEach(p=>w.appendChild(p.cloneNode(true)));deck.appendChild(w);
       const [b_,cov,bad,tit,hrt]=[...w.children];
       if(i>0){
@@ -9193,41 +9193,44 @@ setApp(MQ.matches);
       w._heart=hp;w._hb=hb;
       return w});
     parts.forEach(p=>p.style.display='none');
-    cards.forEach((c,i)=>c.style.display=i?'none':'');
     const pillEls=[tTime,tTec,dotsG];
+    const N3=cards.length,STEP=190,bx=+bg.getAttribute('x'),by=+bg.getAttribute('y'),CX=bx+118.97,CY=by+178.75;
+    let pos=0,shown=0,raf=0,drag=null,moved=false,tm=null,pillT=0;
+    const wrap=p=>{p=((p+N3/2)%N3+N3)%N3-N3/2;return p};
     const setPills=i=>{const s=SONGS[i];setTxt(tTime,s.time,cT);setTxt(tTec,s.tec,cK);[...dotsG.children].forEach((c,k)=>c.setAttribute('class',k<s.dif?dotA:dotI))};
-    let ci=0,busy=false,drag=null,moved=false,tm=null;
-    const W=330;
-    function goTo(n,dir,from=0){
-      if(busy||n===ci)return;busy=true;const a=cards[ci],b=cards[n];b.style.display='';
-      const A=a.animate([{transform:`translateX(${from}px) rotate(${from/22}deg)`,opacity:1},{transform:`translateX(${-dir*W}px) rotate(${-dir*14}deg)`,opacity:0}],{duration:340,easing:'cubic-bezier(.55,0,.85,.45)',fill:'forwards'});
-      const B=b.animate([{transform:`translateX(${dir*W}px) rotate(${dir*14}deg)`,opacity:0},{transform:'translateX(0) rotate(0deg)',opacity:1}],{duration:520,delay:140,easing:'cubic-bezier(.2,.9,.25,1.12)',fill:'both'});
-      pillEls.forEach(e=>e.animate([{opacity:1},{opacity:0}],{duration:160,fill:'forwards'}));
-      setTimeout(()=>{setPills(n);pillEls.forEach(e=>{e.getAnimations().forEach(x=>x.cancel());e.animate([{opacity:0},{opacity:1}],{duration:260})})},170);
-      A.onfinish=()=>{a.style.display='none';A.cancel()};
-      B.onfinish=()=>{B.cancel();busy=false};
-      ci=n;window.__cancIdx=n;
-    }
-    const next=(d=1,from=0)=>goTo((ci+d+cards.length)%cards.length,d,from);
-    const rearm=()=>{clearInterval(tm);tm=setInterval(()=>{if(cur==='canciones'&&!drag&&!document.hidden)next(1)},4300)};rearm();
-    // Zona táctil de la tarjeta: arrastrar para pasar, tocar para ver la siguiente, tocar el corazón para marcar favorita
-    const hit=document.createElementNS(NS,'rect');[['x',+bg.getAttribute('x')],['y',+bg.getAttribute('y')],['width',238],['height',358],['rx',27],['fill','#fff'],['fill-opacity',.001]].forEach(([k,v])=>hit.setAttribute(k,v));
-    hit.style.touchAction='none';hit.style.cursor='grab';deck.appendChild(hit);
+    function render(){
+      const order=[];
+      cards.forEach((c,i)=>{const p=wrap(i-pos),a=Math.abs(p),sc=1-.16*Math.min(a,1.3),tx=p*STEP;
+        c.setAttribute('transform',`translate(${tx} ${a*10}) translate(${CX} ${CY}) scale(${sc}) translate(${-CX} ${-CY})`);
+        c.style.opacity=a>1.15?Math.max(0,1-(a-1.15)*6):1-.42*Math.min(a,1);
+        c.style.display=a>1.5?'none':'';order.push([a,c])});
+      order.sort((x,y)=>y[0]-x[0]).forEach(([,c],k)=>{if(deck.children[k]!==c)deck.insertBefore(c,deck.children[k])});
+      const n=((Math.round(pos)%N3)+N3)%N3;
+      if(n!==shown){shown=n;pillEls.forEach(e=>e.animate([{opacity:1},{opacity:0}],{duration:120,fill:'forwards'}));
+        clearTimeout(pillT);pillT=setTimeout(()=>{setPills(n);pillEls.forEach(e=>{e.getAnimations().forEach(x=>x.cancel());e.animate([{opacity:0},{opacity:1}],{duration:220})})},130)}
+      window.__cancIdx=n}
+    function animTo(t,dur=520){cancelAnimationFrame(raf);const p0=pos,t0=performance.now(),ease=k=>{const c1=1.3,c3=c1+1;return 1+c3*Math.pow(k-1,3)+c1*Math.pow(k-1,2)};
+      const f=ts=>{const k=Math.min((ts-t0)/dur,1);pos=p0+(t-p0)*ease(k);render();if(k<1)raf=requestAnimationFrame(f);else{pos=t;render()}};raf=requestAnimationFrame(f)}
+    const step=d=>animTo(Math.round(pos)+d);
+    const rearm=()=>{clearInterval(tm);tm=setInterval(()=>{if(cur==='canciones'&&!drag&&!document.hidden)step(1)},4300)};
+    render();rearm();
+    // Zona táctil: arrastrar para rotar; tocar una tarjeta del costado la trae al centro; tocar el corazón la marca
+    const hit=document.createElementNS(NS,'rect');[['x',1311-dx],['y',by-4],['width',321],['height',366],['fill','#fff'],['fill-opacity',.001]].forEach(([k,v])=>hit.setAttribute(k,v));
+    hit.style.touchAction='none';hit.style.cursor='grab';deck.after(hit);
     const toX=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());return [q.x-dx,q.y-dy]};
-    hit.addEventListener('pointerdown',e=>{if(busy)return;hit.setPointerCapture(e.pointerId);drag={x:toX(e)[0],t:performance.now(),d:0};moved=false});
-    hit.addEventListener('pointermove',e=>{if(!drag)return;const d=toX(e)[0]-drag.x;drag.d=d;if(Math.abs(d)>5)moved=true;if(moved){const c=cards[ci];c.style.transform=`translateX(${d}px) rotate(${d/22}deg)`;c.style.opacity=Math.max(.35,1-Math.abs(d)/260)}});
-    const end=e=>{if(!drag)return;const d=drag.d,v=d/Math.max(1,performance.now()-drag.t),c=cards[ci];const [px,py]=toX(e);drag=null;
-      c.style.transform='';c.style.opacity='';
-      if(moved&&(Math.abs(d)>55||Math.abs(v)>.5)){next(d<0?1:-1,d)}
-      else if(moved){c.animate([{transform:`translateX(${d}px) rotate(${d/22}deg)`},{transform:'translateX(0) rotate(0deg)'}],{duration:320,easing:'cubic-bezier(.2,.9,.25,1.3)'})}
-      else{const hb=cards[ci]._hb;
-        if(Math.hypot(px-(hb.x+hb.width/2),py-(hb.y+hb.height/2))<24){const p=cards[ci]._heart;liked[ci]=!liked[ci];
-          if(liked[ci]){p.style.fill='none';p.style.stroke='#9aa3ad';p.style.strokeWidth='0.9';p.style.strokeLinejoin='round'}else{p.style.fill='';p.style.stroke='';p.style.strokeWidth=''}
+    hit.addEventListener('pointerdown',e=>{hit.setPointerCapture(e.pointerId);cancelAnimationFrame(raf);drag={x:toX(e)[0],t:performance.now(),p0:pos,d:0};moved=false});
+    hit.addEventListener('pointermove',e=>{if(!drag)return;const d=toX(e)[0]-drag.x;drag.d=d;if(Math.abs(d)>5)moved=true;if(moved){pos=drag.p0-d/STEP;render()}});
+    const end=e=>{if(!drag)return;const d=drag.d,v=d/Math.max(1,performance.now()-drag.t),[px,py]=toX(e);drag=null;
+      if(moved){animTo(Math.round(pos-v*.9))}
+      else{const i=((Math.round(pos)%N3)+N3)%N3,hb=cards[i]._hb;
+        const hx=hb.x+hb.width/2,hy=hb.y+hb.height/2;
+        if(Math.hypot(px-hx,py-hy)<24){const p=cards[i]._heart;liked[i]=!liked[i];
+          if(liked[i]){p.style.fill='none';p.style.stroke='#9aa3ad';p.style.strokeWidth='0.9';p.style.strokeLinejoin='round'}else{p.style.fill='';p.style.stroke='';p.style.strokeWidth=''}
           p.classList.remove('hrt');void p.getBBox();p.classList.add('hrt')}
-        else next(1)}
+        else if(Math.abs(px-CX)>119)step(px<CX?-1:1);else animTo(Math.round(pos))}
       rearm()};
     hit.addEventListener('pointerup',end);hit.addEventListener('pointercancel',end);
-    window.__cancApr=()=>{const s=SONGS[ci];if(s.go)go(s.go,1);else toast('La práctica de «'+s.title+'» no está en el tablero todavía')};
+    window.__cancApr=()=>{const s=SONGS[window.__cancIdx||0];if(s.go)go(s.go,1);else toast('La práctica de «'+s.title+'» no está en el tablero todavía')};
     // Las tarjetas sueltas del costado ya están dentro del mazo
     FWs.remove();
   }
