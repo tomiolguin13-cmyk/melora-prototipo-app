@@ -8922,12 +8922,12 @@ function fit(){const [x,y,w,h]=FR[cur];
   svg.style.width=w*s+'px';svg.style.height=h*s+'px';svg.style.marginBottom=pb+'px';return}
  svg.setAttribute('viewBox',`${x-3} ${y-3} ${w+6} ${h+6}`);
  svg.style.marginBottom='0px';const t=svg.getBoundingClientRect().top||90,aw=Math.min(innerWidth-24,1000),ah=innerHeight-t-(cur==='practica'?76:24),s=Math.min(aw/w,ah/h);svg.style.width=w*s+'px';svg.style.height=h*s+'px'}
-function show(k){svg.style.opacity=0;setTimeout(()=>{cur=k;const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x-3} ${y-3} ${w+6} ${h+6}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
+function show(k){const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x-3} ${y-3} ${w+6} ${h+6}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
  for(const g in G)G[g].setAttribute('display',g===k?'':'none');
  $('ovP').setAttribute('display',k==='practica'?'':'none');$('ovC').setAttribute('display',k==='canciones'?'':'none');
  $('play').style.display=k==='practica'?'block':'none';$('jump').value=k;if(k==='practica')resetP();
  clearInterval(tun);
- svg.style.opacity=1},190)}
+ svg.style.opacity=1;if(nn)__nav.slide(prevK,k)},nn?100:190)}
 // Selector de pantallas
 $('jump').innerHTML=Object.keys(LBL).map(k=>`<option value="${k}">${LBL[k]}</option>`).join('');
 $('jump').onchange=e=>{hist=[];if(['mapa'].includes(e.target.value))seen.c=1;go(e.target.value,0)};
@@ -9102,6 +9102,37 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   addEventListener('pointerup',rel);addEventListener('pointercancel',rel);
   window.__btns=btns;
 }
+/* ===== Barrita del menú: se desliza con rebote entre secciones ===== */
+(function(){
+ const sc=document.getElementById('scene'),cache={};
+ function bb(e,fx,fy){const b=e.getBBox(),M=sc.getCTM().inverse().multiply(e.getCTM()),p=sc.createSVGPoint();
+  p.x=b.x;p.y=b.y;const a=p.matrixTransform(M);p.x=b.x+b.width;p.y=b.y+b.height;const c=p.matrixTransform(M);
+  return{x:a.x-fx,y:a.y-fy,w:c.x-a.x,h:c.y-a.y}}
+ function find(k){
+  if(!k||!FR[k])return null;
+  if(k in cache)return cache[k];
+  const[fx,fy,fw,fh]=FR[k];let f=null;
+  sc.querySelectorAll('path.cls-461').forEach(e=>{
+   if(f||e.closest('defs,#hs,#ovP,#ovC'))return;
+   if(getComputedStyle(e).fill!=='rgb(33, 164, 222)')return;
+   let r;try{r=bb(e,fx,fy)}catch(_){return}
+   if(r.x<0||r.x+r.w>fw||r.y<fh-110||r.y>fh||r.w<28||r.w>36||r.h<5||r.h>8)return;
+   f={el:e,cx:r.x+r.w/2}});
+  return cache[k]=f}
+ function slide(a,k){
+  const A=find(a),B=find(k);if(!A||!B||!B.el.animate)return;
+  const dx=A.cx-B.cx;if(Math.abs(dx)<1)return;
+  const e=B.el;e.style.transformBox='fill-box';e.style.transformOrigin='50% 50%';
+  const d=Math.abs(dx),T=t=>'translateX('+t.toFixed(1)+'px)';
+  e.animate([
+   {transform:T(dx)+' scaleX(1)',offset:0,easing:'cubic-bezier(.4,0,.6,1)'},
+   {transform:T(dx*.5)+' scaleX(1.5)',offset:.2,easing:'ease-out'},
+   {transform:T(-dx*.17)+' scaleX(1.12)',offset:.47,easing:'ease-in-out'},
+   {transform:T(dx*.06)+' scaleX(.97)',offset:.74,easing:'ease-in-out'},
+   {transform:'translateX(0px) scaleX(1)',offset:1}
+  ],{duration:560+Math.min(d,220)*1.3})}
+ window.__nav={has:k=>!!find(k),slide}
+})();
 show('splash');
 </script><style>#inst{display:none;position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:99999;max-width:420px;margin:0 auto;background:#fff;color:#073154;border-radius:18px;padding:14px 16px;box-shadow:0 4px 0 rgba(7,49,84,.22);font:500 14px/1.4 Fredoka,system-ui,sans-serif}#inst b{font-weight:600;font-size:15px;display:block;margin-bottom:4px}#inst button{margin-top:10px;border:0;border-radius:12px;background:#51b6e8;color:#fff;font:600 14px Fredoka,system-ui;padding:9px 16px;box-shadow:0 3px 0 #2a86b8}</style>
 <div id="inst" role="dialog"><b>Verlo a pantalla completa</b><span id="instT"></span><br><button id="instX">Entendido</button></div>
