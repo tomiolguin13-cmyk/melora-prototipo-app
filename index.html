@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#52b8e7">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" type="image/png" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Mi Camino">
 <title>Mi Camino · Prototipo interactivo</title>
@@ -9158,4 +9159,23 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
 })();
 
 show('splash');
-</script></body></html>
+</script><style>#inst{display:none;position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:99999;max-width:420px;margin:0 auto;background:#fff;color:#073154;border-radius:18px;padding:14px 16px;box-shadow:0 4px 0 rgba(7,49,84,.22);font:500 14px/1.4 Fredoka,system-ui,sans-serif}#inst b{font-weight:600;font-size:15px;display:block;margin-bottom:4px}#inst button{margin-top:10px;border:0;border-radius:12px;background:#51b6e8;color:#fff;font:600 14px Fredoka,system-ui;padding:9px 16px;box-shadow:0 3px 0 #2a86b8}</style>
+<div id="inst" role="dialog"><b>Verlo a pantalla completa</b><span id="instT"></span><br><button id="instX">Entendido</button></div>
+<script>
+(function(){
+ const st=()=>matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
+ const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ const box=document.getElementById('inst'),tx=document.getElementById('instT');
+ tx.innerHTML=ios?'Tocá <b style="display:inline">Compartir</b> (el cuadradito con la flecha ↑) y elegí <b style="display:inline">«Agregar a pantalla de inicio»</b>. Después abrilo desde ese ícono: se ve sin las barras del navegador, como una app.':'Tocá el menú <b style="display:inline">⋮</b> del navegador y elegí <b style="display:inline">«Instalar app»</b> o <b style="display:inline">«Agregar a pantalla de inicio»</b>. Después abrilo desde ese ícono: se ve sin las barras del navegador, como una app.';
+ const show=()=>{if(!st())box.style.display='block'};
+ const hide=()=>{box.style.display='none';try{localStorage.setItem('mc_inst','1')}catch(_){}};
+ document.getElementById('instX').onclick=hide;
+ window.__instTip=show;
+ let seen=0;try{seen=localStorage.getItem('mc_inst')}catch(_){}
+ if(!seen&&!st()&&matchMedia('(hover:none) and (pointer:coarse)').matches)setTimeout(show,1800);
+ // En iPhone el navegador no permite ocultar sus barras desde la página: el botón muestra los pasos
+ const fs=document.getElementById('fs');
+ if(fs)fs.addEventListener('click',()=>{if(!st()&&!document.documentElement.requestFullscreen)setTimeout(show,60)});
+})();
+</script>
+</body></html>
