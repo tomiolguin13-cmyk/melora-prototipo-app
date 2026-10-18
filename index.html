@@ -9054,6 +9054,9 @@ H.fin=[[4996.5-4718,1339-1080,182,31,'m1b']];
 
 // ---- Inicio: Mis canciones (carrusel arrastrable + favoritas) ----
 {
+  // El tablero trae esta fila de carátulas pegada dos veces en el mismo lugar: se deja una sola
+  {const all=[...svg.querySelectorAll('text')].filter(e=>e.textContent.trim()==='Soda Stereo'&&Math.abs(absPt(e)[1]-3351)<8);
+   const gs=[...new Set(all.map(e=>e.parentNode.parentNode.parentNode))];gs.slice(1).forEach(g=>g.remove())}
   const tx=[...svg.querySelectorAll('text')].find(e=>e.textContent.trim()==='Soda Stereo'&&Math.abs(absPt(e)[1]-3351)<8);
   if(tx){
     const cardsG=tx.parentNode.parentNode.parentNode,cards=[...cardsG.children];
