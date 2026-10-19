@@ -9488,7 +9488,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   const SC={};
   ['m1','m1b'].forEach(k=>{
     const fw=svg.querySelector('g.fw[data-f='+k+']');if(!fw)return;
-    const bgp=[...fw.querySelectorAll(':scope > g > path')].find(p=>{const b=p.getBBox();return b.width>300&&b.height>690});if(!bgp)return;
+    const bgp=[...fw.querySelectorAll(':scope > g > :is(path,rect)')].find(p=>{const b=p.getBBox();return b.width>300&&b.height>690});if(!bgp)return;
     const main=bgp.parentNode,kids=[...main.children].filter(c=>c!==bgp);
     const back=kids.find(c=>{if(c.tagName!=='g')return false;const b=c.getBBox();return b.width>38&&b.width<52&&b.height>38&&b.height<52&&b.y<bgp.getBBox().y+90});
     const listEl=kids.find(c=>c.tagName==='g'&&getComputedStyle(c).clipPath!=='none');
