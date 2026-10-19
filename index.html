@@ -8983,7 +8983,7 @@ function fit(){const [x,y,w,h]=FR[cur];
  svg.style.borderRadius=R+'px';svg.style.overflow='hidden';svg.style.boxShadow='0 0 0 10px #0d1117,0 0 0 11.5px #3a4552,0 26px 60px rgba(0,0,0,.35)';svg.style.margin='10px 0';
  const isl=$('isl'),rc=svg.getBoundingClientRect(),portrait=h>w;
  isl.style.display=portrait?'block':'none';if(portrait){isl.style.left=(rc.left+pw/2-pw*.145)+'px';isl.style.top=(rc.top+ph*.013)+'px';isl.style.width=pw*.29+'px';isl.style.height=ph*.04+'px'}}
-function show(k){const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(k!=='practica'){try{SCN&&SCN.set(0)}catch(e){}}const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
+function show(k){const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);if(k!=='practica'){try{SCN&&SCN.set(0)}catch(e){}}const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
  for(const g in G)G[g].setAttribute('display',g===k?'':'none');
  $('ovP').setAttribute('display',k==='practica'?'':'none');$('ovC').setAttribute('display',k==='canciones'?'':'none');
  $('play').style.display=k==='practica'?'block':'none';$('jump').value=k;if(k==='practica')resetP();
@@ -9324,6 +9324,48 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   addEventListener('pointerup',end);addEventListener('pointercancel',end);
   svg.addEventListener('wheel',e=>{if(!A)return;e.preventDefault();A.sy=clamp(A.sy+e.deltaY/sc());apply()},{passive:false});
   window.__m1scroll=SC;
+}
+
+// ---- Barras de progreso del 40 %: se llenan de 0 a 40 cada vez que se entra a la pantalla ----
+{
+  const NS='http://www.w3.org/2000/svg',DUR=1100,ease=t=>1-Math.pow(1-t,3);
+  const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]');
+  const setTxt=(t,v)=>{const sp=t.querySelector('tspan')||t;sp.textContent=v+'%'};
+  // 1) Aro de "Progreso del mundo" (Mundo 1 · 40 %)
+  const ring=(()=>{
+    const w=fwOf('m1b');if(!w)return null;
+    const ps=[...w.querySelectorAll('path')],bx=e=>{try{return e.getBBox()}catch(x){return null}};
+    const track=ps.find(p=>{const b=bx(p);return b&&Math.abs(b.width-68)<4&&Math.abs(b.height-68)<4&&getComputedStyle(p).fill==='rgb(175, 216, 236)'});
+    if(!track)return null;
+    const tb=bx(track),cx=tb.x+tb.width/2,cy=tb.y+tb.height/2;
+    const teal=ps.filter(p=>{if(getComputedStyle(p).fill!=='rgb(38, 170, 192)')return false;const b=bx(p);return b&&Math.hypot(b.x+b.width/2-cx,b.y+b.height/2-cy)<45});
+    const txt=[...w.querySelectorAll('text')].find(t=>t.textContent.trim()==='40%');
+    if(!teal.length||!txt)return null;
+    const cp=document.createElementNS(NS,'clipPath');cp.setAttribute('id','ringClip');const wd=document.createElementNS(NS,'path');cp.appendChild(wd);
+    track.parentNode.insertBefore(cp,track);
+    // el número queda centrado mientras cambia de ancho
+    const sp=txt.querySelector('tspan'),tw=txt.getBBox().width;txt.setAttribute('text-anchor','middle');if(sp)sp.setAttribute('x',(tw/2).toFixed(2));
+    const R=70,TOTAL=144;   // 40 % de 360°
+    const wedge=deg=>{if(deg<=0)return '';const a0=-Math.PI/2;let d='M'+cx+' '+cy;
+      for(let a=0;a<=deg;a+=6){const r=a0+a*Math.PI/180;d+='L'+(cx+R*Math.cos(r)).toFixed(2)+' '+(cy+R*Math.sin(r)).toFixed(2)}
+      const r=a0+deg*Math.PI/180;return d+'L'+(cx+R*Math.cos(r)).toFixed(2)+' '+(cy+R*Math.sin(r)).toFixed(2)+'Z'};
+    return {set(f){if(f>=1){teal.forEach(p=>p.removeAttribute('clip-path'));setTxt(txt,40);return}
+      wd.setAttribute('d',wedge(TOTAL*f));teal.forEach(p=>p.setAttribute('clip-path','url(#ringClip)'));setTxt(txt,Math.round(40*f))}};
+  })();
+  // 2) Barra de la tarjeta "Mundo 1 - Nivel 1" en Inicio
+  const bar=(()=>{
+    const w=fwOf('inicio');if(!w)return null;
+    const txt=[...w.querySelectorAll('text')].find(t=>t.textContent.trim()==='40%');if(!txt)return null;
+    const rs=[...w.querySelectorAll('rect')].filter(r=>{const b=r.getBBox();return b.height>8&&b.height<10.5&&b.width>30});
+    const fill=rs.find(r=>getComputedStyle(r).fill==='rgb(43, 199, 155)');if(!fill)return null;
+    const W0=+fill.getAttribute('width');
+    return {set(f){fill.setAttribute('width',(W0*f).toFixed(2));fill.style.opacity=f<=0?0:1;setTxt(txt,Math.round(40*f))}};
+  })();
+  let raf=0,active=null;
+  const run=o=>{cancelAnimationFrame(raf);if(!o)return;o.set(0);const t0=performance.now()+260;   // espera a que termine el fundido de entrada
+    const step=ts=>{const k=Math.max(0,Math.min(1,(ts-t0)/DUR));o.set(ease(k));if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
+  window.__prog=k=>{cancelAnimationFrame(raf);if(k==='m1b')run(ring);else if(k==='inicio')run(bar);else{ring&&ring.set(1);bar&&bar.set(1)}};
+  window.__progParts={ring,bar};
 }
 
 /* ===== Barrita del menú: se desliza con rebote entre secciones ===== */
