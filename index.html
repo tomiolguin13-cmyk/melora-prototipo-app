@@ -9283,7 +9283,8 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     P.insertBefore(W,E);parts.forEach(q=>W.appendChild(q));btns.push(W)});
   const vis=el=>{let o=1;for(let e=el;e&&e!==svg;e=e.parentNode){const op=e.style&&e.style.opacity;if(op)o*=parseFloat(op);if(o<.5)return false}return true};
   let dn=null;
-  svg.addEventListener('pointerdown',e=>{
+  const PRESS=false;   // efecto de botón apretado desactivado a pedido
+  PRESS&&svg.addEventListener('pointerdown',e=>{
     const W=btns.find(w=>{const r=w.getBoundingClientRect();return r.width&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom&&vis(w)});
     if(!W)return;dn={W,t:performance.now()};W.style.transition='transform .06s ease-out';W.style.transform=W._down},true);
   const rel=()=>{if(!dn)return;const d=dn;dn=null;
