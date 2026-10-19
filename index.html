@@ -9497,11 +9497,10 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     const C=document.createElementNS(NS,'g'),W=document.createElementNS(NS,'g');
     if(cid)C.setAttribute('clip-path','url(#'+cid[1]+')');
     C.appendChild(W);main.insertBefore(C,bgp.nextSibling);
-    kids.filter(c=>c!==back).forEach(c=>W.appendChild(c));
+    kids.forEach(c=>W.appendChild(c));
     [...fw.children].filter(c=>c!==main).forEach(c=>W.appendChild(c));
-    if(back)main.appendChild(back);
     // zonas táctiles de los niveles (todas menos la flecha de volver) se mueven junto con la lista
-    const lv=document.createElementNS(NS,'g');[...G[k].children].slice(1).forEach(r=>lv.appendChild(r));G[k].appendChild(lv);
+    const lv=document.createElementNS(NS,'g');[...G[k].children].forEach(r=>lv.appendChild(r));G[k].appendChild(lv);
     const bot=listEl?absPt(listEl,0,listEl.getBBox().y+listEl.getBBox().height)[1]:0;
     const [fx,fy,fw_,fh]=FR[k];
     SC[k]={W,lv,max:Math.max(0,bot+26-(fy+fh)),sy:0};
