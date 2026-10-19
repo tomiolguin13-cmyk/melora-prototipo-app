@@ -9609,7 +9609,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
 // ---- Mundo 1: la pantalla se desliza verticalmente (arrastrando o con la rueda) ----
 {
   const SC={};
-  ['m1','m1b'].forEach(k=>{
+  ['m1','m1b','mundo','foro'].forEach(k=>{
     const fw=svg.querySelector('g.fw[data-f='+k+']');if(!fw)return;
     const bgp=[...fw.querySelectorAll(':scope > g > :is(path,rect)')].find(p=>{const b=p.getBBox();return b.width>300&&b.height>690});if(!bgp)return;
     const main=bgp.parentNode,kids=[...main.children].filter(c=>c!==bgp);
