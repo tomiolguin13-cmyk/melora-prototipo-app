@@ -13,6 +13,7 @@
 :root[data-theme="dark"]{--bg:#0f1e2a;--fg:#e8f2f9;--mut:#93aabb;--card:#17303f}
 html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Fredoka,system-ui,sans-serif;height:100%}
 body{display:flex;flex-direction:column;align-items:center;padding:10px 12px;gap:8px;box-sizing:border-box}
+html,body{height:100dvh;overflow:hidden;overscroll-behavior:none}body{position:fixed;inset:0;touch-action:none}
 #top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;font-size:14px}
 b{font-weight:600}select,button{font:500 14px Fredoka,system-ui;border:0;border-radius:999px;padding:7px 14px;background:var(--card);color:var(--fg);box-shadow:0 2px 0 rgba(0,0,0,.16)}
 #play{background:var(--btn);color:#fff;font-weight:600;font-size:16px;padding:10px 24px;display:none;box-shadow:0 4px 0 #2f8fc0}
