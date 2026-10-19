@@ -8955,13 +8955,13 @@ canciones:[[...BK,'back'],[39,613,242,42,'apr']],
 mundo:[[...BK,'back'],...[0,1,2,3,4,5].map(i=>[250,185+73.5*i,40,50,T('Reproducir está fuera del tablero')])],
 foro:[[...BK,'back'],[36,176,254,44,T('Nueva publicación no está en el tablero')]]
 };
-['tunerOff','tunerOk','mapa','comHub','inicio'].forEach(k=>NAV.forEach((x,i)=>H[k].push([x-23,626,46,46,['inicio','tuner','camino','comunidad','canciones'][i]])));
+['tunerOff','tunerOk','mapa','comHub','inicio'].forEach(k=>NAV.forEach((x,i)=>H[k].push([x-23,626,46,46,['inicio','tuner','camino','comunidad','noop'][i]])));
 const hs=$('hs'),G={};
 const mk=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e};
 for(const k in H){const [fx,fy]=FR[k],g=mk('g',{display:'none'},hs);G[k]=g;H[k].forEach(([x,y,w,h,to])=>{const r=mk('rect',{x:fx+x,y:fy+y,width:w,height:h,rx:12,fill:'#fff','fill-opacity':.001,'stroke-width':3},g);r.onclick=()=>act(to,r)})}
 let cur='splash',hist=[],seen={c:0,m:0},ring=null,tun=0;
 function toast(m){const t=$('toast');t.textContent=m;t.style.opacity=1;clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity=0,1900)}
-function act(to,r){if(window.__scrolled)return;if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
+function act(to,r){if(window.__scrolled)return;if(to==='noop')return;if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
  if(to==='tog'){go(cur==='tunerOff'?'tunerOk':'tunerOff',0);return}
  if(to==='apr'){window.__cancApr&&__cancApr();return}
  if(to==='back'){NAVDIR=-1;go(hist.pop()||'inicio',0);NAVDIR=1;return}
