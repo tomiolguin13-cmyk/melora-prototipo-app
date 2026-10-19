@@ -8964,7 +8964,7 @@ function toast(m){const t=$('toast');t.textContent=m;t.style.opacity=1;clearTime
 function act(to,r){if(window.__scrolled)return;if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
  if(to==='tog'){go(cur==='tunerOff'?'tunerOk':'tunerOff',0);return}
  if(to==='apr'){window.__cancApr&&__cancApr();return}
- if(to==='back'){go(hist.pop()||'inicio',0);return}
+ if(to==='back'){NAVDIR=-1;go(hist.pop()||'inicio',0);NAVDIR=1;return}
  if(to.startsWith('t:')){toast(to.slice(2));return}go(to,1)}
 function go(k,push){if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
  if(push){if(['inicio','tunerOff','camino','comunidad'].includes(k)||k==='canciones'&&cur==='inicio')hist=[];if(['canciones','mundo','foro'].includes(k))hist.push(cur)}
@@ -8983,12 +8983,50 @@ function fit(){const [x,y,w,h]=FR[cur];
  svg.style.borderRadius=R+'px';svg.style.overflow='hidden';svg.style.boxShadow='0 0 0 10px #0d1117,0 0 0 11.5px #3a4552,0 26px 60px rgba(0,0,0,.35)';svg.style.margin='10px 0';
  const isl=$('isl'),rc=svg.getBoundingClientRect(),portrait=h>w;
  isl.style.display=portrait?'block':'none';if(portrait){isl.style.left=(rc.left+pw/2-pw*.145)+'px';isl.style.top=(rc.top+ph*.013)+'px';isl.style.width=pw*.29+'px';isl.style.height=ph*.04+'px'}}
-function show(k){const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);if(k!=='practica'){try{SCN&&SCN.set(0)}catch(e){}}const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
+let NAVDIR=1,SLIDING=null;
+function core(k){cur=k;if(k!=='practica'){try{SCN&&SCN.set(0)}catch(e){}}const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
  for(const g in G)G[g].setAttribute('display',g===k?'':'none');
  $('ovP').setAttribute('display',k==='practica'?'':'none');$('ovC').setAttribute('display',k==='canciones'?'':'none');
  $('play').style.display=k==='practica'?'block':'none';$('jump').value=k;if(k==='practica')resetP();
  clearInterval(tun);
- svg.style.opacity=1;if(nn)__nav.slide(prevK,k)},nn?100:190)}
+ }
+function show(k){if(SLIDING)SLIDING.finish();const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
+ if(prevK!==k&&!nn&&canSlide(prevK,k)){slideTo(prevK,k);return}
+ NAVDIR=1;svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;if(nn)__nav.slide(prevK,k)},nn?100:190)}
+// Cambio de pantalla con deslizamiento: la nueva entra pegada a la actual y la cámara se desplaza
+function canSlide(a,b){if(!FR[a]||!FR[b])return false;if(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
+ const A=FR[a],B=FR[b];return A[3]>A[2]&&B[3]>B[2]&&Math.abs(A[2]-B[2])<3&&Math.abs(A[3]-B[3])<3}
+function slideTo(a,b){
+ const dir=NAVDIR;NAVDIR=1;const [ax,ay,aw,ah]=FR[a],[bx,by,bw,bh]=FR[b],NS2='http://www.w3.org/2000/svg';
+ const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),wa=fwOf(a),wb=fwOf(b);if(!wa||!wb){svg.style.opacity=1;cur=b;core(b);return}
+ const exA=a==='canciones'?[fwOf('csat')].filter(Boolean):[],exB=b==='canciones'?[fwOf('csat')].filter(Boolean):[];
+ const keep=new Set([wa,wb,...exA,...exB]),undo=[];
+ // 1) solo quedan visibles la pantalla que sale y la que entra
+ svg.querySelectorAll('g.fw').forEach(w=>{if(!keep.has(w)){undo.push([w,w.getAttribute('display')]);w.setAttribute('display','none')}});
+ [$('hs'),$('ovP'),$('ovC')].forEach(e=>{undo.push([e,e.getAttribute('display')]);e.setAttribute('display','none')});
+ // 2) la pantalla nueva se coloca al costado de la actual
+ const ox=dir>0?ax+aw:ax-bw,oy=ay,ddx=ox-bx,ddy=oy-by;
+ const tfs=[];[wb,...exB].forEach(w=>{tfs.push([w,w.getAttribute('transform')]);w.setAttribute('transform','translate('+(+w.dataset.dx+ddx).toFixed(2)+' '+(+w.dataset.dy+ddy).toFixed(2)+')')});
+ // 3) cada pantalla se recorta a su marco (lo que sobresale del diseño no invade a la vecina)
+ const clipG=(rect,list)=>{const id='slc'+Math.random().toString(36).slice(2,7),cp=document.createElementNS(NS2,'clipPath'),r=document.createElementNS(NS2,'rect');
+  cp.setAttribute('id',id);[['x',rect[0]],['y',rect[1]],['width',rect[2]],['height',rect[3]]].forEach(([k2,v])=>r.setAttribute(k2,v));cp.appendChild(r);svg.insertBefore(cp,svg.firstChild);
+  const g=document.createElementNS(NS2,'g');g.setAttribute('clip-path','url(#'+id+')');const first=list[0];first.parentNode.insertBefore(g,first);list.forEach(w=>g.appendChild(w));return {g,cp,list,mark:null}};
+ const places=[...[wa,...exA,wb,...exB].map(w=>[w,w.nextSibling])];
+ const gA=clipG([ax,ay,aw,ah],[wa,...exA]),gB=clipG([ox,oy,bw,bh],[wb,...exB]);
+ svg.style.pointerEvents='none';
+ if(window.__m1reset)__m1reset(b);if(window.__prog)__prog(b);applyBG(b);
+ const x1=ox,y1=oy,w1=bw,h1=bh,T=420,t0=performance.now(),ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;let raf=0,done=false;
+ const finish=()=>{if(done)return;done=true;cancelAnimationFrame(raf);SLIDING=null;
+  // se devuelve todo a su lugar (orden original y posiciones)
+  [gA,gB].forEach(o=>{o.list.forEach(w=>{const pl=places.find(p=>p[0]===w),ref=pl&&pl[1],par=o.g.parentNode;par.insertBefore(w,ref&&ref.parentNode===par?ref:o.g)});o.g.remove();o.cp.remove()});
+  tfs.forEach(([w,t])=>t===null?w.removeAttribute('transform'):w.setAttribute('transform',t));
+  undo.forEach(([e,v])=>v===null?e.removeAttribute('display'):e.setAttribute('display',v));
+  svg.style.pointerEvents='';cur=b;core(b)};
+ SLIDING={finish};
+ const step=ts=>{if(done)return;const k=Math.min(1,(ts-t0)/T),e=ease(k);
+  svg.setAttribute('viewBox',(ax+(x1-ax)*e)+' '+(ay+(y1-ay)*e)+' '+(aw+(w1-aw)*e)+' '+(ah+(h1-ah)*e));
+  if(k<1)raf=requestAnimationFrame(step);else finish()};
+ raf=requestAnimationFrame(step)}
 // Selector de pantallas
 $('jump').innerHTML=Object.keys(LBL).map(k=>`<option value="${k}">${LBL[k]}</option>`).join('');
 $('jump').onchange=e=>{hist=[];if(['mapa'].includes(e.target.value))seen.c=1;go(e.target.value,0)};
