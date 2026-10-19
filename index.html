@@ -9745,7 +9745,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   S.forEach((e,j)=>{e.style.transition='fill .18s';e.style.fill=j===i?col(Math.abs(i-c)):'#fff'})}
  function reset(){clearTimeout(tm);cancelAnimationFrame(raf);gen++;if(st)st.forEach(e=>{e.style.fill='';e.style.transition=''})}
  function idle(){const g=gen,S=stripes();if(!S)return;const c=(S.length-1)/2,hi=c-1;
-  const tick=()=>{if(g!==gen)return;let n=pos+(Math.random()<.5?-1:1)*(Math.random()<.35?2:1);if(n>hi)n=hi-1;if(n<c-5)n=c-4;pos=n;paint(pos);tm=setTimeout(tick,520+Math.random()*420)};
+  const tick=()=>{if(g!==gen)return;pos=Math.round(pos);let n=pos+(Math.random()<.5?-1:1);if(n>hi)n=hi-1;if(n<c-5)n=c-4;pos=n;paint(pos);tm=setTimeout(tick,520+Math.random()*420)};
   paint(pos);tm=setTimeout(tick,650)}
  function sweep(a,b,ms,done){const g=gen,t0=performance.now(),e=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
   const f=ts=>{if(g!==gen)return;const k=Math.min(1,(ts-t0)/ms);pos=a+(b-a)*e(k);paint(pos);if(k<1)raf=requestAnimationFrame(f);else done&&done()};raf=requestAnimationFrame(f)}
