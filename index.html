@@ -9180,7 +9180,7 @@ function fit(){const [x,y,w,h]=FR[cur];
  svg.style.borderRadius=R+'px';svg.style.overflow='hidden';svg.style.boxShadow='0 0 0 10px #0d1117,0 0 0 11.5px #3a4552,0 26px 60px rgba(0,0,0,.35)';svg.style.margin='10px 0';
  const isl=$('isl'),rc=svg.getBoundingClientRect(),portrait=h>w;
  isl.style.display=portrait?'block':'none';if(portrait){isl.style.left=(rc.left+pw/2-pw*.145)+'px';isl.style.top=(rc.top+ph*.013)+'px';isl.style.width=pw*.29+'px';isl.style.height=ph*.04+'px'}}
-function show(k){const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;if(window.__m1reset)__m1reset(k);const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
+function show(k){const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(k!=='practica'){try{SCN&&SCN.set(0)}catch(e){}}const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
  for(const g in G)G[g].setAttribute('display',g===k?'':'none');
  $('ovP').setAttribute('display',k==='practica'?'':'none');$('ovC').setAttribute('display',k==='canciones'?'':'none');
  $('play').style.display=k==='practica'?'block':'none';$('jump').value=k;if(k==='practica')resetP();
@@ -9203,11 +9203,39 @@ const stars=[0,1,2].map(i=>{const cx=4470+i*26,cy=1079.5,p=[];for(let k=0;k<10;k
 let AX=null;function ac(){AX=AX||new (window.AudioContext||window.webkitAudioContext)();if(AX.state==='suspended')AX.resume()}
 function pluck(f){if(!AX)return;const t=AX.currentTime,o=AX.createOscillator(),o2=AX.createOscillator(),g=AX.createGain(),fl=AX.createBiquadFilter();o.type='triangle';o2.type='sawtooth';o.frequency.value=f;o2.frequency.value=f*2.003;fl.type='lowpass';fl.frequency.setValueAtTime(3000,t);fl.frequency.exponentialRampToValueAtTime(500,t+.7);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.28,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+1);o.connect(fl);o2.connect(fl);fl.connect(g).connect(AX.destination);o.start(t);o2.start(t);o.stop(t+1.05);o2.stop(t+1.05)}
 function flash(i){const e=nodes[i];e.classList.remove('hit');void e.getBBox();e.classList.add('hit')}
+// ---- Escenario que se desplaza: notas + trazos punteados + trastes corren de derecha a izquierda ----
+const SCN=(()=>{
+  const wrap=svg.querySelector('g.fw[data-f="practica"]'),inner=wrap&&wrap.firstElementChild;if(!inner)return null;
+  const NS='http://www.w3.org/2000/svg',[fx,fy,fw,fh]=FR.practica,ddx=+wrap.dataset.dx,ddy=+wrap.dataset.dy;
+  const cid='scnClip',cp=document.createElementNS(NS,'clipPath');cp.setAttribute('id',cid);
+  const cr=document.createElementNS(NS,'rect');[['x',fx-ddx],['y',fy-ddy],['width',fw],['height',fh]].forEach(([a,v])=>cr.setAttribute(a,v));cp.appendChild(cr);
+  const mkG=()=>{const o=document.createElementNS(NS,'g'),g=document.createElementNS(NS,'g');o.setAttribute('clip-path','url(#'+cid+')');o.appendChild(g);g.__o=o;return g};
+  const bbc=el=>{let b;try{b=el.getBBox()}catch(e){return null}if(!b||(!b.width&&!b.height))return null;const p=absPt(el,b.x+b.width/2,b.y+b.height/2);return {x:p[0],y:p[1],w:b.width,h:b.height}};
+  // 1) notas y trazos: todo lo que está en la zona del diapasón (debajo del título y las estrellas)
+  const neck=[...inner.children].find(c=>c.tagName==='g'&&c.children.length>20);
+  const top=[...inner.children].filter(c=>c!==neck).slice(1).filter(c=>{const q=bbc(c);return q&&q.y>fy+78&&q.x>fx-60});
+  inner.insertBefore(cp,inner.firstChild);
+  const wn=mkG();inner.insertBefore(wn.__o,top[0]);top.forEach(c=>wn.appendChild(c));
+  // 2) trastes (barras verticales finas) del diapasón, repetidos para que nunca se acabe
+  const fr=neck?[...neck.children].filter(c=>{const q=bbc(c);return q&&q.w<24&&q.h>150&&q.x>fx&&q.x<fx+fw}):[];
+  fr.sort((a,b)=>bbc(a).x-bbc(b).x);
+  let wf=null,P=0;
+  if(fr.length>2){
+    const xs=fr.map(f=>bbc(f).x);P=xs[xs.length-1]-xs[0]+(xs[xs.length-1]-xs[xs.length-2]);
+    wf=mkG();neck.insertBefore(wf.__o,fr[0]);fr.forEach(f=>wf.appendChild(f));
+    for(let r=1;r<=2;r++)fr.forEach(f=>{const c=f.cloneNode(true);c.setAttribute('transform','translate('+P*r+' 0)');wf.appendChild(c)});
+  }
+  return {wn,wf,set(cam){const t='translate('+(-cam)+' 0)';wn.setAttribute('transform',t);wf&&wf.setAttribute('transform',t);$('notes').setAttribute('transform',t)}};
+})();
 const ball=$('ball'),B=620;let busy=0,raf=0,seg=0,t0=0,got=0;
+// posición horizontal de la cámara: curva suave que pasa justo por cada nota al caer la pelotita
+const KX=[S.x,...L.map(p=>p.x)];
+function camX(i,k){const P1=KX[i],P2=KX[i+1],P0=i>0?KX[i-1]:P1,P3=i+2<KX.length?KX[i+2]:P2,k2=k*k,k3=k2*k;
+ return .5*(2*P1+(-P0+P2)*k+(2*P0-5*P1+4*P2-P3)*k2+(-P0+3*P1-3*P2+P3)*k3)-S.x}
 function setBall(x,y,sx=1,sy=1){ball.setAttribute('transform',`translate(${x} ${y}) scale(${sx} ${sy})`)}
-function resetP(){cancelAnimationFrame(raf);got=0;seg=0;busy=0;t0=0;stars.forEach(s=>{s.setAttribute('fill','#c8c8c8');s.classList.remove('on')});setBall(S.x,S.y);ball.style.opacity=.55;$('play').textContent='▶ Empezar'}
+function resetP(){cancelAnimationFrame(raf);got=0;seg=0;busy=0;t0=0;SCN&&SCN.set(0);stars.forEach(s=>{s.setAttribute('fill','#c8c8c8');s.classList.remove('on')});setBall(S.x,S.y);ball.style.opacity=.55;$('play').textContent='▶ Empezar'}
 function step(ts){if(!t0)t0=ts;const k=Math.min((ts-t0)/B,1),a=seg?L[seg-1]:S,b=L[seg];
- setBall(a.x+(b.x-a.x)*k,a.y+(b.y-a.y)*k-4*44*k*(1-k),1/(k>.92?1+(k-.92)*2:1),k>.92?1+(k-.92)*2:1);ball.style.opacity=1;
+ SCN&&SCN.set(camX(seg,k));setBall(S.x,a.y+(b.y-a.y)*k-4*44*k*(1-k),1/(k>.92?1+(k-.92)*2:1),k>.92?1+(k-.92)*2:1);ball.style.opacity=1;
  if(k>=1){pluck(F[seg]);flash(seg);got++;if(got===3||got===6){const s=stars[got/3-1];s.setAttribute('fill','#fcd535');s.classList.add('on')}
   seg++;t0=0;if(seg>=N.length){busy=0;$('play').textContent='▶ Otra vez';setTimeout(()=>{if(cur==='practica')go('fin',0)},900);return}}
  raf=requestAnimationFrame(step)}
