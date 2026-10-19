@@ -8936,7 +8936,7 @@ function core(k){cur=k;if(k!=='practica'){try{SCN&&SCN.set(0)}catch(e){}}const [
  }
 function show(k){if(SLIDING)SLIDING.finish();const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
  const tg=(prevK==='tunerOff'||prevK==='tunerOk')&&(k==='tunerOff'||k==='tunerOk');   // el afinador que cambia de estado no desliza
- if(prevK!==k&&!tg&&canSlide(prevK,k)){if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,prevK==='cw'&&k==='cf');return}
+ if(prevK!==k&&!tg&&canSlide(prevK,k)){if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa'));return}
  NAVDIR=1;svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;if(nn)__nav.slide(prevK,k)},nn?100:190)}
 // Cambio de pantalla con deslizamiento: la nueva entra pegada a la actual y la cámara se desplaza
 function canSlide(a,b){if(!FR[a]||!FR[b])return false;if(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
