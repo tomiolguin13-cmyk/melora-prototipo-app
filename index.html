@@ -29,7 +29,7 @@ body.app{padding:0;gap:0;position:fixed;inset:0;justify-content:center;-webkit-u
 body.app #top{display:none;position:fixed;z-index:60;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 34px);background:var(--card);padding:12px;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 body.app.menu #top{display:flex}
 #grip{display:block;position:fixed;z-index:61;top:2px;left:50%;transform:translateX(-50%);width:96px;height:30px;padding:0;background:transparent;box-shadow:none;border-radius:15px}
-#grip::after{content:"";display:block;margin:12px auto 0;width:36px;height:5px;border-radius:3px;background:rgba(7,49,84,.28)}
+#grip::after{content:"";display:block;margin:12px auto 0;width:44px;height:6px;border-radius:3px;background:rgba(7,49,84,.5);box-shadow:0 0 0 1px rgba(255,255,255,.7)}
 body.app #grip{display:block;position:fixed;z-index:61;top:max(2px,calc(env(safe-area-inset-top,0px) - 10px));left:50%;transform:translateX(-50%);width:96px;height:30px;padding:0;background:transparent;box-shadow:none;border-radius:15px}
 body.app #grip::after{content:"";display:block;margin:12px auto 0;width:36px;height:5px;border-radius:3px;background:rgba(255,255,255,.7);box-shadow:0 0 0 .6px rgba(0,0,0,.35)}
 body.app #play{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:30}
@@ -9250,7 +9250,7 @@ function fit(){const [x,y,w,h]=FR[cur];
   svg.style.width=w*s+'px';svg.style.height=h*s+'px';svg.style.marginBottom=pb+'px';svg.style.borderRadius='0';svg.style.boxShadow='none';svg.style.overflow='hidden';svg.style.margin='0';$('isl').style.display='none';return}
  // En compu: la pantalla es un rectángulo liso (393×852 de iPhone 16) y el marco del teléfono se dibuja alrededor
  svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);
- svg.style.marginBottom='0px';const aw=Math.min(innerWidth-40,1600),ah=innerHeight-34-26-(cur==='practica'||cur==='fin'?64:0),s=Math.min(aw/w,ah/h);
+ svg.style.marginBottom='0px';const aw=Math.min(innerWidth-(innerWidth<700?30:40),1600),ah=innerHeight-34-(innerWidth<700?22:26)-(cur==='practica'||cur==='fin'?64:0),s=Math.min(aw/w,ah/h);
  const pw=w*s,ph=h*s,R=.14*Math.min(pw,ph);svg.style.width=pw+'px';svg.style.height=ph+'px';
  svg.style.borderRadius=R+'px';svg.style.overflow='hidden';svg.style.boxShadow='0 0 0 10px #0d1117,0 0 0 11.5px #3a4552,0 26px 60px rgba(0,0,0,.35)';svg.style.margin='0';
  const isl=$('isl'),rc=svg.getBoundingClientRect(),portrait=h>w;
@@ -9410,7 +9410,7 @@ function safe(){const c=getComputedStyle($('sa'));return{t:parseFloat(c.paddingT
 function applyBG(k){if(!isApp()){body.style.background='';return}
  const b=BG[k]||{css:'#52b8e7',top:'#52b8e7'};body.style.background=b.css;
  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=b.top}
-function hint(k){if((k==='practica'||k==='fin')&&isApp()&&innerHeight>innerWidth){const t=$('toast');t.classList.add('up');toast('Girá el celular para verlo más grande');setTimeout(()=>t.classList.remove('up'),2600)}}
+function hint(k){if((k==='practica'||k==='fin')&&innerHeight>innerWidth&&innerWidth<700){const t=$('toast');t.classList.add('up');toast('Girá el celular para verlo más grande');setTimeout(()=>t.classList.remove('up'),2600)}}
 function setApp(on){body.classList.toggle('app',on);root.classList.toggle('app',on);body.classList.remove('menu');
  applyBG(cur);fit()}
 $('grip').onclick=()=>body.classList.toggle('menu');
@@ -9418,8 +9418,8 @@ svg.addEventListener('pointerdown',()=>body.classList.remove('menu'));
 $('jump').addEventListener('change',()=>body.classList.remove('menu'));
 addEventListener('orientationchange',()=>setTimeout(fit,250));
 if(window.visualViewport)visualViewport.addEventListener('resize',fit);
-MQ.addEventListener&&MQ.addEventListener('change',e=>setApp(e.matches));
-setApp(MQ.matches);
+
+setApp(false);
 
 // ---- Inicio: tarjeta dinámica (Riff del día · Sesión diaria · Desafíos), rota sola cada 5 s ----
 {
