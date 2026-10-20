@@ -10879,7 +10879,7 @@ function go(k,push){if(k==='m1'||k==='m1b'||k==='m1c')k=mundoKey();if(k==='fin'&
 function rotFit(x,y,w,h,app){
  svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);
  const q=safe(),bb=body.getBoundingClientRect(),vw=app?(bb.width||innerWidth):innerWidth,vh0=Math.max(app?bb.height:0,innerHeight,(app&&window.visualViewport&&visualViewport.height)||0),vh=(app&&window.__inst)?Math.max(vh0,screen.height):vh0,
-  strip=app?56:64,mg=app?0:16,s=Math.min((vh-q.t-q.b-2*mg)/w,(vw-strip-2*mg)/h),pw=w*s,ph=h*s,cx=strip+(vw-strip)/2,cy=q.t+(vh-q.t-q.b)/2,st=svg.style;
+  strip=0,mg=app?0:16,s=Math.min((vh-q.t-q.b-2*mg)/w,(vw-strip-2*mg)/h),pw=w*s,ph=h*s,cx=strip+(vw-strip)/2,cy=q.t+(vh-q.t-q.b)/2,st=svg.style;
  st.position='fixed';st.left=cx+'px';st.top=cy+'px';st.margin='0';st.marginBottom='0px';st.width=pw+'px';st.height=ph+'px';
  st.transformOrigin='50% 50%';st.transform='translate(-50%,-50%) rotate(90deg)';st.overflow='hidden';
  st.borderRadius=app?'0':(.14*Math.min(pw,ph))+'px';st.boxShadow=app?'none':'0 0 0 10px #0d1117,0 0 0 11.5px #3a4552,0 26px 60px rgba(0,0,0,.35)';
@@ -10894,12 +10894,12 @@ function fit(){const [x,y,w,h]=FR[cur];
  if(isApp()){svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);
   // El diseño ocupa toda la pantalla (sin márgenes ni descontar zonas del sistema), como una app nativa.
   // Solo en horizontal se respetan los costados por la cámara/esquinas redondeadas.
-  const q=safe(),bb=body.getBoundingClientRect(),vw=bb.width||innerWidth,vh0=Math.max(bb.height,innerHeight,(window.visualViewport&&visualViewport.height)||0),land=vw>vh0,vh=(!land&&window.__inst)?Math.max(vh0,screen.height):vh0,pb=cur==='practica'?56:0,
+  const q=safe(),bb=body.getBoundingClientRect(),vw=bb.width||innerWidth,vh0=Math.max(bb.height,innerHeight,(window.visualViewport&&visualViewport.height)||0),land=vw>vh0,vh=(!land&&window.__inst)?Math.max(vh0,screen.height):vh0,pb=0,
   aw=land?vw-q.l-q.r:vw,ah=(land?vh-q.t-q.b:vh)-pb,s=Math.min(aw/w,ah/h);
   svg.style.width=w*s+'px';svg.style.height=h*s+'px';svg.style.marginBottom=pb+'px';svg.style.borderRadius='0';svg.style.boxShadow='none';svg.style.overflow='hidden';svg.style.margin='0';$('isl').style.display='none';return}
  // En compu: la pantalla es un rectángulo liso (393×852 de iPhone 16) y el marco del teléfono se dibuja alrededor
  svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);
- svg.style.marginBottom='0px';const q=safe(),aw=Math.min(innerWidth-q.l-q.r-(innerWidth<700?30:40),1600),ah=innerHeight-q.t-q.b-34-(innerWidth<700?22:26)-(cur==='practica'||cur==='fin'?64:0),s=Math.min(aw/w,ah/h);
+ svg.style.marginBottom='0px';const q=safe(),aw=Math.min(innerWidth-q.l-q.r-(innerWidth<700?30:40),1600),ah=innerHeight-q.t-q.b-34-(innerWidth<700?22:26),s=Math.min(aw/w,ah/h);
  const pw=w*s,ph=h*s,R=.14*Math.min(pw,ph);svg.style.width=pw+'px';svg.style.height=ph+'px';
  svg.style.borderRadius=R+'px';svg.style.overflow='hidden';svg.style.boxShadow='0 0 0 10px #0d1117,0 0 0 11.5px #3a4552,0 26px 60px rgba(0,0,0,.35)';svg.style.margin='0';
  const isl=$('isl'),rc=svg.getBoundingClientRect(),portrait=h>w;
@@ -10908,7 +10908,7 @@ let NAVDIR=1,SLIDING=null;
 function core(k){cur=k;if(window.__tuner)__tuner.on(k);if(k!=='practica'){try{SCN&&SCN.set(0)}catch(e){}}const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
  for(const g in G)G[g].setAttribute('display',g===k?'':'none');
  $('ovP').setAttribute('display',k==='practica'?'':'none');$('ovC').setAttribute('display',k==='canciones'?'':'none');
- $('play').style.display=k==='practica'?'block':'none';$('jump').value=k;if(k==='practica')resetP();
+ $('play').style.display='none';$('jump').value=k;if(k==='practica'){resetP();setTimeout(()=>{if(cur==='practica'&&!busy)$('play').onclick()},1100)}   // sin botón: la práctica arranca sola
  clearInterval(tun);
  }
 function show(k){if(SLIDING)SLIDING.finish();const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
