@@ -9848,6 +9848,16 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   addEventListener('pointerup',rel);addEventListener('pointercancel',rel);
   window.__btns=btns;
 }
+// ---- Mundo 1 (40 %): el tablero no trae la flecha de volver; se copia la de Mundo 1 (misma posición) ----
+{
+  const pick=k=>{const fw=svg.querySelector('g.fw[data-f='+k+']');if(!fw)return null;
+    const bgp=[...fw.querySelectorAll(':scope > g > :is(path,rect)')].find(p=>{const b=p.getBBox();return b.width>300&&b.height>690});if(!bgp)return null;
+    const main=bgp.parentNode,y0=bgp.getBBox().y;
+    const back=[...main.children].find(c=>{if(c.tagName!=='g')return false;const b=c.getBBox();return b.width>38&&b.width<52&&b.height>38&&b.height<52&&b.y<y0+90});
+    return{main,bgp,back}};
+  const A=pick('m1'),B=pick('m1b');
+  if(A&&A.back&&B&&!B.back){const g=document.createElementNS(NS,'g');g.setAttribute('transform','translate(620 0)');g.appendChild(A.back.cloneNode(true));B.main.insertBefore(g,B.bgp.nextSibling)}
+}
 // ---- Mundo 1: la pantalla se desliza verticalmente (arrastrando o con la rueda) ----
 {
   const SC={};
