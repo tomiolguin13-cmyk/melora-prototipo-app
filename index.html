@@ -11442,16 +11442,25 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
 const IK=['i1'];
 window.__intro=(()=>{ // Introducción: solo cambia la parte del medio (imagen, puntitos, nombre y descripción); flecha, título y botón quedan quietos
  const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),W1=fwOf('i1');if(!W1)return null;
- const KS=['i1','i2','i3','i4','i5','i6'],SZ=322.4,pages=[];
- KS.forEach((k,n)=>{const w=fwOf(k);if(!w)return;const nx=FR[k][0]-(+w.dataset.dx),ny=FR[k][1]-(+w.dataset.dy),g=document.createElementNS(NS,'g'),dg=document.createElementNS(NS,'g');
-  const bbx=c=>{const q=c.getBBox(),T=c.transform&&c.transform.baseVal;if(!T||!T.numberOfItems)return q;const m=T.consolidate().matrix;return {x:m.a*q.x+m.c*q.y+m.e,y:m.b*q.x+m.d*q.y+m.f,width:q.width*m.a,height:q.height*m.d}};
-  [...w.children].forEach(c=>{let b;try{b=bbx(c)}catch(e){return}const ry=b.y-ny;
-   if(b.height<12&&ry>455&&ry<470&&b.width>80&&b.width<95)dg.appendChild(c);
-   else if(ry>=190&&ry+b.height<=600&&b.width<400&&b.height>0)g.appendChild(c)});
-  W1.insertBefore(g,W1.children[1]||null);W1.insertBefore(dg,W1.children[1]||null);pages.push({g,dg,nx})});
+ const KS=['i1','i2','i3','i4','i5','i6'],SZ=322.4,pages=[],mkg=()=>document.createElementNS(NS,'g');
+ const bbx=c=>{const q=c.getBBox(),T=c.transform&&c.transform.baseVal;if(!T||!T.numberOfItems)return q;const m=T.consolidate().matrix;return {x:m.a*q.x+m.c*q.y+m.e,y:m.b*q.x+m.d*q.y+m.f,width:q.width*m.a,height:q.height*m.d}};
+ const isCirc=c=>{if(c.tagName!=='circle')return false;try{const b=c.getBBox();return Math.abs(b.width-252)<3}catch(e){return false}};
+ // el círculo queda fijo y recorta (como una máscara) la parte de la guitarra que se desliza adentro
+ const IW=mkg(),cp=document.createElementNS(NS,'clipPath'),cc=document.createElementNS(NS,'circle');
+ cp.setAttribute('id','introClip');[['cx',161.2],['cy',320.4],['r',126]].forEach(([k,v])=>cc.setAttribute(k,v));cp.appendChild(cc);IW.setAttribute('clip-path','url(#introClip)');
+ let fixedCircle=null;
+ KS.forEach((k,n)=>{const w=fwOf(k);if(!w)return;const nx=FR[k][0]-(+w.dataset.dx),ny=FR[k][1]-(+w.dataset.dy),img=mkg(),txt=mkg(),dg=mkg();
+  const take=c=>{let b;try{b=bbx(c)}catch(e){return}const ry=b.y-ny;
+   if(isCirc(c)){if(n===0&&!fixedCircle)fixedCircle=c;else c.setAttribute('display','none');return}
+   if(b.height<12&&ry>455&&ry<470&&b.width>80&&b.width<95){dg.appendChild(c);return}
+   if(c.tagName==='g'&&b.width>240&&b.width<260&&b.height>240&&b.height<260&&[...c.children].some(isCirc)){[...c.children].forEach(take);return}
+   if(ry>=190&&ry+b.height<=450&&b.width<400&&b.height>0)img.appendChild(c);
+   else if(ry>=450&&ry+b.height<=600&&b.width<400&&b.height>0)txt.appendChild(c)};
+  [...w.children].forEach(take);pages.push({img,txt,dg,nx});IW.appendChild(img)});
+ {const f=W1.children[1]||null;if(fixedCircle)W1.insertBefore(fixedCircle,f);W1.insertBefore(cp,f);W1.insertBefore(IW,f);pages.forEach(o=>W1.insertBefore(o.txt,f));pages.forEach(o=>W1.insertBefore(o.dg,f))}
  let p=0;
- const set=v=>{p=v;pages.forEach((o,n)=>{o.g.setAttribute('transform','translate('+((n-p)*SZ-o.nx).toFixed(2)+' 0)');
-   o.dg.setAttribute('transform','translate('+(-o.nx)+' 0)');o.dg.setAttribute('opacity',Math.max(0,1-Math.abs(p-n)*2.2).toFixed(3))})};
+ const set=v=>{p=v;pages.forEach((o,n)=>{const tx=((n-p)*SZ-o.nx).toFixed(2);o.img.setAttribute('transform','translate('+tx+' 0)');o.txt.setAttribute('transform','translate('+tx+' 0)');
+   o.dg.setAttribute('transform','translate('+(-o.nx)+' 0)');o.dg.setAttribute('opacity',Math.round(p)===n?1:0)})};
  set(0);
  let d=null,raf=0;const upp=()=>svg.viewBox.baseVal.width/((svg.getBoundingClientRect().width)||1);
  svg.addEventListener('pointerdown',e=>{if(cur!=='i1'||SLIDING||e.button>0)return;cancelAnimationFrame(raf);
