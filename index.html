@@ -11402,7 +11402,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   const animStars=(k,lvls)=>{const rows=starRows[k];if(!rows)return;
     rows.flat().forEach(a=>{a.c.style.fill='';a.c.classList.remove('spop')});
     lvls.forEach((L,j)=>{const r=rows[L-1];if(!r)return;const ys=r.filter(a=>a.yellow);ys.forEach(a=>a.c.style.fill='#c4c4c4');
-      ys.forEach((a,i)=>setTimeout(()=>{if(cur!==k)return;a.c.style.fill='';a.c.classList.remove('spop');void a.c.getBoundingClientRect();a.c.classList.add('spop')},1100+j*900+i*380))})};
+      ys.forEach((a,i)=>setTimeout(()=>{if(cur!==k)return;a.c.style.fill='';a.c.classList.remove('spop');void a.c.getBoundingClientRect();a.c.classList.add('spop')},2000+j*900+i*380))})};
   let raf=0,shownM=0,shownI=0;const shownL={1:false,4:false};   // lo último que vio la persona: la barra sube desde ahí hasta el valor nuevo
   const run=(o,from,to,done)=>{cancelAnimationFrame(raf);if(!o)return;o.setV(from);if(to<=from){o.setV(to);return}
     const t0=performance.now()+300,DUR=1400;   // espera a que termine el fundido de entrada
