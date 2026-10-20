@@ -11369,7 +11369,12 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     const wedge=deg=>{if(deg<=0)return '';const a0=-Math.PI/2;let d='M'+cx+' '+cy;
       for(let a=0;a<=deg;a+=6){const r=a0+a*Math.PI/180;d+='L'+(cx+R*Math.cos(r)).toFixed(2)+' '+(cy+R*Math.sin(r)).toFixed(2)}
       const r=a0+deg*Math.PI/180;return d+'L'+(cx+R*Math.cos(r)).toFixed(2)+' '+(cy+R*Math.sin(r)).toFixed(2)+'Z'};
-    return {P,setV(v){if(v>=P){teal.forEach(p=>p.removeAttribute('clip-path'));setTxt(txt,P);return}
+    const TH=tb.width*.125,RM=tb.width/2-TH/2,cap=document.createElementNS(NS,'circle');   // punta redondeada mientras el aro se va llenando
+    cap.setAttribute('r',TH/2);cap.setAttribute('fill',getComputedStyle(teal[0]).fill);cap.style.display='none';cap.style.pointerEvents='none';
+    teal[teal.length-1].parentNode.insertBefore(cap,teal[teal.length-1].nextSibling);
+    return {P,setV(v){if(v>=P||v<=0){cap.style.display='none'}
+      if(v>=P){teal.forEach(p=>p.removeAttribute('clip-path'));setTxt(txt,P);return}
+      if(v>0){const a=(3.6*v-90)*Math.PI/180;cap.setAttribute('cx',(cx+RM*Math.cos(a)).toFixed(2));cap.setAttribute('cy',(cy+RM*Math.sin(a)).toFixed(2));cap.style.display=''}
       wd.setAttribute('d',wedge(3.6*v));teal.forEach(p=>p.setAttribute('clip-path','url(#'+id+')'));setTxt(txt,Math.round(v))}};
   };
   const rings={m1b:mkRing('m1b'),m1c:mkRing('m1c')};
