@@ -11461,12 +11461,20 @@ document.addEventListener('animationend',e=>{const c=e.target&&e.target.classLis
 (function(){
  const NSv='http://www.w3.org/2000/svg';let st=null,tm=0,raf=0,pos=5,gen=0;
  function stripes(){
-  if(st)return st;const w=svg.querySelector('g.fw[data-f="tunerOff"]');if(!w)return null;const [fx,fy]=FR.tunerOff,L=[];
+  if(st)return st;const L=stripesIn('tunerOff');if(!L)return null;L.sort((a,b)=>a[1]-b[1]);st=L.map(a=>a[0]);return st.length>=13?st:(st=null)}
+ function stripesIn(fk){const w=svg.querySelector('g.fw[data-f="'+fk+'"]');if(!w)return null;const [fx,fy]=FR[fk],L=[];
   const par=[...w.querySelectorAll('path')].find(c=>c.parentNode.children.length>20&&getComputedStyle(c).fill==='rgb(255, 255, 255)');if(!par)return null;
   [...par.parentNode.children].forEach(c=>{if(c.tagName!=='path')return;let b;try{b=c.getBBox()}catch(e){return}
    const q=absPt(c,b.x,b.y),q2=absPt(c,b.x+b.width,b.y+b.height),x=q[0]-fx,y=q[1]-fy,ww=q2[0]-q[0],hh=q2[1]-q[1];
    if(y>100&&y<290&&ww<80&&hh<80&&hh>15&&x+ww/2>50&&x+ww/2<275)L.push([c,x+ww/2])});
-  L.sort((a,b)=>a[1]-b[1]);st=L.map(a=>a[0]);return st.length>=13?st:(st=null)}
+  return L}
+ let okSt=null,okTm=[];
+ function okWave(){okTm.forEach(clearTimeout);okTm=[];if(!okSt){const w=svg.querySelector('g.fw[data-f="tunerOk"]');if(!w)return;const L=[];w.querySelectorAll('path').forEach(c=>{const f=getComputedStyle(c).fill;if(f!=='rgb(63, 232, 0)')return;let q;try{q=c.getBBox()}catch(e){return}if(q.height>8&&q.height<80&&q.width<80)L.push([c,q.x+q.width/2])});
+   if(L.length<13)return;L.sort((a,b)=>a[1]-b[1]);okSt=L.map(a=>({e:a[0],f:'rgb(63, 232, 0)'}))}
+  const n=okSt.length,c=(n-1)/2;   // desde la rayita del centro hacia afuera se van pintando de verde
+  okSt.forEach((o,j)=>{const d=Math.abs(j-c);o.e.style.transition='none';if(d>0.4)o.e.style.fill='#fff'});
+  okSt.forEach((o,j)=>{const d=Math.abs(j-c);okTm.push(setTimeout(()=>{if(cur!=='tunerOk')return;o.e.style.transition='fill .22s';o.e.style.fill=o.f},120+d*120))});
+  okTm.push(setTimeout(()=>okSt.forEach(o=>{o.e.style.fill='';o.e.style.transition=''}),120+c*120+500))}
  const C=Math.round;
  function col(d){return d<1.5?'#ffd639':d<2.5?'#f4a531':'#e01414'}   // sin verde: el verde es la pantalla final (todas las rayitas)
  function paint(p){const S=stripes();if(!S)return;const c=(S.length-1)/2,i=Math.max(0,Math.min(S.length-1,C(p)));
@@ -11479,7 +11487,7 @@ document.addEventListener('animationend',e=>{const c=e.target&&e.target.classLis
  function sweep(a,b,ms,done){const g=gen,t0=performance.now(),e=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
   const f=ts=>{if(g!==gen)return;const k=Math.min(1,(ts-t0)/ms);pos=a+(b-a)*e(k);paint(pos);if(k<1)raf=requestAnimationFrame(f);else done&&done()};raf=requestAnimationFrame(f)}
  window.__tuner={
-  on(k){reset();if(k==='tunerOff'&&!this.skip){pos=5;idle();const g=gen;auto=setTimeout(()=>{if(g===gen&&cur==='tunerOff')__tuner.toOk(()=>go('tunerOk',0))},3000)}this.skip=0},
+  on(k){reset();if(k==='tunerOk')okWave();else okTm.forEach(clearTimeout);if(k==='tunerOff'&&!this.skip){pos=5;idle();const g=gen;auto=setTimeout(()=>{if(g===gen&&cur==='tunerOff')__tuner.toOk(()=>go('tunerOk',0))},3000)}this.skip=0},
   toOk(cb){const S=stripes();if(!S){cb();return}reset();const c=(S.length-1)/2;const g=gen;
    // se acerca con un par de oscilaciones y se clava en el centro
    const seq=[[pos,c-3,380],[c-3,c-1.2,320],[c-1.2,c-2,240],[c-2,c-1,300]];let i=0;
