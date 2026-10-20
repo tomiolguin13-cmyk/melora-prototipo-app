@@ -9487,7 +9487,7 @@ function fit(){const [x,y,w,h]=FR[cur];
  if(isApp()){svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);
   // El diseño ocupa toda la pantalla (sin márgenes ni descontar zonas del sistema), como una app nativa.
   // Solo en horizontal se respetan los costados por la cámara/esquinas redondeadas.
-  const q=safe(),vw=innerWidth,vh=(window.visualViewport&&visualViewport.height)||innerHeight,land=vw>vh,pb=cur==='practica'?56:0,
+  const q=safe(),bb=body.getBoundingClientRect(),vw=bb.width||innerWidth,vh=Math.max(bb.height,innerHeight,(window.visualViewport&&visualViewport.height)||0),land=vw>vh,pb=cur==='practica'?56:0,
   aw=land?vw-q.l-q.r:vw,ah=(land?vh-q.t-q.b:vh)-pb,s=Math.min(aw/w,ah/h);
   svg.style.width=w*s+'px';svg.style.height=h*s+'px';svg.style.marginBottom=pb+'px';svg.style.borderRadius='0';svg.style.boxShadow='none';svg.style.overflow='hidden';svg.style.margin='0';$('isl').style.display='none';return}
  // En compu: la pantalla es un rectángulo liso (393×852 de iPhone 16) y el marco del teléfono se dibuja alrededor
