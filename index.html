@@ -10873,7 +10873,7 @@ function act(to,r){if(window.__scrolled)return;if(to==='noop')return;if(to==='f'
 const DONE=window.__DONE={1:false,4:false};
 function mundoKey(){return DONE[4]?'m1c':DONE[1]?'m1b':'m1'}
 window.__mundoPct=()=>20*((DONE[1]?1:0)+(DONE[4]?1:0));
-function go(k,push){if(k==='m1'||k==='m1b'||k==='m1c')k=mundoKey();if(k==='fin')DONE[4]=true;if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
+function go(k,push){if(k==='m1'||k==='m1b'||k==='m1c'){k=mundoKey();if(cur==='m1modal')seen.w=1}if(k==='m1modal'&&seen.w)k=mundoKey();if(k==='fin')DONE[4]=true;if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
  if(push){if(['inicio','tunerOff','camino','comunidad'].includes(k)||k==='canciones'&&cur==='inicio')hist=[];if(['canciones','mundo','foro','i1'].includes(k))hist.push(cur)}
  if(k==='mapa')seen.c=1;if(k==='comHub')seen.m=1;if(k===cur)return;show(k)}
 function rotFit(x,y,w,h,app){
@@ -11286,17 +11286,19 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   const SC={};
   ['m1','m1b','m1c','mundo','foro'].forEach(k=>{
     const fw=svg.querySelector('g.fw[data-f='+k+']');if(!fw)return;
-    const bgp=[...fw.querySelectorAll(':scope > g > :is(path,rect)')].find(p=>{const b=p.getBBox();return b.width>300&&b.height>690});if(!bgp)return;
+    let bgp=[...fw.querySelectorAll(':scope > g > :is(path,rect)')].find(p=>{const b=p.getBBox();return b.width>300&&b.height>690}),flat=false;
+    if(!bgp){bgp=[...fw.children].find(p=>(p.tagName==='rect'||p.tagName==='path')&&(b=>b.width>300&&b.height>690)(p.getBBox()));flat=!!bgp}   // tablero nuevo: todo suelto dentro del marco
+    if(!bgp)return;
     const main=bgp.parentNode,kids=[...main.children].filter(c=>c!==bgp);
     const back=kids.find(c=>{if(c.tagName!=='g')return false;const b=c.getBBox();return b.width>38&&b.width<52&&b.height>38&&b.height<52&&b.y<bgp.getBBox().y+90});
-    const listEl=kids.find(c=>c.tagName==='g'&&getComputedStyle(c).clipPath!=='none');
+    const listEl=kids.find(c=>c.tagName==='g'&&getComputedStyle(c).clipPath!=='none')||(flat?kids.filter(c=>c.tagName==='g').sort((a,b)=>b.children.length-a.children.length)[0]:null);
     const cid=listEl&&/#([\w-]+)/.exec(getComputedStyle(listEl).clipPath);
     if(listEl)listEl.style.clipPath='none';
     const C=document.createElementNS(NS,'g'),W=document.createElementNS(NS,'g');
     if(cid)C.setAttribute('clip-path','url(#'+cid[1]+')');
     C.appendChild(W);main.insertBefore(C,bgp.nextSibling);
     kids.forEach(c=>W.appendChild(c));
-    [...fw.children].filter(c=>c!==main).forEach(c=>W.appendChild(c));
+    if(!flat)[...fw.children].filter(c=>c!==main).forEach(c=>W.appendChild(c));
     // zonas táctiles de los niveles (todas menos la flecha de volver) se mueven junto con la lista
     const lv=document.createElementNS(NS,'g');[...G[k].children].forEach(r=>lv.appendChild(r));G[k].appendChild(lv);
     const bot=listEl?absPt(listEl,0,listEl.getBBox().y+listEl.getBBox().height)[1]:0;
