@@ -22,7 +22,7 @@ svg text{font-family:Fredoka,system-ui,sans-serif}
 #scene{-webkit-user-select:none;user-select:none;display:block;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:opacity .18s}
 .hit{transform-box:fill-box;transform-origin:center;animation:pop .45s ease-out}
 @keyframes pop{0%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.35)}}
-.hrt{transform-box:fill-box;transform-origin:center;animation:hrt .35s ease}@keyframes hrt{0%{transform:scale(.55)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+.hrt{transform-box:fill-box;transform-origin:center;animation:hrt .35s ease}.hrt2{transform-box:fill-box;transform-origin:center;animation:hrt2 .32s ease}@keyframes hrt2{0%{transform:scale(.7)}55%{transform:scale(1.18)}100%{transform:scale(1)}}@keyframes hrt{0%{transform:scale(.55)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
 
 html.app,html.app body{height:100vh;overflow:hidden;overscroll-behavior:none}
 body.app{padding:0;gap:0;position:fixed;inset:0;height:100vh;justify-content:flex-start;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:background .25s}
@@ -11031,7 +11031,7 @@ H.fin=[[4996.5-4718,1339-1080,182,31,'m1b']];
       k.style.cursor='pointer';let off=false;
       k.addEventListener('click',e=>{e.stopPropagation();if(moved){moved=false;return}off=!off;
         if(off){p.style.fill='none';p.style.stroke='#9aa3ad';p.style.strokeWidth='0.9';p.style.strokeLinejoin='round'}else{p.style.fill='';p.style.stroke='';p.style.strokeWidth=''}
-        p.classList.remove('hrt');void p.getBBox();p.classList.add('hrt')});
+        p.classList.remove('hrt2');void p.getBBox();p.classList.add('hrt2')});
     });
     addEventListener('pointermove',e=>{if(!drag)return;const d=toX(e)-drag.x;if(Math.abs(d)>3)moved=true;if(moved){dx=Math.max(MIN-12,Math.min(MAX+12,drag.d0+d));apply(false)}});
     addEventListener('pointerup',()=>{if(!drag)return;drag=null;dx=Math.max(MIN,Math.min(MAX,dx));apply(true)});
