@@ -10807,7 +10807,7 @@ body.app #toast.up{bottom:calc(82px + env(safe-area-inset-bottom,0px))}
     <circle class="cls-557" cx="3925.26" cy="647.7" r="1.04"/>
   </g>
   </g>
-<g id="ovP" display="none"><rect x="4436" y="1061.5" width="115" height="36" rx="18" fill="#fff"/><g id="stars"></g><g id="notes"></g><circle id="ball" r="10" fill="#fff"/></g>
+<g id="ovP" display="none"><g id="stars"></g><g id="notes"></g><circle id="ball" r="10" fill="#fff"/></g>
 <g id="ovC" display="none"></g><g id="hs"></g></svg>
 <button id="play">▶ Empezar</button>
 <div id="sa" style="position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)"></div>
@@ -10987,7 +10987,10 @@ const nodes=N.map((n,i)=>{const o=n.c?{cx:n.x,cy:n.y,r:n.r+2}:{x:n.x-n.w/2-2,y:n
  const e=mk(n.c?'circle':'rect',{...o,fill:'#fff','fill-opacity':0,stroke:'#fff','stroke-width':3,opacity:0},g);
  mk(n.c?'circle':'rect',{...o,fill:'#fff','fill-opacity':.001},g).addEventListener('pointerdown',()=>{ac();pluck(F[i]);flash(i)});return e});
 [...svg.querySelectorAll('circle')].forEach(c=>{if(c.closest('#ovP,#hs'))return;const p=absPt(c,+c.getAttribute('cx'),+c.getAttribute('cy'));if(Math.abs(p[0]-4255.46)<1.5&&p[1]>1100&&p[1]<1300)c.style.display='none'});
-const stars=[0,1,2].map(i=>{const cx=4470+i*26,cy=1079.5,p=[];for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,R=k%2?4.7:10.7;p.push((cx+R*Math.cos(a)).toFixed(1)+','+(cy+R*Math.sin(a)).toFixed(1))}return mk('polygon',{points:p.join(' '),fill:'#c8c8c8',class:'star'},$('stars'))});
+const stars=(()=>{const w=svg.querySelector('g.fw[data-f="practica"]'),arr=[];   // las estrellas redondas del diseño (no dibujo otras)
+  if(w)w.querySelectorAll('path').forEach(c=>{let b;try{b=c.getBBox()}catch(e){return}
+   if(Math.abs(b.width-19.6)<.7&&Math.abs(b.height-18.8)<.7){const f=getComputedStyle(c).fill;if(f==='rgb(201, 200, 200)'||f==='rgb(249, 209, 56)')arr.push({c,x:b.x})}});
+  arr.sort((a,b)=>a.x-b.x);return arr.slice(0,3).map(a=>{a.c.classList.add('star');return a.c})})();
 let AX=null;function ac(){}   // sin sonido por ahora: AX queda en null y pluck() no suena
 function pluck(f){if(!AX)return;const t=AX.currentTime,o=AX.createOscillator(),o2=AX.createOscillator(),g=AX.createGain(),fl=AX.createBiquadFilter();o.type='triangle';o2.type='sawtooth';o.frequency.value=f;o2.frequency.value=f*2.003;fl.type='lowpass';fl.frequency.setValueAtTime(3000,t);fl.frequency.exponentialRampToValueAtTime(500,t+.7);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.28,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+1);o.connect(fl);o2.connect(fl);fl.connect(g).connect(AX.destination);o.start(t);o2.start(t);o.stop(t+1.05);o2.stop(t+1.05)}
 function flash(i){const e=nodes[i];e.classList.remove('hit');void e.getBBox();e.classList.add('hit')}
@@ -11008,10 +11011,10 @@ const KX=[S.x,...L.map(p=>p.x)];
 function camX(i,k){const P1=KX[i],P2=KX[i+1],P0=i>0?KX[i-1]:P1,P3=i+2<KX.length?KX[i+2]:P2,k2=k*k,k3=k2*k;
  return .5*(2*P1+(-P0+P2)*k+(2*P0-5*P1+4*P2-P3)*k2+(-P0+3*P1-3*P2+P3)*k3)-S.x}
 function setBall(x,y,sx=1,sy=1){ball.setAttribute('transform',`translate(${x} ${y}) scale(${sx} ${sy})`)}
-function resetP(){cancelAnimationFrame(raf);got=0;seg=0;busy=0;t0=0;SCN&&SCN.set(0);stars.forEach(s=>{s.setAttribute('fill','#c8c8c8');s.classList.remove('on')});setBall(S.x,S.y);ball.style.opacity=.55;$('play').textContent='▶ Empezar'}
+function resetP(){cancelAnimationFrame(raf);got=0;seg=0;busy=0;t0=0;SCN&&SCN.set(0);stars.forEach(s=>{s.style.fill='#c9c8c8';s.classList.remove('on')});setBall(S.x,S.y);ball.style.opacity=.55;$('play').textContent='▶ Empezar'}
 function step(ts){if(!t0)t0=ts;const k=Math.min((ts-t0)/B,1),a=seg?L[seg-1]:S,b=L[seg];
  SCN&&SCN.set(camX(seg,k));setBall(S.x,a.y+(b.y-a.y)*k-4*44*k*(1-k),1/(k>.92?1+(k-.92)*2:1),k>.92?1+(k-.92)*2:1);ball.style.opacity=1;
- if(k>=1){pluck(F[seg]);flash(seg);got++;{const si=[Math.round(N.length*.375),Math.round(N.length*.75)].indexOf(got);if(si>=0){const s=stars[si];s.setAttribute('fill','#fcd535');s.classList.add('on')}}
+ if(k>=1){pluck(F[seg]);flash(seg);got++;{const si=[Math.round(N.length*.375),Math.round(N.length*.75)].indexOf(got);if(si>=0){const s=stars[si];s.style.fill='#f9d138';s.classList.remove('on');void s.getBBox();s.classList.add('on')}}
   seg++;t0=0;if(seg>=N.length){busy=0;$('play').textContent='▶ Otra vez';setTimeout(()=>{if(cur==='practica')go('fin',0)},900);return}}
  raf=requestAnimationFrame(step)}
 $('play').onclick=()=>{if(busy)return;ac();resetP();busy=1;$('play').textContent='…';raf=requestAnimationFrame(step)};
