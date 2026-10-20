@@ -10876,7 +10876,21 @@ window.__mundoPct=()=>DONE[1]?(DONE[4]?40:20):0;
 function go(k,push){if(k==='m1'||k==='m1b'||k==='m1c')k=mundoKey();if(k==='fin'&&DONE[1])DONE[4]=true;if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
  if(push){if(['inicio','tunerOff','camino','comunidad'].includes(k)||k==='canciones'&&cur==='inicio')hist=[];if(['canciones','mundo','foro','i1'].includes(k))hist.push(cur)}
  if(k==='mapa')seen.c=1;if(k==='comHub')seen.m=1;if(k===cur)return;show(k)}
+function rotFit(x,y,w,h,app){
+ svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);
+ const q=safe(),bb=body.getBoundingClientRect(),vw=app?(bb.width||innerWidth):innerWidth,vh0=Math.max(app?bb.height:0,innerHeight,(app&&window.visualViewport&&visualViewport.height)||0),vh=(app&&window.__inst)?Math.max(vh0,screen.height):vh0,
+  strip=app?56:64,mg=app?0:16,s=Math.min((vh-q.t-q.b-2*mg)/w,(vw-strip-2*mg)/h),pw=w*s,ph=h*s,cx=strip+(vw-strip)/2,cy=q.t+(vh-q.t-q.b)/2,st=svg.style;
+ st.position='fixed';st.left=cx+'px';st.top=cy+'px';st.margin='0';st.marginBottom='0px';st.width=pw+'px';st.height=ph+'px';
+ st.transformOrigin='50% 50%';st.transform='translate(-50%,-50%) rotate(90deg)';st.overflow='hidden';
+ st.borderRadius=app?'0':(.14*Math.min(pw,ph))+'px';st.boxShadow=app?'none':'0 0 0 10px #0d1117,0 0 0 11.5px #3a4552,0 26px 60px rgba(0,0,0,.35)';
+ $('isl').style.display='none';
+ const p=$('play').style;p.position='fixed';p.left=(strip/2)+'px';p.top=cy+'px';p.bottom='auto';p.marginTop='0';p.transform='translate(-50%,-50%) rotate(90deg)';p.zIndex='30'}
+function rotOff(){const st=svg.style;if(st.position==='fixed'){st.position='';st.left='';st.top='';st.transform='';st.transformOrigin=''}
+ const p=$('play').style;if(p.position){p.position='';p.left='';p.top='';p.bottom='';p.marginTop='';p.transform='';p.zIndex=''}}
 function fit(){const [x,y,w,h]=FR[cur];
+ const ROT=(cur==='practica'||cur==='fin')&&innerHeight>innerWidth&&matchMedia('(hover:none) and (pointer:coarse)').matches;
+ if(ROT){rotFit(x,y,w,h,isApp());return}
+ rotOff();
  if(isApp()){svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);
   // El diseño ocupa toda la pantalla (sin márgenes ni descontar zonas del sistema), como una app nativa.
   // Solo en horizontal se respetan los costados por la cámara/esquinas redondeadas.
@@ -11046,7 +11060,7 @@ function safe(){const c=getComputedStyle($('sa'));return{t:parseFloat(c.paddingT
 function applyBG(k){if(!isApp()){body.style.background='';root.style.background='';return}
  const b=BG[k]||{css:'#52b8e7',top:'#52b8e7'};body.style.background=b.css;root.style.background=b.css;
  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=b.top}
-function hint(k){if((k==='practica'||k==='fin')&&innerHeight>innerWidth&&innerWidth<700){const t=$('toast');t.classList.add('up');toast('Girá el celular para verlo más grande');setTimeout(()=>t.classList.remove('up'),2600)}}
+function hint(k){try{const o=screen.orientation;if(!o||!o.lock)return;if(k==='practica'||k==='fin'){const r=o.lock('landscape');if(r&&r.catch)r.catch(()=>{})}else if(o.unlock)o.unlock()}catch(e){}}
 function setApp(on){body.classList.toggle('app',on);root.classList.toggle('app',on);body.classList.remove('menu');
  applyBG(cur);fit()}
 $('grip').onclick=()=>body.classList.toggle('menu');
