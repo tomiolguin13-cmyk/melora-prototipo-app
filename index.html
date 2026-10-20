@@ -10817,6 +10817,8 @@ const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',svg=$('s
 // Posición real (en el tablero) de un punto del elemento, contando los desplazamientos de cada pantalla
 const absPt=(el,x=0,y=0)=>{const m=svg.getCTM().inverse().multiply(el.getCTM());return [m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]};
 const FR={tunerOk:[36.10,0.00,321.40,696.80],tunerOff:[678.10,0.00,321.40,696.80],cw:[35.60,895.80,322.40,698.90],cf:[664.40,895.80,322.40,698.90],mapa:[1310.00,895.80,322.40,698.90],m1modal:[1950.80,895.80,322.40,698.90],m1:[2659.20,895.80,322.40,698.90],m1b:[3279.30,895.80,322.40,698.90],m1c:[9700.00,895.80,322.40,698.90],practica:[3852.60,1029.30,737.50,340.20],fin:[4719.00,1080.50,737.50,340.20],tutorial:[5600.00,895.80,322.40,698.90],comW:[36.10,1821.60,321.40,696.80],comHub:[664.90,1821.60,321.40,696.80],canciones:[1310.50,1821.60,321.40,696.80],mundo:[1951.30,1821.60,321.40,696.80],foro:[2659.70,1821.60,321.40,696.80],splash:[36.10,2757.60,321.40,696.80],crear:[664.90,2757.60,321.40,696.80],login:[1310.50,2757.60,321.40,696.80],inicio:[2178.50,2757.50,321.40,696.80],i1:[6048.00,895.80,322.40,698.90],i2:[6370.40,895.80,322.40,698.90],i3:[6692.80,895.80,322.40,698.90],i4:[7015.20,895.80,322.40,698.90],i5:[7337.60,895.80,322.40,698.90],i6:[7660.00,895.80,322.40,698.90],c1:[8100.00,895.80,322.40,698.90],c2:[8500.00,895.80,322.40,698.90],lg:[8900.00,895.80,322.40,698.90],lgm:[9300.00,895.80,322.40,698.90]};
+// el tablero trae el mapa y la intro del camino 1-2 px más altos: se recorta abajo para que la barra flotante quede a la misma altura en todas las pantallas
+FR.mapa[3]-=2.1;FR.cw[3]-=1;FR.cf[3]-=1;
 const LBL={m1c:'Mundo 1 · niveles (40 %)',lgm:'N1 · ¡Lo lograste! (resultado)',tutorial:'10b · Tutorial de dedos',i1:'N1 · Introducción (carrusel)',c1:'N1 · Construí tu guitarra',c2:'N1 · Construí (a medio armar)',lg:'N1 · ¡Lo lograste!',splash:'1 · Bienvenida',crear:'2 · Crear cuenta',login:'2b · Iniciar sesión',inicio:'3 · Inicio',tunerOff:'4 · Afinador',tunerOk:'4b · Afinador (afinado)',cw:'5 · Mi Camino: bienvenida',cf:'6 · ¿Cómo funciona?',mapa:'7 · Mapa de mundos',m1modal:'8 · Mundo 1',m1:'9 · Mundo 1 (0 %)',practica:'10 · Práctica de melodía',fin:'11 · Nivel completado',m1b:'12 · Mundo 1 (40 %)',comW:'13 · Comunidad: bienvenida',comHub:'14 · Comunidad',canciones:'15 · Canciones más votadas',mundo:'16 · El mundo está jugando',foro:'17 · Foro'};
 const T=m=>'noop',NAV=[56,108,160,214,267];
 const SIG=[47,502,229,39],X=[250,150,34,34],BK=[30,30,50,50],BK2=[30,44,50,50];
@@ -10993,6 +10995,7 @@ const PRAC=(()=>{
 const N=PRAC?PRAC.N:[];
 const F=[246.94,293.66,369.99,493.88,440,392,369.99,329.63,293.66,369.99,329.63,246.94,277.18,329.63,369.99,493.88].slice(0,Math.max(N.length,1));
 const L=N.map(n=>({x:n.x,y:n.y-(n.c?n.r:n.h/2)-10})),S={x:N[0].x-35.8,y:N[0].y-57.4};
+window.__prac={N,S,L};
 const nodes=N.map((n,i)=>{const o=n.c?{cx:n.x,cy:n.y,r:n.r+2}:{x:n.x-n.w/2-2,y:n.y-n.h/2-2,width:n.w+4,height:n.h+4,rx:n.h/2+2},g=$('notes');
  const e=mk(n.c?'circle':'rect',{...o,fill:'#fff','fill-opacity':0,stroke:'#fff','stroke-width':3,opacity:0},g);
  mk(n.c?'circle':'rect',{...o,fill:'#fff','fill-opacity':.001},g).addEventListener('pointerdown',()=>{ac();pluck(F[i]);flash(i)});return e});
