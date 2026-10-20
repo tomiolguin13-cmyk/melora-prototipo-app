@@ -10904,7 +10904,7 @@ function fit(){const [x,y,w,h]=FR[cur];
  const pw=w*s,ph=h*s,R=.14*Math.min(pw,ph);svg.style.width=pw+'px';svg.style.height=ph+'px';
  svg.style.borderRadius=R+'px';svg.style.overflow='hidden';svg.style.boxShadow='0 0 0 10px #0d1117,0 0 0 11.5px #3a4552,0 26px 60px rgba(0,0,0,.35)';svg.style.margin='0';
  const isl=$('isl'),rc=svg.getBoundingClientRect(),portrait=h>w;
- isl.style.display=portrait?'block':'none';if(portrait){isl.style.left=(rc.left+pw/2-pw*.145)+'px';isl.style.top=(rc.top+ph*.013)+'px';isl.style.width=pw*.29+'px';isl.style.height=ph*.04+'px'}}
+ isl.style.display='block';if(!portrait){const S=Math.min(pw,ph);isl.style.left=(rc.left+S*.028)+'px';isl.style.top=(rc.top+ph/2-S*.145)+'px';isl.style.width=S*.0867+'px';isl.style.height=S*.29+'px'}if(portrait){isl.style.left=(rc.left+pw/2-pw*.145)+'px';isl.style.top=(rc.top+ph*.013)+'px';isl.style.width=pw*.29+'px';isl.style.height=ph*.04+'px'}}
 let NAVDIR=1,SLIDING=null;
 function core(k){cur=k;if(window.__tuner)__tuner.on(k);if(k!=='practica'){try{SCN&&SCN.set(0)}catch(e){}}const [x,y,w,h]=FR[k];svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);fit();applyBG(k);hint(k);setTimeout(()=>{if(typeof fixText==='function')fixText()},80);
  for(const g in G)G[g].setAttribute('display',g===k?'':'none');
