@@ -10884,7 +10884,8 @@ function rotFit(x,y,w,h,app){
  st.position='fixed';st.left=cx+'px';st.top=cy+'px';st.margin='0';st.marginBottom='0px';st.width=pw+'px';st.height=ph+'px';
  st.transformOrigin='50% 50%';st.transform='translate(-50%,-50%) rotate(90deg)';st.overflow='hidden';
  st.borderRadius=app?'0':(.14*Math.min(pw,ph))+'px';st.boxShadow=app?'none':'0 0 0 10px #0d1117,0 0 0 11.5px #3a4552,0 26px 60px rgba(0,0,0,.35)';
- $('isl').style.display='none';
+ {const isl=$('isl');if(app)isl.style.display='none';else{const rc=svg.getBoundingClientRect();isl.style.display='block';   // al girar, el costado izquierdo del diseño queda arriba: la isla va ahí
+  isl.style.left=(rc.left+rc.width/2-rc.width*.145)+'px';isl.style.top=(rc.top+rc.height*.013)+'px';isl.style.width=rc.width*.29+'px';isl.style.height=rc.height*.04+'px'}}
  const p=$('play').style;p.position='fixed';p.left=(strip/2)+'px';p.top=cy+'px';p.bottom='auto';p.marginTop='0';p.transform='translate(-50%,-50%) rotate(90deg)';p.zIndex='30'}
 function rotOff(){const st=svg.style;if(st.position==='fixed'){st.position='';st.left='';st.top='';st.transform='';st.transformOrigin=''}
  const p=$('play').style;if(p.position){p.position='';p.left='';p.top='';p.bottom='';p.marginTop='';p.transform='';p.zIndex=''}}
@@ -10922,7 +10923,7 @@ function show(k){if(SLIDING)SLIDING.finish();const prevK=cur,nn=!!(window.__nav&
   NAVDIR=1;const to=kL?1:-1;svg.style.transition='';svg.style.opacity=1;
   const A=svg.animate([{rotate:'0deg',scale:1,opacity:1},{rotate:(90*to)+'deg',scale:.62,opacity:0}],{duration:280,easing:'ease-in',fill:'forwards'});
   A.onfinish=()=>{A.cancel();cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);
-   svg.animate([{rotate:(-90*to)+'deg',scale:.62,opacity:0},{rotate:'0deg',scale:1,opacity:1}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});const il=$('isl');il.style.transition='none';il.style.opacity=0;setTimeout(()=>{il.style.transition='opacity .2s';il.style.opacity=''},330)};
+   svg.animate([{rotate:(-90*to)+'deg',scale:.62,opacity:0},{rotate:'0deg',scale:1,opacity:1}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});setTimeout(()=>{if(cur===k)fit()},340);setTimeout(()=>{if(cur===k)fit()},1100);const il=$('isl');il.style.transition='none';il.style.opacity=0;setTimeout(()=>{il.style.transition='opacity .2s';il.style.opacity=''},330)};
   return}
  NAVDIR=1;svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;if(nn)__nav.slide(prevK,k)},nn?100:190)}
 // Cambio de pantalla con deslizamiento: la nueva entra pegada a la actual y la cámara se desplaza
