@@ -10915,7 +10915,8 @@ function core(k){cur=k;if(window.__tuner)__tuner.on(k);if(k!=='practica'){try{SC
 function show(k){if(SLIDING)SLIDING.finish();const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
  const tg=(prevK==='tunerOff'||prevK==='tunerOk')&&(k==='tunerOff'||k==='tunerOk');
  if(tg&&window.__tuner&&prevK!==k){cur=k;core(k);if(k==='tunerOff')__tuner.fromOk();return}   // el afinador que cambia de estado no desliza
- if(prevK!==k&&!tg&&canSlide(prevK,k)){if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa')||(prevK==='comW'&&k==='comHub')||(prevK==='mapa'&&k==='m1modal')||(prevK==='m1modal'&&k==='mapa')||(prevK==='c1'&&k==='lg')||(prevK==='lg'&&k==='lgm')||(prevK==='lgm'&&/^m1/.test(k)));return}
+ if(prevK!==k&&!tg&&canSlide(prevK,k)){if(/^m1[bc]?$/.test(prevK)&&k==='mapa')NAVDIR=-1;   // volver: la pantalla anterior entra desde la izquierda
+  if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa')||(prevK==='comW'&&k==='comHub')||(prevK==='mapa'&&k==='m1modal')||(prevK==='m1modal'&&k==='mapa')||(prevK==='c1'&&k==='lg')||(prevK==='lg'&&k==='lgm')||(prevK==='lgm'&&/^m1/.test(k)));return}
  const pL=FR[prevK]&&FR[prevK][2]>FR[prevK][3],kL=FR[k]&&FR[k][2]>FR[k][3];
  if(prevK!==k&&FR[prevK]&&FR[k]&&pL!==kL&&svg.animate&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){   // vertical <-> horizontal: el teléfono "gira"
   NAVDIR=1;const to=kL?1:-1;svg.style.transition='';svg.style.opacity=1;
