@@ -11459,7 +11459,7 @@ window.__intro=(()=>{ // Introducción: solo cambia la parte del medio (imagen, 
   [...w.children].forEach(take);pages.push({img,txt,dg,nx});IW.appendChild(img)});
  {const f=W1.children[1]||null;if(fixedCircle)W1.insertBefore(fixedCircle,f);W1.insertBefore(cp,f);W1.insertBefore(IW,f);pages.forEach(o=>W1.insertBefore(o.txt,f));pages.forEach(o=>W1.insertBefore(o.dg,f))}
  let p=0;
- const set=v=>{p=v;pages.forEach((o,n)=>{const tx=((n-p)*SZ-o.nx).toFixed(2);o.img.setAttribute('transform','translate('+tx+' 0)');o.txt.setAttribute('transform','translate('+tx+' 0)');
+ const set=v=>{p=v;pages.forEach((o,n)=>{const tx=((n-p)*SZ-o.nx).toFixed(2);o.img.setAttribute('transform','translate('+tx+' 0)');o.txt.setAttribute('transform','translate('+tx+' 0)');const fo=Math.max(0,1-Math.abs(p-n)*1.7).toFixed(3);o.img.setAttribute('opacity',fo);o.txt.setAttribute('opacity',fo);
    o.dg.setAttribute('transform','translate('+(-o.nx)+' 0)');o.dg.setAttribute('opacity',Math.round(p)===n?1:0)})};
  set(0);
  let d=null,raf=0;const upp=()=>svg.viewBox.baseVal.width/((svg.getBoundingClientRect().width)||1);
