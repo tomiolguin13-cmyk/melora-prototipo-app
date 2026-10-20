@@ -9661,7 +9661,9 @@ $('jump').addEventListener('change',()=>body.classList.remove('menu'));
 addEventListener('orientationchange',()=>setTimeout(fit,250));
 if(window.visualViewport)visualViewport.addEventListener('resize',fit);
 
-setApp(false);
+// App instalada en el celular: el propio teléfono es el marco, así que el diseño ocupa su pantalla real (sin marco falso)
+const INSTALLED=(navigator.standalone===true||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches)&&matchMedia('(hover:none) and (pointer:coarse)').matches;
+setApp(INSTALLED);
 
 // ---- Inicio: tarjeta dinámica (Riff del día · Sesión diaria · Desafíos), rota sola cada 5 s ----
 {
