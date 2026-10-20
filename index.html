@@ -24,8 +24,8 @@ svg text{font-family:Fredoka,system-ui,sans-serif}
 @keyframes pop{0%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.35)}}
 .hrt{transform-box:fill-box;transform-origin:center;animation:hrt .35s ease}@keyframes hrt{0%{transform:scale(.55)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
 
-html.app,html.app body{height:100dvh;overflow:hidden;overscroll-behavior:none}
-body.app{padding:0;gap:0;position:fixed;inset:0;justify-content:center;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:background .25s}
+html.app,html.app body{height:100vh;overflow:hidden;overscroll-behavior:none}
+body.app{padding:0;gap:0;position:fixed;inset:0;height:100vh;justify-content:flex-start;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:background .25s}
 body.app #top{display:none;position:fixed;z-index:60;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 34px);background:var(--card);padding:12px;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 body.app.menu #top{display:flex}
 #grip{display:block;position:fixed;z-index:61;top:max(2px,calc(env(safe-area-inset-top,0px) - 5px));left:50%;transform:translateX(-50%);width:96px;height:30px;padding:0;background:transparent;box-shadow:none;border-radius:15px}
@@ -33,7 +33,7 @@ body.app.menu #top{display:flex}
 body.app #grip{display:block;position:fixed;z-index:61;top:max(2px,calc(env(safe-area-inset-top,0px) - 10px));left:50%;transform:translateX(-50%);width:96px;height:30px;padding:0;background:transparent;box-shadow:none;border-radius:15px}
 body.app #grip::after{content:"";display:block;margin:12px auto 0;width:36px;height:5px;border-radius:3px;background:rgba(255,255,255,.7);box-shadow:0 0 0 .6px rgba(0,0,0,.35)}
 body.app #play{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:30}
-body.app #scene{touch-action:none}
+body.app #scene{touch-action:none;flex-shrink:0}
 body.app #toast{bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 body.app #toast.up{bottom:calc(82px + env(safe-area-inset-bottom,0px))}
 .star{transform-box:fill-box;transform-origin:center}.star.on{animation:st .5s ease-out}
@@ -9487,7 +9487,7 @@ function fit(){const [x,y,w,h]=FR[cur];
  if(isApp()){svg.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);
   // El diseño ocupa toda la pantalla (sin márgenes ni descontar zonas del sistema), como una app nativa.
   // Solo en horizontal se respetan los costados por la cámara/esquinas redondeadas.
-  const q=safe(),bb=body.getBoundingClientRect(),vw=bb.width||innerWidth,vh=Math.max(bb.height,innerHeight,(window.visualViewport&&visualViewport.height)||0),land=vw>vh,pb=cur==='practica'?56:0,
+  const q=safe(),bb=body.getBoundingClientRect(),vw=bb.width||innerWidth,vh0=Math.max(bb.height,innerHeight,(window.visualViewport&&visualViewport.height)||0),land=vw>vh0,vh=(!land&&window.__inst)?Math.max(vh0,screen.height):vh0,pb=cur==='practica'?56:0,
   aw=land?vw-q.l-q.r:vw,ah=(land?vh-q.t-q.b:vh)-pb,s=Math.min(aw/w,ah/h);
   svg.style.width=w*s+'px';svg.style.height=h*s+'px';svg.style.marginBottom=pb+'px';svg.style.borderRadius='0';svg.style.boxShadow='none';svg.style.overflow='hidden';svg.style.margin='0';$('isl').style.display='none';return}
  // En compu: la pantalla es un rectángulo liso (393×852 de iPhone 16) y el marco del teléfono se dibuja alrededor
@@ -9649,8 +9649,8 @@ const BG={"tutorial": {"css": "#52b8e7", "top": "#52b8e7"}, "splash": {"css": "#
 const MQ=matchMedia('(max-width:700px), (hover:none) and (pointer:coarse)'),root=document.documentElement,body=document.body;
 function isApp(){return body.classList.contains('app')}
 function safe(){const c=getComputedStyle($('sa'));return{t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0}}
-function applyBG(k){if(!isApp()){body.style.background='';return}
- const b=BG[k]||{css:'#52b8e7',top:'#52b8e7'};body.style.background=b.css;
+function applyBG(k){if(!isApp()){body.style.background='';root.style.background='';return}
+ const b=BG[k]||{css:'#52b8e7',top:'#52b8e7'};body.style.background=b.css;root.style.background=b.css;
  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=b.top}
 function hint(k){if((k==='practica'||k==='fin')&&innerHeight>innerWidth&&innerWidth<700){const t=$('toast');t.classList.add('up');toast('Girá el celular para verlo más grande');setTimeout(()=>t.classList.remove('up'),2600)}}
 function setApp(on){body.classList.toggle('app',on);root.classList.toggle('app',on);body.classList.remove('menu');
@@ -9662,8 +9662,10 @@ addEventListener('orientationchange',()=>setTimeout(fit,250));
 if(window.visualViewport)visualViewport.addEventListener('resize',fit);
 
 // App instalada en el celular: el propio teléfono es el marco, así que el diseño ocupa su pantalla real (sin marco falso)
-const INSTALLED=(navigator.standalone===true||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches)&&matchMedia('(hover:none) and (pointer:coarse)').matches;
+const INSTALLED=(navigator.standalone===true||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches)&&matchMedia('(hover:none) and (pointer:coarse)').matches;window.__inst=INSTALLED;
 setApp(INSTALLED);
+// al abrir desde el ícono iOS tarda en informar el tamaño real: se reajusta varias veces
+[250,900,2200].forEach(t=>setTimeout(fit,t));addEventListener('pageshow',()=>fit());document.addEventListener('visibilitychange',()=>fit());
 
 // ---- Inicio: tarjeta dinámica (Riff del día · Sesión diaria · Desafíos), rota sola cada 5 s ----
 {
