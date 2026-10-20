@@ -11139,7 +11139,7 @@ setApp(INSTALLED);
       const [b_,cov,bad,tit,hrt]=[...w.children];
       if(i>0){
         const im=cov.querySelector('image');im.setAttributeNS(XL,'href',s.href);im.setAttribute('width',s.w);im.setAttribute('height',s.h);
-        const k=Math.max(237.93/s.w,235/s.h);im.setAttribute('transform',`translate(${+mt[1]+(237.93-s.w*k)/2} ${+mt[2]+(235-s.h*s.h/s.h*k)/2}) scale(${k})`);
+        const k=Math.max(237.93/s.w,235/s.h)*(s.title==='Creep'?1.07:1);im.setAttribute('transform',`translate(${+mt[1]+(237.93-s.w*k)/2} ${+mt[2]+(235-s.h*s.h/s.h*k)/2}) scale(${k})`);
         const c=bad.querySelector('circle'),n=bad.querySelector('text'),f=+c.getAttribute('r')/s.r;
         c.setAttribute('class',s.cls);n.querySelector('tspan').textContent=s.rank;
         n.setAttribute('transform',`translate(${+c.getAttribute('cx')+s.ndx*f} ${+c.getAttribute('cy')+s.ndy*f})`);
@@ -11427,6 +11427,8 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
 // ---- Mundo 1 (0 %): las estrellas del nivel 1 empiezan vacías (se ganan al terminar el nivel) ----
 {const w=svg.querySelector('g.fw[data-f="m1"]');if(w)w.querySelectorAll('path').forEach(c=>{let b;try{b=c.getBBox()}catch(e){return}
  if(b.width>8&&b.width<20&&b.height>8&&b.height<20&&getComputedStyle(c).fill==='rgb(249, 209, 56)')c.style.fill='#c4c4c4'})}
+// ---- Las animaciones de corazón/estrella se quitan al terminar (si no, se repiten cada vez que la tarjeta vuelve a mostrarse) ----
+document.addEventListener('animationend',e=>{const c=e.target&&e.target.classList;if(c){c.remove('hrt');c.remove('hrt2');c.remove('spop')}},true);
 /* ===== Afinador: las rayitas se mueven según qué tan cerca está la nota ===== */
 (function(){
  const NSv='http://www.w3.org/2000/svg';let st=null,tm=0,raf=0,pos=5,gen=0;
