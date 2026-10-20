@@ -9429,7 +9429,7 @@ const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',svg=$('s
 const absPt=(el,x=0,y=0)=>{const m=svg.getCTM().inverse().multiply(el.getCTM());return [m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]};
 const FR={tunerOk:[36.10,0.00,321.40,696.80],tunerOff:[678.10,0.00,321.40,696.80],cw:[35.60,895.80,322.40,698.90],cf:[664.40,895.80,322.40,698.90],mapa:[1310.00,895.80,322.40,698.90],m1modal:[1950.80,895.80,322.40,698.90],m1:[2659.20,895.80,322.40,698.90],m1b:[3279.30,895.80,322.40,698.90],practica:[3852.60,1029.30,737.50,340.20],fin:[4719.00,1080.50,737.50,340.20],tutorial:[5600.00,895.80,322.40,698.90],intro:[6050.00,895.80,322.40,698.90],comW:[36.10,1821.60,321.40,696.80],comHub:[664.90,1821.60,321.40,696.80],canciones:[1310.50,1821.60,321.40,696.80],mundo:[1951.30,1821.60,321.40,696.80],foro:[2659.70,1821.60,321.40,696.80],splash:[36.10,2757.60,321.40,696.80],crear:[664.90,2757.60,321.40,696.80],login:[1310.50,2757.60,321.40,696.80],inicio:[2178.50,2757.50,321.40,696.80]};
 const LBL={intro:'10a · Introducción',tutorial:'10b · Tutorial de dedos',splash:'1 · Bienvenida',crear:'2 · Crear cuenta',login:'2b · Iniciar sesión',inicio:'3 · Inicio',tunerOff:'4 · Afinador',tunerOk:'4b · Afinador (afinado)',cw:'5 · Mi Camino: bienvenida',cf:'6 · ¿Cómo funciona?',mapa:'7 · Mapa de mundos',m1modal:'8 · Mundo 1',m1:'9 · Mundo 1 (0 %)',practica:'10 · Práctica de melodía',fin:'11 · Nivel completado',m1b:'12 · Mundo 1 (40 %)',comW:'13 · Comunidad: bienvenida',comHub:'14 · Comunidad',canciones:'15 · Canciones más votadas',mundo:'16 · El mundo está jugando',foro:'17 · Foro'};
-const T=m=>'t:'+m,NAV=[56,108,160,214,267];
+const T=m=>'noop',NAV=[56,108,160,214,267];
 const SIG=[47,502,229,39],X=[250,150,34,34],BK=[30,30,50,50],BK2=[30,44,50,50];
 const H={
 intro:[[...BK,'back'],[55,608,211,48,'tutorial']],
@@ -9473,7 +9473,7 @@ function islandTap(rc,to,r){
  // se expande y vuelve a su tamaño normal
  els.forEach(e=>{if(!e.animate)return;e.style.transformBox='fill-box';e.style.transformOrigin='50% 55%';
   e.animate([{transform:'scale(1)'},{transform:'scale(1.09)',offset:.45},{transform:'scale(1)'}],{duration:440,easing:'ease-in-out'})});
- if(to.startsWith('t:')||!els.length){act(to,r);return}
+ if(to.startsWith('t:')||to==='noop'||!els.length){act(to,r);return}
  svg.style.pointerEvents='none';setTimeout(()=>{svg.style.pointerEvents='';act(to,r)},330)}
 function act(to,r){if(window.__scrolled)return;if(to==='noop')return;if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
  if(to==='tog'){if(window.__tuner&&cur==='tunerOff'){__tuner.toOk(()=>go('tunerOk',0))}else go(cur==='tunerOff'?'tunerOk':'tunerOff',0);return}
@@ -9629,7 +9629,7 @@ H.fin=[[4996.5-4718,1339-1080,182,31,'m1b']];
       const r=mk('rect',{x:o.cx-64.06,y:o.cy-16.9,width:81.87,height:101.64,rx:14.67,fill:'#fff','fill-opacity':.001},g);
       r.style.touchAction='pan-y';r.style.cursor='grab';
       r.addEventListener('pointerdown',e=>{drag={x:toX(e),d0:dx};moved=false});
-      r.addEventListener('click',()=>{if(moved){moved=false;return}toast(NAMES[i]||'')});
+      r.addEventListener('click',()=>{if(moved){moved=false;return}});
     });
     info.forEach(o=>{
       const p=o.h.querySelector('path'),k=mk('circle',{cx:o.cx,cy:o.cy,r:12,fill:'#fff','fill-opacity':.001},g);
@@ -9697,7 +9697,7 @@ setApp(INSTALLED);
     addEventListener('pointerup',e=>{if(!drag)return;const d=toX(e)-drag.x;drag=null;
       if(Math.abs(d)>20){moved=true;go2(idx+(d<0?1:-1));restart()}});
     slot.addEventListener('click',()=>{if(moved){moved=false;return}restart();
-      toast(['El Riff del día no está en el tablero todavía','La Sesión diaria no está en el tablero todavía','Los Desafíos no están en el tablero todavía'][idx])});
+      void 0});
     dots.forEach((d,k)=>{const q=absPt(d,+d.getAttribute('cx'),+d.getAttribute('cy')),h=mk('circle',{cx:q[0],cy:q[1],r:8,fill:'#fff','fill-opacity':.001},g);
       h.style.cursor='pointer';h.addEventListener('click',()=>{go2(k);restart()})});
     window.__dyn={cards,go2,get idx(){return idx}};
@@ -9791,7 +9791,7 @@ setApp(INSTALLED);
         else if(Math.abs(px-CX)>119)step(px<CX?-1:1);else animTo(Math.round(pos))}
       rearm()};
     hit.addEventListener('pointerup',end);hit.addEventListener('pointercancel',end);
-    window.__cancApr=()=>{const s=SONGS[window.__cancIdx||0];if(s.go)go(s.go,1);else toast('La práctica de «'+s.title+'» no está en el tablero todavía')};
+    window.__cancApr=()=>{const s=SONGS[window.__cancIdx||0];if(s.go)go(s.go,1);};
     // Las tarjetas sueltas del costado ya están dentro del mazo
     FWs.remove();
   }
