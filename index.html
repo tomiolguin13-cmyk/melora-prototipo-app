@@ -10871,9 +10871,9 @@ function act(to,r){if(window.__scrolled)return;if(to==='noop')return;if(to==='f'
  if(to==='back'){NAVDIR=-1;go(hist.pop()||(['i1','i2','i3','i4','i5','i6','c1','c2','lg'].includes(cur)?'m1':'inicio'),0);NAVDIR=1;return}
  if(to.startsWith('t:')){toast(to.slice(2));return}go(to,1)}
 const DONE=window.__DONE={1:false,4:false};
-function mundoKey(){return DONE[1]?(DONE[4]?'m1c':'m1b'):'m1'}
-window.__mundoPct=()=>DONE[1]?(DONE[4]?40:20):0;
-function go(k,push){if(k==='m1'||k==='m1b'||k==='m1c')k=mundoKey();if(k==='fin'&&DONE[1])DONE[4]=true;if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
+function mundoKey(){return DONE[4]?'m1c':DONE[1]?'m1b':'m1'}
+window.__mundoPct=()=>20*((DONE[1]?1:0)+(DONE[4]?1:0));
+function go(k,push){if(k==='m1'||k==='m1b'||k==='m1c')k=mundoKey();if(k==='fin')DONE[4]=true;if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
  if(push){if(['inicio','tunerOff','camino','comunidad'].includes(k)||k==='canciones'&&cur==='inicio')hist=[];if(['canciones','mundo','foro','i1'].includes(k))hist.push(cur)}
  if(k==='mapa')seen.c=1;if(k==='comHub')seen.m=1;if(k===cur)return;show(k)}
 function rotFit(x,y,w,h,app){
@@ -10915,6 +10915,13 @@ function show(k){if(SLIDING)SLIDING.finish();const prevK=cur,nn=!!(window.__nav&
  const tg=(prevK==='tunerOff'||prevK==='tunerOk')&&(k==='tunerOff'||k==='tunerOk');
  if(tg&&window.__tuner&&prevK!==k){cur=k;core(k);if(k==='tunerOff')__tuner.fromOk();return}   // el afinador que cambia de estado no desliza
  if(prevK!==k&&!tg&&canSlide(prevK,k)){if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa')||(prevK==='comW'&&k==='comHub')||(prevK==='mapa'&&k==='m1modal')||(prevK==='m1modal'&&k==='mapa')||(prevK==='c1'&&k==='lg')||(prevK==='lg'&&k==='lgm')||(prevK==='lgm'&&/^m1/.test(k)));return}
+ const pL=FR[prevK]&&FR[prevK][2]>FR[prevK][3],kL=FR[k]&&FR[k][2]>FR[k][3];
+ if(prevK!==k&&FR[prevK]&&FR[k]&&pL!==kL&&svg.animate&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){   // vertical <-> horizontal: el teléfono "gira"
+  NAVDIR=1;const to=kL?1:-1;svg.style.transition='';svg.style.opacity=1;
+  const A=svg.animate([{rotate:'0deg',scale:1,opacity:1},{rotate:(90*to)+'deg',scale:.62,opacity:0}],{duration:280,easing:'ease-in',fill:'forwards'});
+  A.onfinish=()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);
+   svg.animate([{rotate:(-90*to)+'deg',scale:.62,opacity:0},{rotate:'0deg',scale:1,opacity:1}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});A.cancel()};
+  return}
  NAVDIR=1;svg.style.transition=nn?'opacity .1s':'';svg.style.opacity=0;setTimeout(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;if(nn)__nav.slide(prevK,k)},nn?100:190)}
 // Cambio de pantalla con deslizamiento: la nueva entra pegada a la actual y la cámara se desplaza
 function canSlide(a,b){if(!FR[a]||!FR[b])return false;if(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
@@ -11386,12 +11393,16 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     rows.flat().forEach(a=>{a.c.style.fill='';a.c.classList.remove('spop')});
     lvls.forEach((L,j)=>{const r=rows[L-1];if(!r)return;const ys=r.filter(a=>a.yellow);ys.forEach(a=>a.c.style.fill='#c4c4c4');
       ys.forEach((a,i)=>setTimeout(()=>{if(cur!==k)return;a.c.style.fill='';a.c.classList.remove('spop');void a.c.getBoundingClientRect();a.c.classList.add('spop')},1100+j*900+i*380))})};
-  let raf=0,shownM=0,shownI=0;   // lo último que vio la persona: la barra sube desde ahí hasta el valor nuevo
+  let raf=0,shownM=0,shownI=0;const shownL={1:false,4:false};   // lo último que vio la persona: la barra sube desde ahí hasta el valor nuevo
   const run=(o,from,to,done)=>{cancelAnimationFrame(raf);if(!o)return;o.setV(from);if(to<=from){o.setV(to);return}
     const t0=performance.now()+300,DUR=1400;   // espera a que termine el fundido de entrada
     const step=ts=>{const k=Math.max(0,Math.min(1,(ts-t0)/DUR));o.setV(from+(to-from)*ease(k));if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
   window.__prog=k=>{cancelAnimationFrame(raf);
-   if(rings[k]){const P=rings[k].P,lv=[];if(shownM<20&&P>=20)lv.push(1);if(shownM<40&&P>=40)lv.push(4);run(rings[k],Math.min(shownM,P),P);animStars(k,lv);shownM=P}
+   if(rings[k]){const P=__mundoPct(),lv=[];if(DONE[1]&&!shownL[1])lv.push(1);if(DONE[4]&&!shownL[4])lv.push(4);
+    run(rings[k],Math.min(shownM,P),P);animStars(k,lv);shownM=P;shownL[1]=DONE[1];shownL[4]=DONE[4];
+    if(k==='m1c'&&!DONE[1]){(starRows.m1c[0]||[]).forEach(a=>{if(a.yellow)a.c.style.fill='#c4c4c4'})}   // solo se hizo el nivel 4: el 1 sigue vacío
+    const n=(DONE[1]?3:0)+(DONE[4]?2:0),w=fwOf(k),et=w&&[...w.querySelectorAll('text')].find(t=>/Estrellas conseguidas/.test(t.textContent));
+    if(et){const sp=[...et.querySelectorAll('tspan')].reverse().find(t=>/\d/.test(t.textContent))||et;sp.textContent=sp.textContent.replace(/\d+\s*$/,n)}}
    else if(k==='inicio'){const T=window.__mundoPct?__mundoPct():0;run(bar,Math.min(shownI,T),T);shownI=T}
    else{Object.values(rings).forEach(r=>r&&r.setV(r.P));bar&&bar.setV(window.__mundoPct?__mundoPct():0)}};
   window.__progParts={rings,bar};
