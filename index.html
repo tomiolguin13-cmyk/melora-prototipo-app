@@ -11541,7 +11541,7 @@ window.__build=(()=>{ // las piezas de la guitarra se arrastran hasta su lugar
  ST.classList.add('bstroke');ST.setAttribute('pointer-events','none');ST.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
  outline.after(LG);LG.after(ST);W.appendChild(DL);
  const CFG=[{z:2,to:[3897.2,188.3,31.3,51.1],ds:1.203},{z:1,to:[3902.2,239.4,21.3,147.7],ds:1.356},{z:0,to:[3844.8,362.5,136.1,166.1],ds:1.532},
-  {z:3,to:[3889.2,467.3,47.2,11.9],ds:1.02},{z:4,to:[3891.2,196.8,43.2,32.7],ds:1,parts:[[0,[3891.2,197.3,5.9,32.2]],[1,[3928.5,196.8,5.9,32.2]]]},{z:5,to:[3903.9,245,17.9,228],ds:1}];
+  {z:3,to:[3889.2,467.3,47.2,11.9],ds:1.02},{z:4,to:[3891.2,196.8,43.2,32.7],ds:1,parts:[[0,[3891.2,197.3,5.9,32.2]],[1,[3928.5,196.8,5.9,32.2]]]},{z:5,to:[3903.9,240.2,17.9,232.8],ds:1}];
  CFG.forEach(c=>{c.to=sh(c.to);if(c.parts)c.parts=c.parts.map(([i,t])=>[i,sh(t)])});
  const P=kids.map((g,i)=>{const c=CFG[i],bb=g.getBBox(),parts=(c.parts||[[-1,c.to]]).map(([ix,to])=>{const el=ix<0?g:g.children[ix],b=el.getBBox(),sx=to[2]/b.width,sy=to[3]/b.height;
    return {el,fin:`translate(${to[0]-sx*b.x}px,${to[1]-sy*b.y}px) scale(${sx},${sy})`}});
