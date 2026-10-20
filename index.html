@@ -10822,11 +10822,11 @@ const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',svg=$('s
 // Posición real (en el tablero) de un punto del elemento, contando los desplazamientos de cada pantalla
 const absPt=(el,x=0,y=0)=>{const m=svg.getCTM().inverse().multiply(el.getCTM());return [m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]};
 const FR={tunerOk:[36.10,0.00,321.40,696.80],tunerOff:[678.10,0.00,321.40,696.80],cw:[35.60,895.80,322.40,698.90],cf:[664.40,895.80,322.40,698.90],mapa:[1310.00,895.80,322.40,698.90],m1modal:[1950.80,895.80,322.40,698.90],m1:[2659.20,895.80,322.40,698.90],m1b:[3279.30,895.80,322.40,698.90],practica:[3852.60,1029.30,737.50,340.20],fin:[4719.00,1080.50,737.50,340.20],tutorial:[5600.00,895.80,322.40,698.90],comW:[36.10,1821.60,321.40,696.80],comHub:[664.90,1821.60,321.40,696.80],canciones:[1310.50,1821.60,321.40,696.80],mundo:[1951.30,1821.60,321.40,696.80],foro:[2659.70,1821.60,321.40,696.80],splash:[36.10,2757.60,321.40,696.80],crear:[664.90,2757.60,321.40,696.80],login:[1310.50,2757.60,321.40,696.80],inicio:[2178.50,2757.50,321.40,696.80],i1:[6048.00,895.80,322.40,698.90],i2:[6370.40,895.80,322.40,698.90],i3:[6692.80,895.80,322.40,698.90],i4:[7015.20,895.80,322.40,698.90],i5:[7337.60,895.80,322.40,698.90],i6:[7660.00,895.80,322.40,698.90],c1:[8100.00,895.80,322.40,698.90],c2:[8500.00,895.80,322.40,698.90],lg:[8900.00,895.80,322.40,698.90]};
-const LBL={tutorial:'10b · Tutorial de dedos',i1:'N1 · Introducción: Clavijero',i2:'N1 · Introducción: Mástil',i3:'N1 · Introducción: Cuerdas',i4:'N1 · Introducción: Caja de resonancia',i5:'N1 · Introducción: Clavijas',i6:'N1 · Introducción: Puente',c1:'N1 · Construí tu guitarra',c2:'N1 · Construí (a medio armar)',lg:'N1 · ¡Lo lograste!',splash:'1 · Bienvenida',crear:'2 · Crear cuenta',login:'2b · Iniciar sesión',inicio:'3 · Inicio',tunerOff:'4 · Afinador',tunerOk:'4b · Afinador (afinado)',cw:'5 · Mi Camino: bienvenida',cf:'6 · ¿Cómo funciona?',mapa:'7 · Mapa de mundos',m1modal:'8 · Mundo 1',m1:'9 · Mundo 1 (0 %)',practica:'10 · Práctica de melodía',fin:'11 · Nivel completado',m1b:'12 · Mundo 1 (40 %)',comW:'13 · Comunidad: bienvenida',comHub:'14 · Comunidad',canciones:'15 · Canciones más votadas',mundo:'16 · El mundo está jugando',foro:'17 · Foro'};
+const LBL={tutorial:'10b · Tutorial de dedos',i1:'N1 · Introducción (carrusel)',c1:'N1 · Construí tu guitarra',c2:'N1 · Construí (a medio armar)',lg:'N1 · ¡Lo lograste!',splash:'1 · Bienvenida',crear:'2 · Crear cuenta',login:'2b · Iniciar sesión',inicio:'3 · Inicio',tunerOff:'4 · Afinador',tunerOk:'4b · Afinador (afinado)',cw:'5 · Mi Camino: bienvenida',cf:'6 · ¿Cómo funciona?',mapa:'7 · Mapa de mundos',m1modal:'8 · Mundo 1',m1:'9 · Mundo 1 (0 %)',practica:'10 · Práctica de melodía',fin:'11 · Nivel completado',m1b:'12 · Mundo 1 (40 %)',comW:'13 · Comunidad: bienvenida',comHub:'14 · Comunidad',canciones:'15 · Canciones más votadas',mundo:'16 · El mundo está jugando',foro:'17 · Foro'};
 const T=m=>'noop',NAV=[56,108,160,214,267];
 const SIG=[47,502,229,39],X=[250,150,34,34],BK=[30,30,50,50],BK2=[30,44,50,50];
 const H={
-i1:[[...BK2,'back'],[55.5,613.9,211,48,'c1']],i2:[[...BK2,'back'],[55.5,613.9,211,48,'c1']],i3:[[...BK2,'back'],[55.5,613.9,211,48,'c1']],i4:[[...BK2,'back'],[55.5,613.9,211,48,'c1']],i5:[[...BK2,'back'],[55.5,613.9,211,48,'c1']],i6:[[...BK2,'back'],[55.5,613.9,211,48,'c1']],
+i1:[[...BK2,'back'],[55.5,613.9,211,48,'c1']],
 c1:[[...BK2,'back']],c2:[[...BK2,'back']],lg:[[...BK2,'back'],[55.5,613.9,211,48,'m1b']],
 tutorial:[[...BK,'back'],[55,608,211,48,'practica']],
 splash:[[42,391,244,44,'crear'],[42,445,244,44,'login']],
@@ -11439,26 +11439,38 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
  if(cur==='tunerOff')__tuner.on('tunerOff')
 })();
 /* ===== Nivel 1 del Mundo 1: introducción (carrusel) y "Construí tu primera guitarra" ===== */
-const IK=['i1','i2','i3','i4','i5','i6'];
-{ // los pasos de la introducción se deslizan con el dedo
- const _core=core;core=function(k){_core(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'};
- let d=null,raf=0;const vb=()=>svg.viewBox.baseVal,upp=()=>vb().width/((svg.getBoundingClientRect().width)||1);
- svg.addEventListener('pointerdown',e=>{if(!IK.includes(cur)||SLIDING||e.button>0)return;cancelAnimationFrame(raf);
-  d={x:e.clientX,u:upp(),k:cur,x0:vb().x,id:e.pointerId,lx:e.clientX,lt:performance.now(),v:0,mv:false}},true);
+const IK=['i1'];
+window.__intro=(()=>{ // Introducción: solo cambia la parte del medio (imagen, puntitos, nombre y descripción); flecha, título y botón quedan quietos
+ const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),W1=fwOf('i1');if(!W1)return null;
+ const KS=['i1','i2','i3','i4','i5','i6'],SZ=322.4,pages=[];
+ KS.forEach((k,n)=>{const w=fwOf(k);if(!w)return;const nx=FR[k][0]-(+w.dataset.dx),ny=FR[k][1]-(+w.dataset.dy),g=document.createElementNS(NS,'g'),dg=document.createElementNS(NS,'g');
+  const bbx=c=>{const q=c.getBBox(),T=c.transform&&c.transform.baseVal;if(!T||!T.numberOfItems)return q;const m=T.consolidate().matrix;return {x:m.a*q.x+m.c*q.y+m.e,y:m.b*q.x+m.d*q.y+m.f,width:q.width*m.a,height:q.height*m.d}};
+  [...w.children].forEach(c=>{let b;try{b=bbx(c)}catch(e){return}const ry=b.y-ny;
+   if(b.height<12&&ry>455&&ry<470&&b.width>80&&b.width<95)dg.appendChild(c);
+   else if(ry>=190&&ry+b.height<=600&&b.width<400&&b.height>0)g.appendChild(c)});
+  W1.insertBefore(g,W1.children[1]||null);W1.insertBefore(dg,W1.children[1]||null);pages.push({g,dg,nx})});
+ let p=0;
+ const set=v=>{p=v;pages.forEach((o,n)=>{o.g.setAttribute('transform','translate('+((n-p)*SZ-o.nx).toFixed(2)+' 0)');
+   o.dg.setAttribute('transform','translate('+(-o.nx)+' 0)');o.dg.setAttribute('opacity',Math.max(0,1-Math.abs(p-n)*2.2).toFixed(3))})};
+ set(0);
+ let d=null,raf=0;const upp=()=>svg.viewBox.baseVal.width/((svg.getBoundingClientRect().width)||1);
+ svg.addEventListener('pointerdown',e=>{if(cur!=='i1'||SLIDING||e.button>0)return;cancelAnimationFrame(raf);
+  d={x:e.clientX,u:upp(),p0:p,id:e.pointerId,lx:e.clientX,lt:performance.now(),v:0,mv:false}},true);
  svg.addEventListener('pointermove',e=>{if(!d||e.pointerId!==d.id)return;const dx=e.clientX-d.x;
   if(!d.mv){if(Math.abs(dx)<6)return;d.mv=true;window.__scrolled=true;try{svg.setPointerCapture(e.pointerId)}catch(_){}}
   const n=performance.now();d.v=.7*d.v+.3*((e.clientX-d.lx)/Math.max(1,n-d.lt));d.lx=e.clientX;d.lt=n;
-  const nx=Math.max(FR[IK[0]][0],Math.min(FR[IK[5]][0],d.x0-dx*d.u));
-  svg.setAttribute('viewBox',nx+' '+FR[d.k][1]+' '+FR[d.k][2]+' '+FR[d.k][3])});
+  set(Math.max(0,Math.min(pages.length-1,d.p0-dx*d.u/SZ)))});
  const end=e=>{if(!d||e.pointerId!==d.id)return;const D=d;d=null;try{svg.releasePointerCapture(e.pointerId)}catch(_){}
-  if(!D.mv)return;const i=IK.indexOf(D.k),w=FR[D.k][2],cx=vb().x,off=(cx-FR[D.k][0])/w;let j=i;
-  if(off>.18||D.v<-.4)j=Math.min(5,i+1);else if(off<-.18||D.v>.4)j=Math.max(0,i-1);
-  const tx=FR[IK[j]][0],t0=performance.now(),T=240;
-  const step=ts=>{const k=Math.min(1,(ts-t0)/T),ee=1-Math.pow(1-k,3);svg.setAttribute('viewBox',(cx+(tx-cx)*ee)+' '+FR[D.k][1]+' '+w+' '+FR[D.k][3]);
-   if(k<1)raf=requestAnimationFrame(step);else{cur=IK[j];core(IK[j]);setTimeout(()=>{window.__scrolled=false},60)}};
+  if(!D.mv)return;let j=Math.round(p);const i0=Math.round(D.p0);
+  if(p>D.p0+.15||D.v<-.4)j=Math.min(pages.length-1,i0+1);else if(p<D.p0-.15||D.v>.4)j=Math.max(0,i0-1);
+  const a=p,t0=performance.now(),T=260;
+  const step=ts=>{const k=Math.min(1,(ts-t0)/T);set(a+(j-a)*(1-Math.pow(1-k,3)));if(k<1)raf=requestAnimationFrame(step);else setTimeout(()=>{window.__scrolled=false},60)};
   raf=requestAnimationFrame(step)};
  svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
-}
+ const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k==='i1'){cancelAnimationFrame(raf);set(0)}};
+ return {set};
+})();
+{const _core=core;core=function(k){_core(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
 window.__build=(()=>{ // las piezas de la guitarra se arrastran hasta su lugar
  const W=svg.querySelector('g.fw[data-f="c1"]');if(!W)return null;
  const near=(b,t)=>Math.abs(b.x-t[0])<3&&Math.abs(b.y-t[1])<3&&Math.abs(b.width-t[2])<3&&Math.abs(b.height-t[3])<3;
