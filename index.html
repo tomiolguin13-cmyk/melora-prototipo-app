@@ -12045,6 +12045,8 @@ window.__tut=(()=>{
   const nwx=k=>FR[k][0]-(+fwOf(k).dataset.dx),nwy=k=>FR[k][1]-(+fwOf(k).dataset.dy);
   const rel=(c,k)=>{try{const b=c.getBBox(),M=svg.getCTM().inverse().multiply(c.getCTM()),q=svg.createSVGPoint();q.x=b.x;q.y=b.y;const a=q.matrixTransform(M);q.x=b.x+b.width;q.y=b.y+b.height;const d=q.matrixTransform(M);return {x:a.x-FR[k][0],y:a.y-FR[k][1],w:d.x-a.x,h:d.y-a.y}}catch(e){return null}};
   const pages=[];let btn=null,btnS=[0,0];
+  {const w4=fwOf('t4');if(w4)[...w4.children].forEach(c=>{   // si el último paso viene envuelto en un grupo junto con el botón, se desarma para tratar cada pieza por separado
+    if(c.tagName==='g'&&c.children.length>2&&/Comenzar/.test(c.textContent)&&!c.getAttribute('transform')){[...c.children].forEach(x=>w4.insertBefore(x,c));c.remove()}})}
   ['t1','t2','t3','t4'].forEach(k=>{const w=fwOf(k);if(!w)return;
     const img=mkg(),txt=mkg(),dg=mkg(),sx=nwx('t1')-nwx(k),sy=nwy('t1')-nwy(k);
     [...w.children].forEach(c=>{const b=rel(c,k);if(!b)return;
