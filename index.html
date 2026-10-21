@@ -11486,7 +11486,7 @@ const PRAC=(()=>{
     if(q.y<fy+85)return;             // título, estrellas y mano quedan fijos
     world.push(c);
     if(c.tagName==='path'&&q.w>39&&q.w<43&&q.h>39&&q.h<43)N.push({x:q.x,y:q.y,c:1,r:q.w/2});
-    else if(c.tagName==='g'&&c.children.length===2&&q.w>85&&q.w<95&&q.h>30&&q.h<40){const f=bb(c.children[1])||q;N.push({x:f.x,y:f.y,w:f.w,h:f.h})}
+    else if(c.tagName==='g'&&c.children.length===2&&q.w>85&&q.w<95&&q.h>30&&q.h<40){const f=[...c.children].map(bb).filter(Boolean).sort((a,b)=>b.w*b.h-a.w*a.h)[0]||q;N.push({x:f.x,y:f.y,w:f.w,h:f.h})}
   });
   N.sort((a,b)=>a.x-b.x);
   if(track){try{const b=track.getBBox(),x0=b.x,tr=track.getAttribute('transform')||'';   // la tira del diapasón se alarga para cubrir todo el recorrido
