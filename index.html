@@ -12099,9 +12099,28 @@ window.__tut=(()=>{
   return {page:()=>p,set,animTo};
 })();
 {const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';
-  if(k==='cd3')setTimeout(()=>{if(cur==='cd3')go('cd2',0)},950);
-  if(k==='cd2')setTimeout(()=>{if(cur==='cd2')go('cd1',0)},950);
-  if(k==='cd1')setTimeout(()=>{if(cur==='cd1'){window.__fromCd=1;go('practica',0);window.__fromCd=0}},950)}}
+  if(k==='cd3'&&window.__cd)__cd.run()}}
+// ---- Cuenta regresiva: una sola pantalla; el 3, 2, 1 cambia y el fondo oscuro se va aclarando hasta 0, y empieza el nivel ----
+window.__cd=(()=>{
+  const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),W=fwOf('cd3');if(!W)return null;
+  const mkg=()=>document.createElementNS(NS,'g'),nwx=k=>FR[k][0]-(+fwOf(k).dataset.dx),nwy=k=>FR[k][1]-(+fwOf(k).dataset.dy);
+  const ov=[...W.children].find(c=>c.tagName==='rect'&&(()=>{try{const b=c.getBBox();return b.width>700&&b.height>300}catch(e){return false}})());
+  const nums=[];
+  ['cd3','cd2','cd1'].forEach(k=>{const w=fwOf(k);if(!w)return;const g=mkg(),sx=nwx('cd3')-nwx(k),sy=nwy('cd3')-nwy(k);
+    [...w.children].forEach(c=>{if(c.tagName==='text'&&/^\s*[123]\s*$/.test(c.textContent))g.appendChild(c)});
+    g.setAttribute('transform','translate('+sx+' '+sy+')');g.setAttribute('opacity',0);W.appendChild(g);nums.push(g)});
+  ['cd3','t1'].forEach(k=>{const w=fwOf(k);w&&w.querySelectorAll('path').forEach(c=>{let b;try{b=c.getBBox()}catch(e){return}   // antes de jugar no hay estrellas ganadas
+    if(Math.abs(b.width-19.6)<.7&&Math.abs(b.height-18.8)<.7&&getComputedStyle(c).fill==='rgb(249, 209, 56)')c.style.fill='#c9c8c8'})});
+  let raf=0,gen=0;const DUR=3300,ease=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+  const draw=(ms)=>{const k=Math.min(1,ms/DUR);if(ov)ov.style.opacity=(1-k).toFixed(3);
+    nums.forEach((g,i)=>{const lo=i*DUR/3,hi=(i+1)*DUR/3,F=170;let o=0;if(ms>=lo&&ms<hi){o=Math.min(1,(ms-lo)/F,(hi-ms)/F)}g.setAttribute('opacity',Math.max(0,o).toFixed(3))})};
+  const reset=()=>{cancelAnimationFrame(raf);gen++;if(ov)ov.style.opacity='';nums.forEach((g,i)=>g.setAttribute('opacity',i?0:1))};
+  const run=()=>{reset();const g=gen,t0=performance.now()+250;draw(0);
+    const st=ts=>{if(g!==gen||cur!=='cd3')return;const ms=ts-t0;if(ms<0){raf=requestAnimationFrame(st);return}draw(ms);
+      if(ms>=DUR){window.__fromCd=1;go('practica',0);window.__fromCd=0;return}raf=requestAnimationFrame(st)};raf=requestAnimationFrame(st)};
+  const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k!=='cd3')reset()};
+  return {run,reset};
+})();
 window.__build=(()=>{ // las piezas de la guitarra se arrastran hasta su lugar
  const W=svg.querySelector('g.fw[data-f="c1"]');if(!W)return null;
  const ox=FR.c1[0]-(+W.dataset.dx)-3751.6,oy=FR.c1[1]-(+W.dataset.dy),sh=a=>[a[0]+ox,a[1]+oy,a[2],a[3]];
