@@ -12097,7 +12097,7 @@ window.__cd=(()=>{
   const O0=ov?(parseFloat(getComputedStyle(ov).opacity)||1):1;   // opacidad original del fondo oscuro: así no hay salto al empezar
   let raf=0,gen=0,running=false;const OUT=380,DUR=3300;
   const draw=(ms)=>{   // ms<0: se apagan los textos del tutorial; después cuenta 3-2-1 mientras el fondo oscuro se aclara
-    if(ms<0){UI.setAttribute('opacity',Math.max(0,1+ms/OUT).toFixed(3));return}
+    if(ms<0){UI.setAttribute('opacity',Math.max(0,Math.min(1,-ms/OUT)).toFixed(3));return}
     UI.setAttribute('opacity',0);const k=Math.min(1,ms/DUR);if(ov)ov.style.opacity=(O0*(1-k)).toFixed(3);
     nums.forEach((g,i)=>{const lo=i*DUR/3,hi=(i+1)*DUR/3,F=170;let o=0;if(ms>=lo&&ms<hi)o=Math.min(1,(ms-lo)/F,(hi-ms)/F);g.setAttribute('opacity',Math.max(0,o).toFixed(3))})};
   const reset=()=>{cancelAnimationFrame(raf);gen++;running=false;if(ov)ov.style.opacity='';UI.setAttribute('opacity',1);nums.forEach(g=>g.setAttribute('opacity',0))};
