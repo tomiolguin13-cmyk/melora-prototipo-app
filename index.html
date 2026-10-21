@@ -11899,7 +11899,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     const n=(DONE[1]?3:0)+(DONE[4]?2:0),w=fwOf(k),et=w&&[...w.querySelectorAll('text')].find(t=>/Estrellas conseguidas/.test(t.textContent));
     if(et){const sp=[...et.querySelectorAll('tspan')].reverse().find(t=>/\d/.test(t.textContent))||et;sp.textContent=sp.textContent.replace(/\d+\s*$/,n)}}
    else if(k==='inicio'){const T=window.__mundoPct?__mundoPct():0;run(bar,Math.min(shownI,T),T);shownI=T}
-   else{Object.values(rings).forEach(r=>r&&r.setV(r.P));bar&&bar.setV(window.__mundoPct?__mundoPct():0)}};
+   else{Object.values(rings).forEach(r=>r&&r.setV(__mundoPct()));bar&&bar.setV(window.__mundoPct?__mundoPct():0)}};
   window.__progParts={rings,bar};
 }
 
