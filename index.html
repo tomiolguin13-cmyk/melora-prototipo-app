@@ -11527,19 +11527,27 @@ H.fin=[[258,243,219,55,'m1b']];
     const info=cards.map(c=>{const ci=c.children[1]&&c.children[1].querySelector('circle');if(!ci)return null;const q=absPt(ci,+ci.getAttribute('cx'),+ci.getAttribute('cy'));return {c,h:c.children[1],cx:q[0],cy:q[1]}}).filter(Boolean).sort((a,b)=>a.cx-b.cx);
     const NAMES=['Persiana Americana · Soda Stereo','Wish You Were Here · Pynk Floyd','Dream On · Aerosmith','Yellow · Coldplay'];
     const g=mk('g',{},G.inicio);
-    const MIN=-26,MAX=8;let dx=0,drag=null,moved=false;
+    let MIN=-26;const MAX=8;let dx=0,drag=null,moved=false;
     const apply=sm=>{cardsG.style.transition=g.style.transition=sm?'transform .25s ease':'none';cardsG.style.transform=g.style.transform='translateX('+dx+'px)'};
     const toX=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse()).x};
+    const HR=[],HK=[],gone=[],SP=info.length>1?(info[info.length-1].cx-info[0].cx)/(info.length-1):90;
     info.forEach((o,i)=>{
       const r=mk('rect',{x:o.cx-64.06,y:o.cy-16.9,width:81.87,height:101.64,rx:14.67,fill:'#fff','fill-opacity':.001},g);
-      r.style.touchAction='pan-y';r.style.cursor='grab';
+      HR[i]=r;r.style.touchAction='pan-y';r.style.cursor='grab';
       r.addEventListener('pointerdown',e=>{drag={x:toX(e),d0:dx};moved=false});
       r.addEventListener('click',()=>{if(moved){moved=false;return}});
     });
-    info.forEach(o=>{
+    // al sacar el corazón, la canción deja de estar en "Mis canciones": se desvanece y las demás se corren para cerrar el hueco
+    const drop=i=>{if(gone.includes(i))return;gone.push(i);const c=info[i].c;
+      [c,HR[i],HK[i]].forEach(e=>{e.style.transition='opacity .28s ease';e.style.opacity=0;e.style.pointerEvents='none'});
+      setTimeout(()=>{[c,HR[i],HK[i]].forEach(e=>e.style.display='none')},300);
+      info.forEach((q,j)=>{if(gone.includes(j))return;const sh=-SP*gone.filter(x=>x<j).length;
+        [q.c,HR[j],HK[j]].forEach(e=>{e.style.transition='transform .32s ease,opacity .28s ease';e.style.transform='translateX('+sh+'px)'})});
+      MIN=Math.min(MAX,-26+SP*gone.length);if(dx<MIN){dx=MIN;apply(true)}};
+    info.forEach((o,i)=>{
       const p=o.h.querySelector('path'),k=mk('circle',{cx:o.cx,cy:o.cy,r:12,fill:'#fff','fill-opacity':.001},g);
-      k.style.cursor='pointer';let off=getComputedStyle(p).fill==='rgb(196, 196, 196)';
-      k.addEventListener('click',e=>{e.stopPropagation();if(moved){moved=false;return}off=!off;
+      HK[i]=k;k.style.cursor='pointer';let off=getComputedStyle(p).fill==='rgb(196, 196, 196)';
+      k.addEventListener('click',e=>{e.stopPropagation();if(moved){moved=false;return}off=!off;if(off){p.style.fill='#c4c4c4';drop(i);return}
         p.style.fill=off?'#c4c4c4':'#e01717';p.style.stroke='';p.style.strokeWidth='';
         p.classList.remove('hrt2');void p.getBBox();p.classList.add('hrt2')});
     });
