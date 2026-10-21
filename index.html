@@ -12061,6 +12061,12 @@ window.__tut=(()=>{
   {const UI=mkg();UI.setAttribute('id','tutUI');   // todo lo que cambia (título, textos, imágenes, puntos, botón) va en un grupo para poder desvanecerlo junto
    const ti=[...H1.children].find(c=>c.tagName==='text'&&/funciona/.test(c.textContent));if(ti)UI.appendChild(ti);
    pages.forEach(o=>[o.img,o.txt,o.dg].forEach(g=>UI.appendChild(g)));if(btn)UI.appendChild(btn);H1.appendChild(UI);window.__tutUI=UI}
+  // la ilustración se recorta con la forma redondeada de la tarjeta (en el tablero a veces el recorte es un rectángulo y el mástil asoma por las esquinas)
+  pages.forEach((o,n)=>{try{const g=o.img.firstElementChild;if(!g)return;const cs=getComputedStyle(g).clipPath,m=/url\("?#([^")]+)/.exec(cs);if(!m)return;
+    const cp0=document.getElementById(m[1]),r=cp0&&cp0.firstElementChild;if(!r)return;const rb=r.getBBox();
+    const card=[...g.children].find(c=>{if(c.tagName!=='path')return false;const b=c.getBBox();return Math.abs(b.x-rb.x)<2&&Math.abs(b.y-rb.y)<2&&Math.abs(b.width-rb.width)<2&&Math.abs(b.height-rb.height)<2});
+    if(!card||card===r)return;const id='tutClip'+n,cp=document.createElementNS(NS,'clipPath');cp.setAttribute('id',id);const k=card.cloneNode(false);k.removeAttribute('class');k.removeAttribute('style');cp.appendChild(k);
+    (svg.querySelector('defs')||svg.insertBefore(document.createElementNS(NS,'defs'),svg.firstChild)).appendChild(cp);g.style.clipPath='url(#'+id+')'}catch(e){}});
   const SZ=170,SL=50;let p=0,raf=0,d=null;
   const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
   const set=v=>{p=v;const q=Math.min(p,3),e=cl(p-3,0,1);
