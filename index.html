@@ -12085,7 +12085,7 @@ window.__tut=(()=>{
     if(btn){btn.setAttribute('transform','translate('+btnS[0]+' '+btnS[1]+')');btn.setAttribute('opacity',e.toFixed(3));btn.style.pointerEvents='none'}};
   set(0);
   let wt=0;   // en el último paso el botón aparece solo, después de dejar leer
-  const animTo=(j,T=520)=>{cancelAnimationFrame(raf);clearTimeout(wt);const a=p,t0=performance.now();const st=ts=>{const k=Math.min(1,(ts-t0)/T);set(a+(j-a)*(1-Math.pow(1-k,3)));if(k<1)raf=requestAnimationFrame(st);else if(j===3)wt=setTimeout(()=>{if(cur==='t1'&&!d&&Math.abs(p-3)<.01)animTo(4,700)},3200)};raf=requestAnimationFrame(st)};
+  const animTo=(j,T=520)=>{cancelAnimationFrame(raf);clearTimeout(wt);const a=p,t0=performance.now();const st=ts=>{const k=Math.min(1,(ts-t0)/T);set(a+(j-a)*(1-Math.pow(1-k,3)));if(k<1)raf=requestAnimationFrame(st);else if(j===3)wt=setTimeout(()=>{if(cur==='t1'&&!d&&Math.abs(p-3)<.01)animTo(4,600)},2000)};raf=requestAnimationFrame(st)};
   const lx=e=>{const m=svg.getScreenCTM();if(!m)return e.clientX;const q=svg.createSVGPoint();q.x=e.clientX;q.y=e.clientY;return q.matrixTransform(m.inverse()).x};
   svg.addEventListener('pointerdown',e=>{if(cur!=='t1'||SLIDING||e.button>0)return;cancelAnimationFrame(raf);clearTimeout(wt);d={x:lx(e),p0:p,id:e.pointerId,mv:false,t:performance.now()}},true);
   svg.addEventListener('pointermove',e=>{if(!d||e.pointerId!==d.id)return;const dx=lx(e)-d.x;if(!d.mv){if(Math.abs(dx)<6)return;d.mv=true;window.__scrolled=true;try{svg.setPointerCapture(e.pointerId)}catch(_){}}
