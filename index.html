@@ -11624,7 +11624,7 @@ setApp(INSTALLED);
     const sats=[...FWs.children].filter(e=>e.tagName==='g'&&e.querySelector('image')).map(g=>{
       const tx=[...g.querySelectorAll('text')].map(t=>t.textContent),im=g.querySelector('image'),c=g.querySelector('circle'),ht=g.querySelector('path[d^="M"][class]:not([class="'+(g.querySelector('.gbtn')?g.querySelector('path').getAttribute('class'):'')+'"])');
       const num=g.querySelectorAll('text')[0],tt=/translate\(([-\d.]+) ([-\d.]+)\)/.exec(num.getAttribute('transform'));
-      return {rank:+tx[0],title:tx[1],artist:tx[2],count:tx[4],href:im.getAttributeNS(XL,'href')||im.getAttribute('href'),w:+im.getAttribute('width'),h:+im.getAttribute('height'),
+      return {rank:+tx[0],title:tx[1],artist:tx[2],count:tx[tx.length-1],href:im.getAttributeNS(XL,'href')||im.getAttribute('href'),w:+im.getAttribute('width'),h:+im.getAttribute('height'),
         cls:c.getAttribute('class'),r:+c.getAttribute('r'),ndx:+tt[1]-+c.getAttribute('cx'),ndy:+tt[2]-+c.getAttribute('cy')}}).sort((a,b)=>a.rank-b.rank);
     const main=parts[1].querySelector('image'),mt=/translate\(([-\d.]+) ([-\d.]+)\)/.exec(main.getAttribute('transform'));
     const circ=parts[2].querySelector('circle'),ntx=parts[2].querySelector('text');
