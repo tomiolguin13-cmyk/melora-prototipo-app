@@ -12071,7 +12071,7 @@ window.__tut=(()=>{
   ['t1','t2','t3','t4'].forEach(k=>{const w=fwOf(k);if(!w)return;
     const img=mkg(),txt=mkg(),dg=mkg(),sx=nwx('t1')-nwx(k),sy=nwy('t1')-nwy(k);
     [...w.children].forEach(c=>{const b=rel(c,k);if(!b)return;
-      if(c.tagName==='text'&&b.y>70&&b.y<110&&b.w>150)txt.appendChild(c);
+      if((c.tagName==='text'||c.tagName==='g')&&b.y>70&&b.y<110&&b.h<50&&b.w>150)txt.appendChild(c);
       else if(c.tagName==='g'&&b.h<14&&b.y>265&&b.w<90)dg.appendChild(c);
       else if(c.tagName==='g'&&b.y>100&&b.h>100&&b.w<800)img.appendChild(c)});
     pages.push({img,txt,dg,sx,sy});[img,txt,dg].forEach(g=>H1.appendChild(g))});
