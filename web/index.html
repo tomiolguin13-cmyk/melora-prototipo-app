@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melora · Aprendé guitarra a tu manera</title>
+<meta name="theme-color" content="#743c8c">
+<link rel="icon" href="../icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f6f4f4}
+a{color:#ffffff}a:hover{color:#efe3f7}
+.hero{position:relative;aspect-ratio:727/305;min-height:600px;overflow:hidden;background:#3fb4ec}
+.mundos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero-gtr{position:absolute;left:31%;top:2%;height:118%;width:auto;pointer-events:none}
+.hero-txt{position:absolute;left:4.6%;top:48%;transform:translateY(-50%);width:36%;display:flex;flex-direction:column;gap:1.6vw}
+.mundo{display:flex;gap:80px;align-items:center;max-width:1280px;margin:0 auto}
+.mundo.inv{flex-direction:row-reverse}
+.mundo-img{flex:0 0 480px;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.mundo-txt{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:14px}
+@keyframes flotar{0%,100%{translate:0 0}50%{translate:0 -12px}}
+.flota{animation:flotar 4.5s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.flota{animation:none}}
+.h1{margin:0;font-size:clamp(34px,5.4vw,84px);line-height:1;font-weight:700;color:#1d1e1c}
+.isla-card{position:absolute;width:11.6%;min-width:150px;background:#ffffff;border-radius:14px;padding:10px 12px;box-sizing:border-box;box-shadow:0 3px 0 rgba(7,49,84,.15)}
+.pasos-mob{display:none}
+@keyframes boing0{0%,100%{scale:1}42%{scale:1.04}}
+@keyframes boing1{0%,100%{scale:1}42%{scale:1.04}}
+@keyframes boingc0{0%,100%{scale:1}42%{scale:1.06}}
+@keyframes boingc1{0%,100%{scale:1}42%{scale:1.06}}
+.navlinks a{display:inline-block}
+@media (prefers-reduced-motion:reduce){.btn3d,.tile{animation:none !important}}
+.tile{transition:transform .08s}
+.tile:hover{transform:translateY(-2px)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.leccion{display:flex;flex-wrap:wrap;gap:40px;align-items:center}
+.navlinks{display:flex;gap:44px}
+@media (max-width:900px){
+.hero{aspect-ratio:auto;background:#f6f4f4}
+.hero-bg{position:static;display:block;width:100%;height:280px;object-fit:cover;object-position:88% 50%}
+.hero-txt{position:static;transform:none;width:auto;padding:32px 20px 28px;gap:16px}
+.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+.mundos{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.hero{min-height:0}
+.navlinks{display:none}
+.mundo,.mundo.inv{flex-direction:column;gap:28px}
+.mundo-img{flex:none;width:min(320px,80vw)}
+}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+<template id="tpl">
+<div style="font-family: Fredoka, system-ui, sans-serif; color: #1d1e1c; background: #f6f4f4; min-height: 100vh">
+
+  <nav style="background: #743c8c; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 5vw; flex-wrap: wrap">
+    <div style="display: flex; align-items: center; gap: 64px">
+      <a href="#inicio" onClick="{{irInicio}}" aria-label="Melora, inicio" style="display: flex; align-items: center">
+        <svg viewBox="95 240 700 200" style="height: 36px; width: auto" role="img" aria-label="Melora">
+          <path fill="#ffffff" d="M183.57,301.97c-9.92-2.42-20.97,1.43-22.48,11.8-.79,5.42-.23,10.68.81,16.07l2.25,11.61,3.38,18.93c1.31,7.34.46,14.79-2.51,21.55-5.65,12.88-16.6,21.84-30.14,25.3-8.14,2.08-16.22,1.46-23.73-1.94-15.77-7.13-22.54-24.640-15.5-40.65,4.66-10.58,13.81-18.83,24.92-22.6,4.78-1.62,9.51-2.14,14.4-3.06,1.45-.27,2.86-.48,4.12-1.27.36-2.88.2-5.66-.23-8.57l-3.05-20.97c-1.28-8.85-.44-17.23,1.27-25.87,1.14-5.75,3.23-10.53,6.96-15.03,5.48-6.63,12.6-10.98,21.22-12.31,4.81-.74,9.37-1.1,14.31-.31,9.61,1.54,18.82,3.73,28.29,5.97,14.96,3.54,29.26-.97,42.12-8.82s31.65-13.84,43.3-2.01c4.19,4.25,6.29,9.8,7.73,15.49,1.66,6.58,1.49,12.92,1.85,19.69l2,37.72c.66,12.43.98,24.34-.36,36.75-2.56,23.7-26.26,40.03-49.57,36.79-10.65-1.48-20.13-7.46-24.84-17.07-4.01-8.19-3.92-17.09-.36-25.32,8.08-17.91,27.07-28.33,46.67-25.83.41-10.48.29-20.37-.4-30.54-.16-2.31-.98-4.41-2.55-5.95-5.09-1.96-10.93,2.17-16.06,5.19-4.31,2.54-8.33,5.15-12.97,7.1-13.86,5.84-30.13,5.66-44.73,2.1l-16.13-3.93Z"></path>
+          <text x="314.96" y="373.81" fill="#ffffff" style="font-family: Fredoka, sans-serif; font-weight: 700; font-size: 179px">elora</text>
+        </svg>
+      </a>
+      <div class="navlinks" style="font-family: Inter, system-ui, sans-serif; font-weight: 500; font-size: 16px">
+        <a href="#inicio" onClick="{{irInicioNav}}" style="{{navInicio}}; {{bNavI}}">Inicio</a>
+        <a href="#como-funciona" style="text-decoration: none; padding-bottom: 4px">Cómo funciona</a>
+        <a href="#mundos" onClick="{{irMundosNav}}" style="{{navMundos}}; {{bNavM}}">Mundos</a>
+        <a href="#comunidad" style="text-decoration: none; padding-bottom: 4px">Comunidad</a>
+        <a href="#padres" style="text-decoration: none; padding-bottom: 4px">Para padres</a>
+      </div>
+    </div>
+    <a href="#login" style="text-decoration: none; font-weight: 600; font-size: 16px; color: #743c8c; background: #ffffff; border-radius: 999px; padding: 9px 26px">Iniciar sesión</a>
+  </nav>
+
+  <sc-if value="{{enInicio}}" hint-placeholder-val="{{ true }}">
+    <div>
+      <section id="inicio" class="hero">
+        <img class="hero-bg" src="img/hero3.webp" alt="">
+        <div class="hero-txt">
+          <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: clamp(14px, 1.3vw, 20px); letter-spacing: 0.02em; color: #0f9ad6">APRENDÉ MÚSICA A TU MANERA</p>
+          <h1 class="h1">Tu <span style="color: #743c8c">camino musical</span> empieza hoy.</h1>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; align-self: flex-start">
+            <button class="btn3d" type="button" onClick="{{empezarHero}}" style="font-family: Fredoka, sans-serif; font-weight: 500; font-size: clamp(18px, 1.9vw, 28px); color: #ffffff; background: #21a4de; border: 0; border-radius: 999px; padding: 0.45em 2.4em; box-shadow: 0 4px 0 #0187a8; cursor: pointer; {{bHero}}">Comenzar</button>
+            <span style="font-family: Inter, system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 17px); color: #3c4b57; text-align: center; line-height: 1.35">Descubrí tu nivel<br>en un minuto</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="como-funciona" style="background: #d9effb; padding: 72px 5vw">
+        <div class="leccion" style="max-width: 1280px; margin: 0 auto">
+          <div style="flex: 1 1 340px; display: flex; flex-direction: column; gap: 16px">
+            <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 17px; letter-spacing: 0.02em; color: #0f9ad6">PROBÁ UNA LECCIÓN</p>
+            <h2 style="margin: 0; font-size: clamp(32px, 3.4vw, 48px); line-height: 1.05; font-weight: 600">¿Cómo se siente<br><span style="color: #743c8c">aprender jugando</span>?</h2>
+            <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 19px; line-height: 1.45; color: #3c4b57; max-width: 400px">Tocá la nota en el momento justo y descubrí lo divertido que puede ser aprender guitarra.</p>
+            <a class="btn3d" onClick="{{demo}}" href="../" style="align-self: flex-start; text-decoration: none; font-weight: 500; font-size: 24px; color: #ffffff; background: #743c8c; border-radius: 999px; padding: 12px 40px; box-shadow: 0 4px 0 #4e2660; {{bDemo}}">Probar demo</a>
+          </div>
+          <div style="flex: 3 1 520px; display: flex; align-items: center; gap: 2%; min-width: 0">
+            <img src="img/tel-practica.webp" alt="Práctica de Hotel California en la app" style="width: 66%; height: auto">
+            <img src="img/tel-camino.webp" alt="Pantalla Mi Camino de la app" style="width: 30%; height: auto">
+          </div>
+        </div>
+      </section>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{enMundos}}" hint-placeholder-val="{{ false }}">
+    <div id="mundos">
+      <section style="background: #3fb4ec; padding: 64px 5vw 70px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px">
+        <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.08em; color: #ffffff">MUNDOS</p>
+        <h1 style="margin: 0; font-size: clamp(36px, 4vw, 56px); font-weight: 600; color: #ffffff; line-height: 1.05">Cada mundo, un nuevo desafío</h1>
+        <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 19px; color: #ffffff; max-width: 620px; line-height: 1.45">Explorá nuevos conceptos, practicá y llevá tu música al siguiente nivel.</p>
+      </section>
+      <sc-for list="{{mundos}}" as="m" hint-placeholder-count="4">
+        <section style="{{m.fondo}}" data-mundo="{{m.idx}}">
+          <div class="{{m.clase}}">
+            <div class="mundo-img" style="{{m.aura}}">
+              <img class="flota" src="{{m.img}}" alt="{{m.alt}}" style="{{m.imgStyle}}">
+            </div>
+            <div class="mundo-txt" style="{{m.txtStyle}}">
+              <span style="{{m.chip}}">{{m.etiqueta}}</span>
+              <h2 style="margin: 0; font-size: clamp(30px, 3vw, 42px); font-weight: 600; line-height: 1.1; color: #1d1e1c">{{m.titulo}}</h2>
+              <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 17px; line-height: 1.5; color: #3c4b57; max-width: 560px">{{m.texto}}</p>
+              <p style="margin: 10px 0 0; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.08em; color: #6b6b75">{{m.nivelesLabel}}</p>
+              <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+                <sc-for list="{{m.niveles}}" as="n" hint-placeholder-count="4">
+                  <li style="{{n.li}}">
+                    <span style="{{n.num}}">{{n.i}}</span>
+                    <span style="display: flex; flex-direction: column; min-width: 0">
+                      <span style="font-family: Fredoka, sans-serif; font-weight: 500; font-size: 17px; color: #1d1e1c">{{n.nombre}}</span>
+                      <span style="font-family: Inter, system-ui, sans-serif; font-size: 13px; color: #6b6b75">{{n.tipo}}</span>
+                    </span>
+                  </li>
+                </sc-for>
+              </ol>
+            </div>
+          </div>
+        </section>
+      </sc-for>
+      <section style="background: #743c8c; padding: 72px 5vw; display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center">
+        <h2 style="margin: 0; font-size: clamp(30px, 3vw, 42px); font-weight: 600; color: #ffffff">¿Desde qué mundo arrancás vos?</h2>
+        <button class="btn3d" type="button" onClick="{{empezarMundos}}" style="font-family: Fredoka, sans-serif; font-size: 20px; font-weight: 600; color: #ffffff; background: #96c236; border: 0; border-radius: 999px; padding: 14px 36px; box-shadow: 0 4px 0 #6f9424; cursor: pointer; {{bMundos}}">Hacé el test de nivel</button>
+      </section>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{enTest}}" hint-placeholder-val="{{ false }}">
+    <section style="padding: 48px 20px 72px; display: flex; justify-content: center">
+      <div style="width: 100%; max-width: 900px; background: #ffffff; border: 1.5px solid #e6dfeb; border-radius: 24px; padding: 28px 32px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px">
+          <div style="width: 40px"></div>
+          <div style="display: flex; align-items: center" aria-label="{{pasoLabel}}">
+            <sc-for list="{{nodos}}" as="n" hint-placeholder-count="4">
+              <div style="display: flex; align-items: center">
+                <sc-if value="{{n.linea}}" hint-placeholder-val="{{ false }}"><div style="{{n.lineaStyle}}"></div></sc-if>
+                <div style="{{n.style}}">
+                  <sc-if value="{{n.hecho}}" hint-placeholder-val="{{ false }}">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <span style="font-size: 14px; color: #6b6b75; white-space: nowrap">{{pasoLabel}}</span>
+        </div>
+
+        <sc-if value="{{enPregunta}}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column; gap: 24px">
+            <div style="text-align: center; display: flex; flex-direction: column; gap: 6px">
+              <h1 style="margin: 0; font-size: clamp(26px, 3vw, 36px); font-weight: 600; line-height: 1.15">{{pregunta}}</h1>
+              <p style="margin: 0; font-size: 17px; color: #6b6b75">{{bajada}}</p>
+            </div>
+            <div class="tiles">
+              <sc-for list="{{opciones}}" as="o" hint-placeholder-count="4">
+                <button class="tile" type="button" onClick="{{o.pick}}" style="{{o.style}}">
+                  <div style="height: 104px; display: flex; align-items: center; justify-content: center">
+                    <sc-if value="{{o.esImg}}" hint-placeholder-val="{{ false }}"><img src="{{o.img}}" alt="" style="width: 96px; height: 96px"></sc-if>
+                    <sc-if value="{{o.esPh}}" hint-placeholder-val="{{ false }}"><span style="font-family: Inter, system-ui, sans-serif; font-size: 12px; color: #8a8792">*Ilustraciones*</span></sc-if>
+                  </div>
+                  <span style="font-weight: 600; font-size: 16px; line-height: 1.2; color: #1d1e1c">{{o.t}}</span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: flex-end">
+                <button class="btn3d" type="button" onClick="{{siguiente}}" style="display: flex; align-items: center; gap: 14px; font-family: Fredoka, sans-serif; font-size: 18px; font-weight: 600; color: #ffffff; background: #96c236; border: 0; border-radius: 999px; padding: 8px 8px 8px 30px; box-shadow: 0 4px 0 #6f9424; cursor: pointer; {{bSig}}">
+                  Siguiente
+                  <span style="width: 34px; height: 34px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#6f9424" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 6l6 6-6 6"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+                </button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{enAnalisis}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 22px">
+            <h1 style="margin: 0; font-size: clamp(28px, 3.2vw, 40px); font-weight: 600; text-align: center">Analizando tus respuestas...</h1>
+            <div style="display: flex; align-items: center; gap: 14px; width: 100%; max-width: 460px">
+              <div style="flex: 1; height: 16px; border-radius: 8px; background: #ece7f0; overflow: hidden"><div style="{{barraStyle}}"></div></div>
+              <span style="font-weight: 600; font-size: 18px; min-width: 48px; text-align: right">{{pctLabel}}</span>
+            </div>
+            <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; text-align: left; width: 100%; max-width: 460px">
+              <sc-for list="{{checks}}" as="c" hint-placeholder-count="4">
+                <li style="display: flex; align-items: center; gap: 12px">
+                  <span style="{{c.dot}}">
+                    <sc-if value="{{c.hecho}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+                  </span>
+                  <span style="{{c.txt}}">{{c.t}}</span>
+                </li>
+              </sc-for>
+            </ul>
+            <button class="btn3d" type="button" style="align-self: flex-end; font-family: Fredoka, sans-serif; font-size: 18px; font-weight: 600; color: #ffffff; background: #96c236; border: 0; border-radius: 999px; padding: 11px 34px; box-shadow: 0 4px 0 #6f9424; cursor: pointer">Completado</button>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+  </sc-if>
+
+
+</div>
+</template>
+<script>
+
+class DCLogic{constructor(p){this.props=p||{};this.state={};this.__q=false}
+ setState(p,cb){const n=typeof p==='function'?p(this.state,this.props):p;this.state=Object.assign({},this.state,n);__schedule(cb)}forceUpdate(){__schedule()}}
+let __comp,__root,__tpl,__mounted=false,__pend=false,__cbs=[];
+function __schedule(cb){if(cb)__cbs.push(cb);if(__pend)return;__pend=true;Promise.resolve().then(()=>{__pend=false;__render();const c=__cbs;__cbs=[];c.forEach(f=>f())})}
+function __get(path,sc){path=path.trim();if(path==='true')return true;if(path==='false')return false;if(/^-?\d+(\.\d+)?$/.test(path))return +path;if(/^'.*'$/.test(path))return path.slice(1,-1);
+ return path.split('.').reduce((o,k)=>o==null?undefined:o[k],sc)}
+function __interp(str,sc){const m=/^\s*\{\{([^}]+)\}\}\s*$/.exec(str);if(m)return __get(m[1],sc);return str.replace(/\{\{([^}]+)\}\}/g,(_,p)=>{const v=__get(p,sc);return v==null?'':String(v)})}
+function __build(node,sc,out){
+ if(node.nodeType===3){out.push(document.createTextNode(node.nodeValue.includes('{{')?String(__interp(node.nodeValue,sc)??''):node.nodeValue));return}
+ if(node.nodeType!==1)return;const tag=node.localName;
+ if(tag==='sc-if'){if(__interp(node.getAttribute('value'),sc))node.childNodes.forEach(c=>__build(c,sc,out));return}
+ if(tag==='sc-for'){const list=__interp(node.getAttribute('list'),sc)||[],as=node.getAttribute('as')||'item';list.forEach((it,i)=>{const s2=Object.assign({},sc,{[as]:it,$index:i});node.childNodes.forEach(c=>__build(c,s2,out))});return}
+ const el=node.namespaceURI&&node.namespaceURI!=='http://www.w3.org/1999/xhtml'?document.createElementNS(node.namespaceURI,node.tagName):document.createElement(tag);
+ for(const a of node.attributes){const n=a.name;if(n.startsWith('hint-'))continue;
+  if(/^on[a-z]+$/i.test(n)){const v=__interp(a.value,sc);el['__on_'+n.slice(2).toLowerCase()]=v;continue}
+  const v=a.value.includes('{{')?__interp(a.value,sc):a.value;if(v===false||v==null)continue;el.setAttribute(n,v===true?'':String(v))}
+ const kids=[];node.childNodes.forEach(c=>__build(c,sc,kids));kids.forEach(k=>el.appendChild(k));out.push(el)}
+const __EV=['click','pointerdown','input','change'];
+function __morph(a,b){
+ if(a.nodeType!==b.nodeType||a.nodeName!==b.nodeName){a.replaceWith(b);return}
+ if(a.nodeType===3){if(a.nodeValue!==b.nodeValue)a.nodeValue=b.nodeValue;return}
+ for(const at of [...a.attributes])if(!b.hasAttribute(at.name))a.removeAttribute(at.name);
+ for(const at of b.attributes)if(a.getAttribute(at.name)!==at.value)a.setAttribute(at.name,at.value);
+ __EV.forEach(e=>{a['__on_'+e]=b['__on_'+e]});
+ const ac=[...a.childNodes],bc=[...b.childNodes];
+ for(let i=0;i<bc.length;i++){if(i<ac.length)__morph(ac[i],bc[i]);else a.appendChild(bc[i])}
+ for(let i=bc.length;i<ac.length;i++)ac[i].remove()}
+function __render(){const vals=__comp.renderVals();const out=[];__tpl.content.childNodes.forEach(c=>__build(c,vals,out));
+ const frag=document.createElement('div');out.forEach(n=>frag.appendChild(n));
+ if(!__mounted){while(frag.firstChild)__root.appendChild(frag.firstChild);__mounted=true;__comp.componentDidMount&&__comp.componentDidMount()}
+ else{(function(){const ac=[...__root.childNodes],bc=[...frag.childNodes];for(let i=0;i<bc.length;i++){if(i<ac.length)__morph(ac[i],bc[i]);else __root.appendChild(bc[i])}for(let i=bc.length;i<ac.length;i++)ac[i].remove()})();__comp.componentDidUpdate&&__comp.componentDidUpdate()}}
+__EV.forEach(e=>document.addEventListener(e,ev=>{let n=ev.target;while(n&&n!==document){const h=n['__on_'+e];if(typeof h==='function'){h(ev);if(e==='click'&&n.tagName==='A'&&(n.getAttribute('href')||'').startsWith('#'))ev.preventDefault();break}n=n.parentNode}}));
+
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { vista: 'inicio', paso: 0, resp: [null, null, null], error: false, pct: 0 };
+  }
+  boing(id, fn, ms = 260) { const n = (this.state.bn || 0) + 1; this.setState({ bump: id, bn: n }); clearTimeout(this.bt); this.bt = setTimeout(() => { this.setState({ bump: null }); fn && fn(); }, ms); }
+  componentWillUnmount() { clearTimeout(this.bt); clearInterval(this.t); if (this.io) this.io.disconnect(); }
+  componentDidMount() { this.vigilar(); }
+  componentDidUpdate() { this.vigilar(); }
+  vigilar() {
+    if (this.state.vista !== 'mundos') { if (this.io) { this.io.disconnect(); this.io = null; } return; }
+    if (this.io) return;
+    if (typeof IntersectionObserver !== 'function') { this.setState({ vis: { 0: 1, 1: 1, 2: 1, 3: 1 } }); return; }
+    this.io = new IntersectionObserver(es => {
+      const nv = { ...(this.state.vis || {}) }; let cambio = false;
+      es.forEach(e => { if (e.isIntersecting) { nv[e.target.getAttribute('data-mundo')] = 1; this.io && this.io.unobserve(e.target); cambio = true; } });
+      if (cambio) this.setState({ vis: nv });
+    }, { threshold: 0.2 });
+    setTimeout(() => { if (this.io) document.querySelectorAll('[data-mundo]').forEach(el => this.io.observe(el)); }, 60);
+  }
+  analizar() {
+    clearInterval(this.t);
+    this.setState({ vista: 'analizando', pct: 0 });
+    this.t = setInterval(() => {
+      const p = Math.min(100, (this.state.pct || 0) + 2);
+      this.setState({ pct: p });
+      if (p >= 100) clearInterval(this.t);
+    }, 70);
+  }
+  renderVals() {
+    const s = this.state, V = '#743c8c';
+    const anim = (id, chico) => s.bump === id ? 'animation: boing' + (chico ? 'c' : '') + ((s.bn || 0) % 2) + ' .42s ease-in-out' : '';
+    const IMG = { criolla: 'img/g-criolla.webp', acustica: 'img/g-acustica.webp', electrica: 'img/g-electrica.webp' };
+    const OBJ = [{ id: 'primeras', t: 'Aprender mis primeras canciones' }, { id: 'riffs', t: 'Tocar riffs y solos' }, { id: 'acompanar', t: 'Acompañar canciones' }, { id: 'teoria', t: 'Entender teoría musical' }];
+    const P = [
+      { q: '¿Cuál es tu nivel actual?', b: 'Esto nos ayuda a recomendarte el mejor punto de partida.', o: OBJ },
+      { q: '¿Qué guitarra tenés?', b: 'Seleccioná tu instrumento', o: [
+        { id: 'criolla', t: 'Criolla / Clásica', img: IMG.criolla }, { id: 'acustica', t: 'Acústica', img: IMG.acustica },
+        { id: 'electrica', t: 'Eléctrica', img: IMG.electrica }, { id: 'no', t: 'No tengo' }] },
+      { q: '¿Qué te gustaría lograr con la guitarra?', b: 'Elegí la opción que más te motive.', o: OBJ }
+    ];
+    const paso = s.paso, cur = P[paso];
+    const base = 'font-family: Fredoka, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 10px; min-height: 176px; padding: 14px 12px 16px; border-radius: 18px; cursor: pointer; text-align: center; ';
+    const opciones = cur.o.map(o => {
+      const sel = s.resp[paso] === o.id;
+      return {
+        t: o.t, img: o.img || '', esImg: !!o.img, esPh: !o.img,
+        style: anim('op' + paso + o.id) + '; ' + base + (sel ? 'background: #f3ebfa; border: 2px solid ' + V + '; box-shadow: 0 4px 0 #d9c6e6' : 'background: #ffffff; border: 2px solid #e3dde8; box-shadow: 0 4px 0 #ece7f0'),
+        pick: () => { const r = s.resp.slice(); r[paso] = o.id; this.setState({ resp: r, error: false }); this.boing('op' + paso + o.id, null, 420); }
+      };
+    });
+    const etapa = s.vista === 'analizando' ? 3 : paso;
+    const completo = s.vista === 'analizando' && s.pct >= 100;
+    const nodos = [0, 1, 2, 3].map(i => {
+      const hecho = i < etapa || (i === 3 && completo), actual = i === etapa && !hecho;
+      return {
+        hecho, linea: i > 0,
+        lineaStyle: 'width: clamp(28px, 7vw, 80px); height: 3px; background: ' + (i <= etapa ? V : '#e3dde8'),
+        style: 'width: 22px; height: 22px; border-radius: 50%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; ' +
+          (hecho ? 'background: ' + V : actual ? 'background: #ffffff; border: 3px solid ' + V : 'background: #d9d6dd')
+      };
+    });
+    const pct = s.pct || 0;
+    const checks = ['Conociendo tu nivel', 'Analizando tus objetivos', 'Preparando tu recorrido personalizado', 'Seleccionando tu primera meta'].map((t, i) => {
+      const thr = (i + 1) * 25, hecho = pct >= thr, actual = !hecho && pct >= thr - 25;
+      return {
+        t, hecho,
+        dot: 'width: 22px; height: 22px; border-radius: 50%; box-sizing: border-box; flex: none; display: flex; align-items: center; justify-content: center; ' + (hecho ? 'background: ' + V : actual ? 'border: 3px solid ' + V + '; border-right-color: #e6dfeb' : 'border: 2px solid #cfcad6'),
+        txt: 'font-size: 16px; ' + (hecho ? 'color: #1d1e1c' : actual ? 'color: #1d1e1c; font-weight: 600' : 'color: #8a8792')
+      };
+    });
+    const NIV = { nunca: ['Principiante', 1], acordes: ['Explorador', 1], simples: ['Intermedio', 2], tiempo: ['Avanzado', 2] }[s.resp[0]] || ['Principiante', 1];
+    const RUTA = { primeras: 'Primeras canciones', riffs: 'Riffs y solos', acompanar: 'Acordes y acompañamiento', teoria: 'Teoría y lectura' }[s.resp[2]] || '';
+    const GTR = { criolla: 'Criolla / Clásica', acustica: 'Acústica', electrica: 'Eléctrica', no: 'Todavía no tengo' }[s.resp[1]] || '';
+    const MUNDOS = [
+      { n: 'Mundo 1', t: 'El instrumento y primeras melodías', img: 'img/m1.webp' },
+      { n: 'Mundo 2', t: 'El mástil, teoría y alteraciones', img: 'img/m2.webp' },
+      { n: 'Mundo 3', t: 'Armonía y acordes', img: 'img/m3.webp' },
+      { n: 'Mundo 4', t: 'Escalas, cejilla y círculo de quintas', img: 'img/m4.webp' }
+    ];
+    const MDATA = [
+      { n: '1', t: 'El instrumento y primeras melodías', d: 'Conocé tu guitarra, aprendé las notas en las cuerdas al aire y tocá tus primeras melodías leyendo tablatura.', c: '#d9772c', tint: '#fbe7d6', img: 'img/m1.webp',
+        L: [['Partes de la guitarra', 'Lección'], ['Notas en cuerdas al aire', 'Lección'], ['Lectura en tablatura y digitación', 'Lección'], ['Canción de práctica: Hotel California (Básico)', 'Canción de práctica'], ['Canción de práctica: Smoke On The Water (Básico)', 'Canción de práctica']] },
+      { n: '2', t: 'El mástil, teoría y alteraciones', d: 'Recorré el mástil nota por nota y entendé cómo funcionan los tonos, los semitonos, los sostenidos y los bemoles.', c: '#7a3fa0', tint: '#efe3f7', img: 'img/m2.webp',
+        L: [['Registro de octavas', 'Lección'], ['Distancias: tonos y semitonos', 'Lección'], ['Sostenidos y bemoles', 'Lección'], ['El diapasón en cifrado americano', 'Lección']] },
+      { n: '3', t: 'Armonía y acordes', d: 'Armá tus primeros acordes, aprendé a pasar de uno a otro y empezá a acompañar canciones completas.', c: '#1f8466', tint: '#d8f0e7', img: 'img/m3.webp',
+        L: [['Construcción de acordes', 'Lección'], ['Grillas y posiciones', 'Lección'], ['Canción de práctica: Juntos a la par', 'Canción de práctica']] },
+      { n: '4', t: 'Escalas, cejilla y círculo de quintas', d: 'Dominá las escalas, la cejilla y el círculo de quintas para tocar en cualquier tono y llevar tu sonido más lejos.', c: '#d1334a', tint: '#fbdfe3', img: 'img/m4.webp',
+        L: [['La escala mayor', 'Lección'], ['La cejilla', 'Lección'], ['El círculo de quintas', 'Lección']] }
+    ];
+    const quieto = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const vis = s.vis || {};
+    const EASE = 'cubic-bezier(.2,.8,.2,1)';
+    const mundos = MDATA.map((m, i) => { const on = quieto || !!vis[i], izq = i % 2 === 0; return {
+      idx: i,
+      aura: 'background: ' + m.tint + '; transition: transform .9s ' + EASE + ', opacity .9s ' + EASE + '; ' + (on ? 'opacity: 1; transform: none' : 'opacity: 0; transform: translateX(' + (izq ? -80 : 80) + 'px) scale(.85)'),
+      imgStyle: 'width: 92%; height: auto; transition: transform .9s ' + EASE + ' .15s; ' + (on ? 'transform: none' : 'transform: translateY(40px) rotate(' + (izq ? -6 : 6) + 'deg)'),
+      txtStyle: 'transition: transform .8s ' + EASE + ' .2s, opacity .8s ' + EASE + ' .2s; ' + (on ? 'opacity: 1; transform: none' : 'opacity: 0; transform: translateY(40px)'),
+      fondo: 'padding: 72px 5vw; background: ' + (i % 2 ? '#ffffff' : '#f6f4f4'),
+      clase: i % 2 ? 'mundo inv' : 'mundo',
+      img: m.img, alt: 'Isla del Mundo ' + m.n,
+      chip: 'align-self: flex-start; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.1em; color: #ffffff; background: ' + m.c + '; border-radius: 999px; padding: 7px 18px',
+      etiqueta: 'MUNDO ' + m.n, titulo: m.t, texto: m.d, nivelesLabel: 'NIVELES (' + m.L.length + ')',
+      niveles: m.L.map(([nombre, tipo], k) => ({ i: k + 1, nombre, tipo,
+        li: 'display: flex; align-items: center; gap: 14px; background: #ffffff; border-radius: 999px; padding: 8px 20px 8px 8px; box-shadow: 0 3px 0 #e3dde8; transition: transform .6s ' + EASE + ' ' + (0.45 + k * 0.09).toFixed(2) + 's, opacity .6s ' + EASE + ' ' + (0.45 + k * 0.09).toFixed(2) + 's; ' + (on ? 'opacity: 1; transform: none' : 'opacity: 0; transform: translateX(' + (izq ? 40 : -40) + 'px)'),
+        num: 'width: 36px; height: 36px; flex: none; border-radius: 50%; background: ' + m.c + '; color: #ffffff; font-family: Fredoka, sans-serif; font-weight: 600; font-size: 16px; display: flex; align-items: center; justify-content: center' }))
+    }; });
+    const navOn = 'text-decoration: none; border-bottom: 3px solid #ffffff; padding-bottom: 4px', navOff = 'text-decoration: none; padding-bottom: 4px';
+    const reset = { vista: 'inicio', paso: 0, resp: [null, null, null], error: false, pct: 0 };
+    return {
+      enInicio: s.vista === 'inicio', enMundos: s.vista === 'mundos', mundos,
+      navInicio: s.vista === 'mundos' ? navOff : navOn, navMundos: s.vista === 'mundos' ? navOn : navOff,
+      irMundos: () => { clearInterval(this.t); try { window.scrollTo(0, 0); } catch (e) {} this.setState({ vista: 'mundos', paso: 0, error: false, vis: {} }); },
+      enTest: s.vista === 'test' || s.vista === 'analizando',
+      enPregunta: s.vista === 'test', enAnalisis: s.vista === 'analizando',
+      enResultado: s.vista === 'resultado', enRegistro: s.vista === 'registro',
+      irInicio: () => { clearInterval(this.t); this.setState(reset); },
+      empezar: () => this.setState({ vista: 'test', paso: 0, error: false }),
+      empezarHero: () => this.boing('hero', () => this.setState({ vista: 'test', paso: 0, error: false })),
+      empezarMundos: () => this.boing('mundos', () => { try { window.scrollTo(0, 0); } catch (e) {} this.setState({ vista: 'test', paso: 0, error: false }); }),
+      demo: () => this.boing('demo', null, 420),
+      irInicioNav: () => this.boing('navI', () => { clearInterval(this.t); this.setState({ vista: 'inicio', paso: 0, resp: [null, null, null], error: false, pct: 0 }); }),
+      irMundosNav: () => this.boing('navM', () => { clearInterval(this.t); try { window.scrollTo(0, 0); } catch (e) {} this.setState({ vista: 'mundos', paso: 0, error: false, vis: {} }); }),
+      bNavI: anim('navI', true), bNavM: anim('navM', true),
+      bHero: anim('hero'), bMundos: anim('mundos'), bDemo: anim('demo'), bSig: anim('sig'),
+      pregunta: cur.q, bajada: cur.b, opciones, nodos, error: s.error,
+      pasoLabel: s.vista === 'analizando' ? '' : 'Paso ' + (paso + 1) + ' de 3',
+      atrasLabel: paso === 0 ? '‹ Volver al inicio' : '‹ Atrás',
+      atras: () => paso === 0 ? this.setState({ vista: 'inicio', error: false }) : this.setState({ paso: paso - 1, error: false }),
+      siguiente: () => {
+        if (!s.resp[paso]) return;
+        this.boing('sig', () => { if (paso < 2) this.setState({ paso: paso + 1, error: false }); else this.analizar(); });
+      },
+      barraStyle: 'height: 100%; border-radius: 8px; background: ' + V + '; width: ' + pct + '%',
+      pctLabel: pct + '%', checks, listo: completo, noListo: !completo,
+      verResultado: () => this.setState({ vista: 'resultado' }),
+      nivel: NIV[0], ruta: RUTA, guitarra: GTR,
+      islas: MUNDOS.slice(NIV[1] - 1, NIV[1] + 2),
+      aRegistro: () => this.setState({ vista: 'registro' }),
+      repetir: () => this.setState({ vista: 'test', paso: 0, resp: [null, null, null], error: false, pct: 0 }),
+      masAdelante: () => this.setState({ vista: 'resultado' })
+    };
+  }
+}
+
+__tpl=document.getElementById('tpl');__root=document.getElementById('app');__comp=new Component({});__render();
+</script>
+</body>
+</html>
