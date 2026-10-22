@@ -11334,7 +11334,7 @@ function islandTap(rc,to,r){
  if(window.__scrolled||SLIDING)return;
  const els=islandEls(rc);
  // se expande y vuelve a su tamaño normal
- els.forEach(e=>{if(!e.animate)return;e.style.transformBox='fill-box';e.style.transformOrigin='50% 55%';
+ buzz();els.forEach(e=>{if(!e.animate)return;e.style.transformBox='fill-box';e.style.transformOrigin='50% 55%';
   e.animate([{transform:'scale(1)'},{transform:'scale(1.09)',offset:.45},{transform:'scale(1)'}],{duration:440,easing:'ease-in-out'})});
  if(to.startsWith('t:')||to==='noop'||!els.length){act(to,r);return}
  svg.style.pointerEvents='none';setTimeout(()=>{svg.style.pointerEvents='';act(to,r)},330)}
@@ -11360,7 +11360,8 @@ function btnBounce(r,to){try{if(!r||!r.getAttribute||(cur==='mapa'&&to==='m1moda
  els.forEach(e=>{if(!e.animate)return;const m=e.parentNode.getScreenCTM&&e.parentNode.getScreenCTM();if(!m)return;const p=svg.createSVGPoint();p.x=cx;p.y=cy;const l=p.matrixTransform(m.inverse());
   e.style.transformBox='view-box';e.style.transformOrigin=l.x+'px '+l.y+'px';ok=true;
   e.animate([{scale:'1'},{scale:sc,offset:.45},{scale:'1'}],{duration:360,easing:'ease-in-out'})});return ok}catch(er){window.__be=String(er);return false}}
-function act(to,r,nd){if(window.__scrolled)return;if(to==='noop')return;if(!nd&&to!=='f'&&to!=='tog'&&!String(to).startsWith('t:')&&btnBounce(r,to)){svg.style.pointerEvents='none';setTimeout(()=>{svg.style.pointerEvents='';act(to,r,1)},180);return}   // se ve el rebote y recién ahí cambia de pantalla
+function buzz(){try{if(navigator.vibrate&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))navigator.vibrate(9)}catch(e){}}   // vibración muy leve al tocar un botón
+function act(to,r,nd){if(window.__scrolled)return;if(to==='noop')return;if(!nd&&to!=='f'&&to!=='tog'&&!String(to).startsWith('t:')&&btnBounce(r,to)){buzz();svg.style.pointerEvents='none';setTimeout(()=>{svg.style.pointerEvents='';act(to,r,1)},180);return}   // se ve el rebote y recién ahí cambia de pantalla
  if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
  if(to==='tog'){if(window.__tuner&&cur==='tunerOff'){__tuner.toOk(()=>go('tunerOk',0))}else go(cur==='tunerOff'?'tunerOk':'tunerOff',0);return}
  if(to==='apr'){window.__cancApr&&__cancApr();return}
