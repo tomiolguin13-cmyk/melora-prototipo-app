@@ -11420,12 +11420,12 @@ function core(k){cur=k;if(window.__tuner)__tuner.on(k);if(k!=='practica'){try{SC
  clearInterval(tun);
  }
 function show(k){if(SLIDING)SLIDING.finish();if((k==='cw'||k==='cf'||k==='mapa')&&window.__float&&__float.clouds)__float.clouds(true);   // las nubes ya se mueven antes de que la pantalla entre (no hay salto al arrancar)
- if(window.__pop)__pop.prep(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
+ if(k==='comW'&&window.__fillComW)__fillComW();if(window.__pop)__pop.prep(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
  if(window.__instant){cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;return}   // mismo fondo: sin corte
  const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
  const tg=(prevK==='tunerOff'||prevK==='tunerOk')&&(k==='tunerOff'||k==='tunerOk');
  if(tg&&window.__tuner&&prevK!==k){cur=k;core(k);if(k==='tunerOff')__tuner.fromOk();return}   // el afinador que cambia de estado no desliza
- if(((prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa'))&&document.startViewTransition&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){   // las ventanas de bienvenida comparten el mismo fondo: solo se funde la ventana, sin mover nada de la pantalla
+ if(((prevK==='comW'&&k==='comHub')||(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa'))&&document.startViewTransition&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){   // las ventanas de bienvenida comparten el mismo fondo: solo se funde la ventana, sin mover nada de la pantalla
   NAVDIR=1;svg.style.transition='';svg.style.opacity=1;try{document.startViewTransition(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1});return}catch(e){}}
  if(prevK!==k&&!tg&&canSlide(prevK,k)){if(/^m1[bc]?$/.test(prevK)&&k==='mapa')NAVDIR=-1;   // volver: la pantalla anterior entra desde la izquierda
   if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa')||(prevK==='comW'&&k==='comHub')||(prevK==='mapa'&&k==='m1modal')||(prevK==='m1modal'&&k==='mapa')||(prevK==='c1'&&k==='lg')||(prevK==='lg'&&k==='lgm')||(prevK==='lgm'&&/^m1/.test(k)));return}
@@ -12115,9 +12115,17 @@ window.__pop=(()=>{const ST={},calm=matchMedia&&matchMedia('(prefers-reduced-mot
   const b2=o.g.animate([{opacity:0,scale:'.88'},{opacity:1,scale:'1'}],{duration:480,delay:820,easing:'cubic-bezier(.2,1.15,.4,1)',fill:'both'});
   b2.onfinish=()=>{o.g.style.opacity='';b2.cancel()}};
  return{prep,play}})();
+// Bienvenida de Comunidad: el fondo es exactamente el de la pantalla Comunidad (con sus ilustraciones), no el borrador gris
+window.__fillComW=(()=>{let done=false;return()=>{if(done)return;try{
+ const wa=svg.querySelector('g.fw[data-f="comW"]'),wb=svg.querySelector('g.fw[data-f="comHub"]');if(!wa||!wb)return;
+ const bg=[...wa.children].find(c=>c.tagName==='g'&&c.children.length>10);if(!bg)return;
+ const cl=wb.cloneNode(true);cl.removeAttribute('data-f');cl.removeAttribute('class');cl.removeAttribute('display');cl.style.pointerEvents='none';
+ const ddx=FR.comW[0]-FR.comHub[0],ddy=FR.comW[1]-FR.comHub[1];const tn=e=>(e.getAttribute('transform')||'').match(/-?\d*\.?\d+/g).map(parseFloat),Ta=tn(wa),Tb=tn(wb);   // la copia vive dentro de la pantalla de bienvenida, que ya está trasladada
+ cl.setAttribute('transform','translate('+(Tb[0]+ddx-Ta[0]).toFixed(2)+' '+(Tb[1]+ddy-Ta[1]).toFixed(2)+')');
+ wa.insertBefore(cl,bg);bg.style.display='none';done=true}catch(e){window.__fe=String(e)}}})();
 // Las pantallas de bienvenida de Mi Camino no muestran las islas: aparecen recién con la animación de entrada
 {let hid=0;window.__hideWelcomeIslands=()=>{if(hid)return;hid=1;['cw','cf'].forEach(fk=>{try{H.mapa.slice(0,4).forEach(h=>islandEls(h.slice(0,4),fk).forEach(g=>{g.style.display='none'}));const w=svg.querySelector('g.fw[data-f="'+fk+'"]');w&&[...w.querySelectorAll('path')].forEach(e=>{const d=getComputedStyle(e).strokeDasharray;if(d&&d!=='none')e.style.display='none'})}catch(e){}})}}
-{const _core=core;core=function(k){_core(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(window.__pop)__pop.play(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
+{const _core=core;core=function(k){_core(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='comW'&&window.__fillComW)__fillComW();if(window.__pop)__pop.play(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
 /* ===== Tutorial previo a la práctica Hotel California: "¿Cómo funciona?" (4 pasos) → Comenzar → cuenta regresiva 3-2-1 → práctica ===== */
 window.__tut=(()=>{
   const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),H1=fwOf('t1'),mkg=()=>document.createElementNS(NS,'g');if(!H1)return null;
