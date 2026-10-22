@@ -11342,16 +11342,22 @@ const BTNC=new WeakMap();
 function greenIn(g){const f=e=>{const m=/rgb\((\d+), (\d+), (\d+)\)/.exec(getComputedStyle(e).fill);return !!m&&+m[2]>=150&&+m[2]-+m[1]>=40&&+m[2]-+m[3]>=90};
  return f(g)||[...g.querySelectorAll('path,rect,circle')].some(f)}
 function btnBounce(r,to){try{if(!r||!r.getAttribute||(cur==='mapa'&&to==='m1modal')||cur==='practica')return false;let els=BTNC.get(r);
- if(!els){els=[];const w=svg.querySelector('g.fw[data-f="'+cur+'"]');if(w){const rx=+r.getAttribute('x'),ry=+r.getAttribute('y'),rw=+r.getAttribute('width'),rh=+r.getAttribute('height'),cx=rx+rw/2,cy=ry+rh/2;let best=null,ba=1e9;
-  w.querySelectorAll('g,path,rect').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}if(!b.width)return;const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),gw=q2[0]-q[0],gh=q2[1]-q[1];
-   if(gw<rw*.8||gw>rw*1.25||gh<rh*.75||gh>rh*1.3)return;if(Math.hypot((q[0]+q2[0])/2-cx,(q[1]+q2[1])/2-cy)>10)return;const a=gw*gh;if(a<ba){ba=a;best=g}});
-  if(!best){let ba2=0;   // si no hay una pieza del mismo tamaño (flechas, cruces, íconos de la barra, filas), se toma la más grande que entra en la zona táctil
+ const w=svg.querySelector('g.fw[data-f="'+cur+'"]');if(!w)return false;
+ if(!els){els=[];const rx=+r.getAttribute('x'),ry=+r.getAttribute('y'),rw=+r.getAttribute('width'),rh=+r.getAttribute('height'),pad=3;
+  const cand=[];   // todo lo que está dentro de la zona táctil (fondo, íconos, textos) se mueve junto
+  w.querySelectorAll('g,path,rect,circle,text,image,ellipse,polygon').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}if(!b.width&&!b.height)return;const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),gw=q2[0]-q[0],gh=q2[1]-q[1];
+   if(q[0]<rx-pad||q[1]<ry-pad||q2[0]>rx+rw+pad||q2[1]>ry+rh+pad)return;if(gw>rw*1.08||gh>rh*1.08)return;if(gw*gh<4&&g.tagName!=='text')return;cand.push(g)});
+  els=cand.filter(g=>!cand.some(o=>o!==g&&o.contains(g)));
+  if(!els.length){let ba2=0,best=null;   // si no hay piezas dentro (flechas, cruces, íconos), se toma la más grande que entra en la zona táctil
    w.querySelectorAll('g,path,rect,circle').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}if(!b.width)return;const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),gw=q2[0]-q[0],gh=q2[1]-q[1];
-    const mx=(q[0]+q2[0])/2,my=(q[1]+q2[1])/2;if(mx<rx||mx>rx+rw||my<ry||my>ry+rh||gw>rw*1.5||gh>rh*1.5)return;const a=gw*gh;if(a<rw*rh*.05||a<=ba2)return;ba2=a;best=g})}
-  if(best)els=[best]}BTNC.set(r,els);{const bw=+r.getAttribute('width'),bh=+r.getAttribute('height');r._bs=bw>130||bh>90?'1.04':'1.06'}}
- let ok=false;els.forEach(e=>{if(!e.animate)return;e.style.transformBox='fill-box';e.style.transformOrigin='50% 50%';ok=true;const sc=r._bs||'1.06';
-  if(e.hasAttribute('transform')||getComputedStyle(e).transform!=='none')e.animate([{scale:'1'},{scale:sc,offset:.45},{scale:'1'}],{duration:360,easing:'ease-in-out'});
-  else e.animate([{transform:'scale(1)'},{transform:'scale('+sc+')',offset:.45},{transform:'scale(1)'}],{duration:360,easing:'ease-in-out'})});return ok}catch(er){window.__be=String(er);return false}}
+    const mx=(q[0]+q2[0])/2,my=(q[1]+q2[1])/2;if(mx<rx||mx>rx+rw||my<ry||my>ry+rh||gw>rw*1.5||gh>rh*1.5)return;const a=gw*gh;if(a<rw*rh*.05||a<=ba2)return;ba2=a;best=g});
+   if(best)els=[best]}
+  BTNC.set(r,els);{const bw=+r.getAttribute('width'),bh=+r.getAttribute('height');r._bs=bw>130||bh>90?'1.04':'1.06'}}
+ // centro común: todo el conjunto se agranda alrededor del centro de la zona táctil
+ const rb=r.getBoundingClientRect(),cx=rb.x+rb.width/2,cy=rb.y+rb.height/2,sc=r._bs||'1.06';let ok=false;
+ els.forEach(e=>{if(!e.animate)return;const m=e.parentNode.getScreenCTM&&e.parentNode.getScreenCTM();if(!m)return;const p=svg.createSVGPoint();p.x=cx;p.y=cy;const l=p.matrixTransform(m.inverse());
+  e.style.transformBox='view-box';e.style.transformOrigin=l.x+'px '+l.y+'px';ok=true;
+  e.animate([{scale:'1'},{scale:sc,offset:.45},{scale:'1'}],{duration:360,easing:'ease-in-out'})});return ok}catch(er){window.__be=String(er);return false}}
 function act(to,r,nd){if(window.__scrolled)return;if(to==='noop')return;if(!nd&&to!=='f'&&to!=='tog'&&!String(to).startsWith('t:')&&btnBounce(r,to)){svg.style.pointerEvents='none';setTimeout(()=>{svg.style.pointerEvents='';act(to,r,1)},180);return}   // se ve el rebote y recién ahí cambia de pantalla
  if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
  if(to==='tog'){if(window.__tuner&&cur==='tunerOff'){__tuner.toOk(()=>go('tunerOk',0))}else go(cur==='tunerOff'?'tunerOk':'tunerOff',0);return}
@@ -11620,6 +11626,9 @@ setApp(INSTALLED);
     const cp=mk('clipPath',{id:'dynClip'});mk('rect',{x:2188-ddx,y:3020-ddy,width:153,height:188},cp);
     const clip=document.createElementNS(NS,'g');clip.setAttribute('clip-path','url(#dynClip)');(FW||svg).appendChild(clip);
     cards.forEach(c=>clip.appendChild(c));
+    {const b0=cards[0].firstElementChild;   // el rectángulo blanco queda fijo y opaco; solo cambia lo de adentro (imagen, textos y botón van juntos)
+     if(b0){const st=b0.cloneNode(false);const w=document.createElementNS(NS,'g');if(cards[0].getAttribute('transform'))w.setAttribute('transform',cards[0].getAttribute('transform'));w.appendChild(st);clip.insertBefore(w,clip.firstChild);
+      cards.forEach(c=>{const e=c.firstElementChild;if(e&&e.tagName===b0.tagName)e.style.display='none'})}}
     let idx=0,tm=0,drag=null,moved=false;
     const place=(i,anim)=>cards.forEach((c,k)=>{
       const pos=(k-i+3)%3,x=-nat[k]+(pos===0?0:pos===1?30:-30);
