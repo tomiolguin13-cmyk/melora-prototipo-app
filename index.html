@@ -11419,7 +11419,7 @@ function core(k){cur=k;if(window.__tuner)__tuner.on(k);if(k!=='practica'){try{SC
  $('play').style.display='none';$('jump').value=k;if(k==='practica'){resetP();setTimeout(()=>{if(cur==='practica'&&!busy)$('play').onclick()},500)}   // sin botón: la práctica arranca sola
  clearInterval(tun);
  }
-function show(k){if(SLIDING)SLIDING.finish();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
+function show(k){if(SLIDING)SLIDING.finish();if(window.__pop)__pop.prep(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
  if(window.__instant){cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;return}   // mismo fondo: sin corte
  const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
  const tg=(prevK==='tunerOff'||prevK==='tunerOk')&&(k==='tunerOff'||k==='tunerOk');
@@ -12095,9 +12095,26 @@ window.__intro=(()=>{ // Introducción: solo cambia la parte del medio (imagen, 
  const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k==='i1'){cancelAnimationFrame(raf);set(0)}};
  return {set};
 })();
+// Ventanas de bienvenida (Mi Camino, Comunidad): primero entra la pantalla de fondo, después se oscurece y recién ahí aparece la ventana
+window.__pop=(()=>{const ST={},calm=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const find=k=>{if(ST[k])return ST[k];const w=svg.querySelector('g.fw[data-f="'+k+'"]');if(!w)return null;const [fx,fy,fw,fh]=FR[k];
+  const ov=[...w.querySelectorAll('rect')].find(r=>{let b;try{b=r.getBBox()}catch(e){return false}return b.width>=fw*.95&&b.height>=fh*.95&&/rgb\(0, 0, 0\)/.test(getComputedStyle(r).fill)&&Math.abs(getComputedStyle(r).opacity-.5)<.05});
+  if(!ov)return null;const par=ov.parentNode,mod=[];let n=ov.nextSibling;while(n){if(n.nodeType===1)mod.push(n);n=n.nextSibling}
+  if(!mod.length)return null;const g=document.createElementNS(NS,'g');g.setAttribute('class','modal-pop');par.insertBefore(g,mod[0]);mod.forEach(e=>g.appendChild(e));
+  return ST[k]={ov,g,fx,fy,done:false,hid:false}};
+ const prep=k=>{if(calm||k!=='cw'&&k!=='comW')return;const o=find(k);if(!o||o.done||o.hid)return;o.hid=true;o.ov.style.opacity=0;o.g.style.opacity=0};
+ const play=k=>{if(calm||k!=='cw'&&k!=='comW')return;const o=find(k);if(!o||o.done||!o.ov.animate)return;if(!o.hid)prep(k);o.done=true;
+  const a=o.ov.animate([{opacity:0},{opacity:.5}],{duration:480,delay:350,easing:'ease-out',fill:'both'});
+  a.onfinish=()=>{o.ov.style.opacity='';a.cancel()};
+  const m=o.g.getScreenCTM(),sv=svg.createSVGPoint(),r=svg.getBoundingClientRect(),sc=r.width/(FR[k][2]);   // el centro de la ventana
+  let ox=161,oy=349;try{const b=o.g.getBBox();ox=b.x+b.width/2;oy=b.y+b.height/2}catch(e){}
+  o.g.style.transformBox='view-box';o.g.style.transformOrigin=ox+'px '+oy+'px';
+  const b2=o.g.animate([{opacity:0,scale:'.88'},{opacity:1,scale:'1'}],{duration:480,delay:820,easing:'cubic-bezier(.2,1.15,.4,1)',fill:'both'});
+  b2.onfinish=()=>{o.g.style.opacity='';b2.cancel()}};
+ return{prep,play}})();
 // Las pantallas de bienvenida de Mi Camino no muestran las islas: aparecen recién con la animación de entrada
-{let hid=0;window.__hideWelcomeIslands=()=>{if(hid)return;hid=1;['cw','cf'].forEach(fk=>{try{H.mapa.slice(0,4).forEach(h=>islandEls(h.slice(0,4),fk).forEach(g=>{g.style.display='none'}))}catch(e){}})}}
-{const _core=core;core=function(k){_core(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
+{let hid=0;window.__hideWelcomeIslands=()=>{if(hid)return;hid=1;['cw','cf'].forEach(fk=>{try{H.mapa.slice(0,4).forEach(h=>islandEls(h.slice(0,4),fk).forEach(g=>{g.style.display='none'}));const w=svg.querySelector('g.fw[data-f="'+fk+'"]');w&&[...w.querySelectorAll('path')].forEach(e=>{const d=getComputedStyle(e).strokeDasharray;if(d&&d!=='none')e.style.display='none'})}catch(e){}})}}
+{const _core=core;core=function(k){_core(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(window.__pop)__pop.play(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
 /* ===== Tutorial previo a la práctica Hotel California: "¿Cómo funciona?" (4 pasos) → Comenzar → cuenta regresiva 3-2-1 → práctica ===== */
 window.__tut=(()=>{
   const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),H1=fwOf('t1'),mkg=()=>document.createElementNS(NS,'g');if(!H1)return null;
@@ -12166,7 +12183,7 @@ window.__tut=(()=>{
      defs.forEach(d=>{const e=d[i]&&d[i].e;if(e&&e.animate)FL.cla.push(e.animate([{translate:(-L)+'px 0px'},{translate:R+'px 0px'}],{duration:dur,iterations:Infinity,direction:'alternate',easing:'ease-in-out',delay:-((i*.37)%1)*dur*2}))})})};
  const start=()=>{if(calm||FL.isl)return;FL.isl=1;
    rcs.forEach((rc,i)=>{const els=islandEls(rc).filter((e,_,a)=>!a.some(o=>o!==e&&o.contains(e)));if(!els.length)return;const g=els.length>1?grupo(els):els[0];if(!g.animate)return;(FL.isg=FL.isg||[]).push(g);
-     FL.push(g.animate([{translate:'0px 0px'},{translate:(i%2?-1.6:1.6)+'px -5.5px'},{translate:'0px 0px'}],{duration:3400+i*620,iterations:Infinity,easing:'ease-in-out',delay:-i*1100}))});
+     FL.push(g.animate([{translate:'0px 0px',easing:'cubic-bezier(.37,0,.63,1)'},{translate:(i%2?-1.6:1.6)+'px -5.5px',easing:'cubic-bezier(.37,0,.63,1)'},{translate:'0px 0px'}],{duration:4200+i*700,iterations:Infinity,easing:'linear',delay:-i*1100}))});
    const L=linea();if(L&&L.animate){const per=(getComputedStyle(L).strokeDasharray.split(/[ ,]+/).map(parseFloat).filter(n=>!isNaN(n)).reduce((a,b)=>a+b,0))||17;
      FL.push(L.animate([{strokeDashoffset:'0px'},{strokeDashoffset:(-per)+'px'}],{duration:1100,iterations:Infinity,easing:'linear'}))
      engancha(L)}};
