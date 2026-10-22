@@ -11437,22 +11437,30 @@ function slideTo(a,b,fade){
   const g=document.createElementNS(NS2,'g');g.setAttribute('clip-path','url(#'+id+')');const first=list[0];first.parentNode.insertBefore(g,first);list.forEach(w=>g.appendChild(w));return {g,cp,list,mark:null}};
  const places=[...[wa,...exA,wb,...exB].map(w=>[w,w.nextSibling])];
  const gA=clipG([ax,ay,aw,ah],[wa,...exA]),gB=clipG([ox,oy,bw,bh],[wb,...exB]);
- svg.style.pointerEvents='none';if(fade)gB.g.style.opacity=0;
+ const agua=fade&&a==='c1'&&b==='lg'&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);let W=null;   // ¡Lo lograste!: el verde sube como agua con ondas
+ if(agua){const id='agua'+Math.random().toString(36).slice(2,7),cp=document.createElementNS(NS2,'clipPath'),cpp=document.createElementNS(NS2,'path');cp.setAttribute('id',id);cp.appendChild(cpp);svg.insertBefore(cp,svg.firstChild);
+  const wr=document.createElementNS(NS2,'g');wr.setAttribute('clip-path','url(#'+id+')');gB.g.insertBefore(wr,wb);[wb,...exB].forEach(w=>wr.appendChild(w));
+  const espuma=document.createElementNS(NS2,'path');espuma.setAttribute('fill','#7be3a8');gB.g.insertBefore(espuma,wr);W={cp,cpp,wr,espuma}}
+ svg.style.pointerEvents='none';if(fade&&!agua)gB.g.style.opacity=0;
  const setOv=(vx,vy)=>{if(!ov)return;const M=ov.__M;ov.setAttribute('transform','matrix('+[M.a,M.b,M.c,M.d,M.e+(vx-bx),M.f+(vy-by)].join(' ')+')')};
  if(ov){pa.el.setAttribute('visibility','hidden');pb.el.setAttribute('visibility','hidden');setOv(ax,ay);svg.appendChild(ov);
   let t=ov.__cl;pb.path.forEach(i=>{t=t.children[i]});__nav.slide(a,b,t)}
  if(window.__m1reset)__m1reset(b);if(window.__prog)__prog(b);applyBG(b);
- const x1=ox,y1=oy,w1=bw,h1=bh,T=fade?380:420,t0=performance.now(),ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;let raf=0,done=false;
+ const x1=ox,y1=oy,w1=bw,h1=bh,T=agua?1250:fade?380:420,t0=performance.now(),ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;let raf=0,done=false;
  const finish=()=>{if(done)return;done=true;cancelAnimationFrame(raf);SLIDING=null;
   // se devuelve todo a su lugar (orden original y posiciones)
-  [gA,gB].forEach(o=>{o.list.forEach(w=>{const pl=places.find(p=>p[0]===w),ref=pl&&pl[1],par=o.g.parentNode;par.insertBefore(w,ref&&ref.parentNode===par?ref:o.g)});o.g.remove();o.cp.remove()});
+  if(W){W.cp.remove();W.espuma.remove()}
+  [gA,gB].forEach(o=>{o.list.forEach(w=>{const pl=places.find(p=>p[0]===w),ref=pl&&pl[1],par=o.g.parentNode;par.insertBefore(w,ref&&ref.parentNode===par?ref:o.g)});o.g.remove();o.cp.remove()});if(W)W.wr.remove();
   tfs.forEach(([w,t])=>t===null?w.removeAttribute('transform'):w.setAttribute('transform',t));
   undo.forEach(([e,v])=>v===null?e.removeAttribute('display'):e.setAttribute('display',v));
   if(ov){ov.remove();pa.el.removeAttribute('visibility');pb.el.removeAttribute('visibility')}
   svg.style.pointerEvents='';cur=b;core(b)};
  SLIDING={finish};
  const step=ts=>{if(done)return;const k=Math.min(1,(ts-t0)/T),e=ease(k);
-  if(fade)gB.g.style.opacity=e;else svg.setAttribute('viewBox',(ax+(x1-ax)*e)+' '+(ay+(y1-ay)*e)+' '+(aw+(w1-aw)*e)+' '+(ah+(h1-ah)*e));setOv(ax+(x1-ax)*e,ay+(y1-ay)*e);
+  if(agua){const ola=(lev,amp,fase)=>{let d='M'+x1+' '+(y1+h1+40);for(let x=0;x<=w1+6;x+=6){const yy=lev+amp*Math.sin(x/w1*Math.PI*3.2+fase)+amp*.45*Math.sin(x/w1*Math.PI*7.1-fase*1.7);d+=' L'+(x1+x).toFixed(1)+' '+yy.toFixed(1)}return d+' L'+(x1+w1+6)+' '+(y1+h1+40)+' Z'};
+   const amp=11*Math.sin(Math.PI*Math.min(1,k*1.05)),fase=k*9,lev=y1+h1+24-(h1+60)*e;
+   W.cpp.setAttribute('d',ola(lev,amp,fase));W.espuma.setAttribute('d',ola(lev-16*(1-k),amp*1.15,fase+1.3))}
+  else if(fade)gB.g.style.opacity=e;else svg.setAttribute('viewBox',(ax+(x1-ax)*e)+' '+(ay+(y1-ay)*e)+' '+(aw+(w1-aw)*e)+' '+(ah+(h1-ah)*e));setOv(ax+(x1-ax)*e,ay+(y1-ay)*e);
   if(k<1)raf=requestAnimationFrame(step);else finish()};
  raf=requestAnimationFrame(step)}
 // Selector de pantallas
