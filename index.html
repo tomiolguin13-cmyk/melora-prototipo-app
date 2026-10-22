@@ -11419,7 +11419,8 @@ function core(k){cur=k;if(window.__tuner)__tuner.on(k);if(k!=='practica'){try{SC
  $('play').style.display='none';$('jump').value=k;if(k==='practica'){resetP();setTimeout(()=>{if(cur==='practica'&&!busy)$('play').onclick()},500)}   // sin botón: la práctica arranca sola
  clearInterval(tun);
  }
-function show(k){if(SLIDING)SLIDING.finish();if(window.__instant){cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;return}   // mismo fondo: sin corte
+function show(k){if(SLIDING)SLIDING.finish();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
+ if(window.__instant){cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;return}   // mismo fondo: sin corte
  const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
  const tg=(prevK==='tunerOff'||prevK==='tunerOk')&&(k==='tunerOff'||k==='tunerOk');
  if(tg&&window.__tuner&&prevK!==k){cur=k;core(k);if(k==='tunerOff')__tuner.fromOk();return}   // el afinador que cambia de estado no desliza
@@ -12186,10 +12187,28 @@ window.__tut=(()=>{
    const tick=()=>{FL.raf=requestAnimationFrame(tick);if(!FL.run)return;
      const off=G.map((g,k)=>{const t=(getComputedStyle(g).translate||'0px 0px').split(' ').map(parseFloat);return vec[k](t[0]||0,t[1]||0)});
      const mv=p=>{let W=0,X=0,Y=0;cen.forEach((c,k)=>{const d=Math.hypot(p[0]-c[0],p[1]-c[1]),w=1/(d*d*d+1);W+=w;X+=w*off[k][0];Y+=w*off[k][1]});return[p[0]+X/W,p[1]+Y/W].map(v=>+v.toFixed(2))};
-     L.setAttribute('d',segs.map(q=>q[0]==='Z'?'Z':q[0]+q.slice(1).map(mv).join(' ')).join(''))};
+     const dd=segs.map(q=>q[0]==='Z'?'Z':q[0]+q.slice(1).map(mv).join(' ')).join('');L.setAttribute('d',dd);if(FL.mp)FL.mp.setAttribute('d',dd)};
    tick()};
 
- window.__float={on(v){FL.run=!!v;if(v)startC();if(v)start();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
+
+ // Primera vez en Mi Camino: las islas aparecen una a una y la línea punteada se va dibujando de la primera a la última
+ const intro=()=>{if(FL.intro||calm||!(FL.isg&&FL.isg.length>1))return;const L=linea();if(!L||!L.animate)return;FL.intro=[];
+   const G=FL.isg,mp=document.createElementNS(NS,'path'),mk=document.createElementNS(NS,'mask'),bb=L.getBBox();
+   mk.setAttribute('id','lnmask');mk.setAttribute('maskUnits','userSpaceOnUse');[['x',bb.x-60],['y',bb.y-60],['width',bb.width+120],['height',bb.height+120]].forEach(([a,v])=>mk.setAttribute(a,v));
+   mp.setAttribute('d',L.getAttribute('d'));mp.setAttribute('fill','none');mp.setAttribute('stroke','#fff');mp.setAttribute('stroke-width','16');mp.setAttribute('pathLength','1');mp.style.strokeDasharray='0 2';
+   mk.appendChild(mp);svg.insertBefore(mk,svg.firstChild);L.setAttribute('mask','url(#lnmask)');FL.mp=mp;
+   // en qué punto del trazo queda cada isla (para que la línea llegue justo cuando la isla aparece)
+   const tl=L.getTotalLength(),m=L.getScreenCTM().inverse(),fr=G.map(g=>{const b=g.getBBox(),p=new DOMPoint(b.x+b.width/2,b.y+b.height/2).matrixTransform(g.getScreenCTM()).matrixTransform(m);
+     let best=0,bd=1e9;for(let i=0;i<=240;i++){const q=L.getPointAtLength(tl*i/240),d=Math.hypot(q.x-p.x,q.y-p.y);if(d<bd){bd=d;best=i/240}}return best});
+   const T=[0,1000,2000,3100],D=T[3],ms=[0,.001,.001,.001];fr[0]=0;fr[3]=1;
+   const kf=T.map((t,i)=>({strokeDasharray:(i?fr[i]:0)+' 2',offset:t/D}));
+   FL.intro.push(mp.animate(kf,{duration:D,easing:'linear',fill:'both'}));
+   G.forEach((g,i)=>{g.style.transformBox='fill-box';g.style.transformOrigin='50% 70%';
+     FL.intro.push(g.animate([{opacity:0,scale:'.5'},{opacity:1,scale:'1'}],{duration:650,delay:Math.max(0,T[i]-120),easing:'cubic-bezier(.2,1.25,.4,1)',fill:'backwards'}))});
+   FL.intro.forEach(a=>a.pause());
+   FL.intro[0].finished.then(()=>{L.removeAttribute('mask');mk.remove();FL.mp=null}).catch(()=>{})};
+ const playIntro=()=>{if(!FL.intro||FL.introPlayed)return;FL.introPlayed=1;setTimeout(()=>FL.intro.forEach(a=>{try{a.currentTime=0;a.play()}catch(e){}}),180)};
+ window.__float={prep(){if(calm||FL.intro||FL.introPlayed)return;try{start();intro()}catch(e){window.__pe=String(e)}},on(v){FL.run=!!v;if(v)startC();if(v)start();if(v)intro();if(v)playIntro();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
 {const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';if(window.__float)__float.on(k==='mapa');
   }}
 // ---- Cuenta regresiva: una sola pantalla; el 3, 2, 1 cambia y el fondo oscuro se va aclarando hasta 0, y empieza el nivel ----
