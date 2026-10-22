@@ -12097,7 +12097,13 @@ window.__tut=(()=>{
   const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k==='t1'){cancelAnimationFrame(raf);clearTimeout(wt);set(0)}};
   return {page:()=>p,set,animTo};
 })();
-{const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';
+// ---- Mi Camino: las islas flotan suavemente (cada una a su ritmo); se pausa cuando no se ve la pantalla ----
+{const FL=[],rcs=H.mapa.slice(0,4).map(h=>h.slice(0,4));
+ const calm=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const start=()=>{if(calm||FL.length)return;rcs.forEach((rc,i)=>{islandEls(rc).forEach(e=>{if(!e.animate)return;
+   FL.push(e.animate([{translate:'0px 0px'},{translate:(i%2?-1.6:1.6)+'px -5.5px'},{translate:'0px 0px'}],{duration:3400+i*620,iterations:Infinity,easing:'ease-in-out',delay:-i*1100}))})})};
+ window.__float={on(v){if(v)start();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
+{const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';if(window.__float)__float.on(k==='mapa');
   }}
 // ---- Cuenta regresiva: una sola pantalla; el 3, 2, 1 cambia y el fondo oscuro se va aclarando hasta 0, y empieza el nivel ----
 window.__cd=(()=>{
