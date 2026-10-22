@@ -11299,7 +11299,7 @@ t1:[[537,283,157,36,'cd3']],t2:[],t3:[],t4:[],cd3:[],cd2:[],cd1:[],
 splash:[[42,391,244,44,'crear'],[42,445,244,44,'login']],
 crear:[[39,157,245,40,'inicio'],[39,210,245,40,'inicio'],[39,264,245,40,'inicio'],[39,359,245,40,'f'],[39,411,245,40,'f'],[39,465,245,40,'f'],[39,537,245,44,'inicio'],[24,40,54,54,'splash']],
 login:[[39,157,245,40,'inicio'],[39,210,245,40,'inicio'],[39,264,245,40,'inicio'],[39,359,245,40,'f'],[39,411,245,40,'f'],[39,465,245,40,'f'],[39,537,245,44,'inicio'],[24,40,54,54,'splash']],
-inicio:[[18,163,285,93,'m1b'],[167,261,137,175,T('Novedades no está en el tablero todavía')],[245,466,65,26,'canciones']],
+inicio:[[250,191,48,46,'m1b'],[167,261,137,175,T('Novedades no está en el tablero todavía')],[245,466,65,26,'canciones']],
 tunerOff:[[0,90,322,260,'tog']],tunerOk:[[0,90,322,260,'tog']],
 cw:[[...SIG,'cf'],[...X,'mapa']],cf:[[...SIG,'mapa'],[...X,'mapa']],
 mapa:[[16,124,145,137,'m1modal'],[165,234,136,121,T('Terminá el Mundo 1 para desbloquear este')],[25,333,136,129,T('Terminá el Mundo 1 para desbloquear este')],[131,446,152,125,T('Terminá el Mundo 1 para desbloquear este')]],
@@ -11346,7 +11346,8 @@ function btnBounce(r,to){try{if(!r||!r.getAttribute||(cur==='mapa'&&to==='m1moda
  if(!els){els=[];const rx=+r.getAttribute('x'),ry=+r.getAttribute('y'),rw=+r.getAttribute('width'),rh=+r.getAttribute('height'),pad=3;
   const cand=[];   // todo lo que está dentro de la zona táctil (fondo, íconos, textos) se mueve junto
   w.querySelectorAll('g,path,rect,circle,text,image,ellipse,polygon').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}if(!b.width&&!b.height)return;const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),gw=q2[0]-q[0],gh=q2[1]-q[1];
-   if(q[0]<rx-pad||q[1]<ry-pad||q2[0]>rx+rw+pad||q2[1]>ry+rh+pad)return;if(gw>rw*1.08||gh>rh*1.08)return;if(gw*gh<4&&g.tagName!=='text')return;cand.push(g)});
+   const fuera=q[0]<rx-pad||q[1]<ry-pad||q2[0]>rx+rw+pad||q2[1]>ry+rh+pad;if(fuera){const ix=Math.min(q2[0],rx+rw)-Math.max(q[0],rx),iy=Math.min(q2[1],ry+rh)-Math.max(q[1],ry);   // fondo que se pasa un poquito de la zona táctil: entra si casi todo está adentro
+    if(!(ix>0&&iy>0&&ix*iy>=.85*gw*gh&&gw<=rw*1.12&&gh<=rh*1.12))return}if(gw>rw*1.12||gh>rh*1.12)return;if(gw*gh<4&&g.tagName!=='text')return;cand.push(g)});
   els=cand.filter(g=>!cand.some(o=>o!==g&&o.contains(g)));
   if(!els.length){let ba2=0,best=null;   // si no hay piezas dentro (flechas, cruces, íconos), se toma la más grande que entra en la zona táctil
    w.querySelectorAll('g,path,rect,circle').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}if(!b.width)return;const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),gw=q2[0]-q[0],gh=q2[1]-q[1];
