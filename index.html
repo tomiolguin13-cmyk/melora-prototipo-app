@@ -11337,7 +11337,17 @@ function islandTap(rc,to,r){
   e.animate([{transform:'scale(1)'},{transform:'scale(1.09)',offset:.45},{transform:'scale(1)'}],{duration:440,easing:'ease-in-out'})});
  if(to.startsWith('t:')||to==='noop'||!els.length){act(to,r);return}
  svg.style.pointerEvents='none';setTimeout(()=>{svg.style.pointerEvents='';act(to,r)},330)}
-function act(to,r){if(window.__scrolled)return;if(to==='noop')return;if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
+// Botones: al tocarlos se expanden un poquito y vuelven a su tamaño (sutil, como las islas)
+const BTNC=new WeakMap();
+function greenIn(g){const f=e=>{const m=/rgb\((\d+), (\d+), (\d+)\)/.exec(getComputedStyle(e).fill);return !!m&&+m[2]>=150&&+m[2]-+m[1]>=40&&+m[2]-+m[3]>=90};
+ return f(g)||[...g.querySelectorAll('path,rect,circle')].some(f)}
+function btnBounce(r){try{if(!r||!r.getAttribute||cur==='mapa'||cur==='practica')return;let els=BTNC.get(r);
+ if(!els){els=[];const w=svg.querySelector('g.fw[data-f="'+cur+'"]');if(w){const rx=+r.getAttribute('x'),ry=+r.getAttribute('y'),rw=+r.getAttribute('width'),rh=+r.getAttribute('height'),cx=rx+rw/2,cy=ry+rh/2;let best=null,ba=1e9;
+  w.querySelectorAll('g,path,rect').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}if(!b.width)return;const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),gw=q2[0]-q[0],gh=q2[1]-q[1];
+   if(gw<rw*.8||gw>rw*1.25||gh<rh*.75||gh>rh*1.3)return;if(Math.hypot((q[0]+q2[0])/2-cx,(q[1]+q2[1])/2-cy)>10)return;const a=gw*gh;if(a<ba){ba=a;best=g}});
+  if(best)els=[best]}BTNC.set(r,els);r._bs=rw>130||rh>90?'1.04':'1.06'}
+ els.forEach(e=>{if(!e.animate)return;e.style.transformBox='fill-box';e.style.transformOrigin='50% 50%';e.animate([{scale:'1'},{scale:r._bs||'1.06',offset:.42},{scale:'1'}],{duration:420,easing:'ease-in-out'})})}catch(e){}}
+function act(to,r){if(window.__scrolled)return;if(to==='noop')return;if(to!=='f'&&!String(to).startsWith('t:'))btnBounce(r);if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
  if(to==='tog'){if(window.__tuner&&cur==='tunerOff'){__tuner.toOk(()=>go('tunerOk',0))}else go(cur==='tunerOff'?'tunerOk':'tunerOff',0);return}
  if(to==='apr'){window.__cancApr&&__cancApr();return}
  if(to==='back'){NAVDIR=-1;go(hist.pop()||(['i1','i2','i3','i4','i5','i6','c1','c2','lg'].includes(cur)?'m1':'inicio'),0);NAVDIR=1;return}
