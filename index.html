@@ -11419,7 +11419,8 @@ function core(k){cur=k;if(window.__tuner)__tuner.on(k);if(k!=='practica'){try{SC
  $('play').style.display='none';$('jump').value=k;if(k==='practica'){resetP();setTimeout(()=>{if(cur==='practica'&&!busy)$('play').onclick()},500)}   // sin botón: la práctica arranca sola
  clearInterval(tun);
  }
-function show(k){if(SLIDING)SLIDING.finish();if(window.__pop)__pop.prep(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
+function show(k){if(SLIDING)SLIDING.finish();if((k==='cw'||k==='cf'||k==='mapa')&&window.__float&&__float.clouds)__float.clouds(true);   // las nubes ya se mueven antes de que la pantalla entre (no hay salto al arrancar)
+ if(window.__pop)__pop.prep(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
  if(window.__instant){cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;return}   // mismo fondo: sin corte
  const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
  const tg=(prevK==='tunerOff'||prevK==='tunerOk')&&(k==='tunerOff'||k==='tunerOk');
