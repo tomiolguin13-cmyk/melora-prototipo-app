@@ -11321,9 +11321,9 @@ let cur='splash',hist=[],seen={c:0,m:0},ring=null,tun=0;
 function toast(m){const t=$('toast');t.textContent=m;t.style.opacity=1;clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity=0,1900)}
 // Rebote de la isla al tocarla (apachurra, estira y se asienta)
 const ISL={};
-function islandEls(rc){
- const key=rc.join(','),wrap=svg.querySelector('g.fw[data-f="mapa"]');if(!wrap)return[];if(ISL[key])return ISL[key];
- const [fx,fy]=FR.mapa,list=[];let best=null,bi=0;const bad=[];
+function islandEls(rc,fk){fk=fk||'mapa';
+ const key=(fk==='mapa'?'':fk+':')+rc.join(','),wrap=svg.querySelector('g.fw[data-f="'+fk+'"]');if(!wrap)return[];if(ISL[key])return ISL[key];
+ const [fx,fy]=FR[fk],list=[];let best=null,bi=0;const bad=[];
  wrap.querySelectorAll('g').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}if(!b.width)return;
   const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),x=q[0]-fx,y=q[1]-fy,w=q2[0]-q[0],h=q2[1]-q[1];
   if(w>=110&&w<=165&&h>=110&&h<=165){const iw=Math.max(0,Math.min(x+w,rc[0]+rc[2])-Math.max(x,rc[0])),ih=Math.max(0,Math.min(y+h,rc[1]+rc[3])-Math.max(y,rc[1])),iou=iw*ih/(w*h+rc[2]*rc[3]-iw*ih);if(iou>bi){bi=iou;best=g}}
@@ -12095,7 +12095,9 @@ window.__intro=(()=>{ // Introducción: solo cambia la parte del medio (imagen, 
  const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k==='i1'){cancelAnimationFrame(raf);set(0)}};
  return {set};
 })();
-{const _core=core;core=function(k){_core(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
+// Las pantallas de bienvenida de Mi Camino no muestran las islas: aparecen recién con la animación de entrada
+{let hid=0;window.__hideWelcomeIslands=()=>{if(hid)return;hid=1;['cw','cf'].forEach(fk=>{try{H.mapa.slice(0,4).forEach(h=>islandEls(h.slice(0,4),fk).forEach(g=>{g.style.display='none'}))}catch(e){}})}}
+{const _core=core;core=function(k){_core(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
 /* ===== Tutorial previo a la práctica Hotel California: "¿Cómo funciona?" (4 pasos) → Comenzar → cuenta regresiva 3-2-1 → práctica ===== */
 window.__tut=(()=>{
   const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),H1=fwOf('t1'),mkg=()=>document.createElementNS(NS,'g');if(!H1)return null;
