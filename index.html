@@ -12146,11 +12146,35 @@ window.__tut=(()=>{
      const st=-(x+w+8),en=FW-x+8,sp=4.2+(i*7%5)*.9,dur=(en-st)/sp*1000,p0=(x+w+8)/(en-st);
      FL.push(e.animate([{translate:st+'px 0px'},{translate:en+'px 0px'}],{duration:dur,iterations:Infinity,easing:'linear',delay:-p0*dur}))})};
  const start=()=>{if(calm||FL.isl)return;FL.isl=1;
-   rcs.forEach((rc,i)=>{const els=islandEls(rc).filter((e,_,a)=>!a.some(o=>o!==e&&o.contains(e)));if(!els.length)return;const g=els.length>1?grupo(els):els[0];if(!g.animate)return;
+   rcs.forEach((rc,i)=>{const els=islandEls(rc).filter((e,_,a)=>!a.some(o=>o!==e&&o.contains(e)));if(!els.length)return;const g=els.length>1?grupo(els):els[0];if(!g.animate)return;(FL.isg=FL.isg||[]).push(g);
      FL.push(g.animate([{translate:'0px 0px'},{translate:(i%2?-1.6:1.6)+'px -5.5px'},{translate:'0px 0px'}],{duration:3400+i*620,iterations:Infinity,easing:'ease-in-out',delay:-i*1100}))});
    const L=linea();if(L&&L.animate){const per=(getComputedStyle(L).strokeDasharray.split(/[ ,]+/).map(parseFloat).filter(n=>!isNaN(n)).reduce((a,b)=>a+b,0))||17;
-     FL.push(L.animate([{strokeDashoffset:'0px'},{strokeDashoffset:(-per)+'px'}],{duration:1100,iterations:Infinity,easing:'linear'}))}};
- window.__float={on(v){if(v)startC();if(v)start();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
+     FL.push(L.animate([{strokeDashoffset:'0px'},{strokeDashoffset:(-per)+'px'}],{duration:1100,iterations:Infinity,easing:'linear'}))
+     engancha(L)}};
+ // la línea punteada se deforma siguiendo a las islas: cada punto del trazo se mueve como la isla más cercana (quedan "enganchadas")
+ const engancha=L=>{const G=FL.isg||[];if(G.length<2)return;
+   const num=t=>t.match(/-?\d*\.?\d+(?:e-?\d+)?/gi).map(parseFloat);
+   const toks=L.getAttribute('d').match(/[a-zA-Z]|-?\d*\.?\d+(?:e-?\d+)?/g);let i=0,cmd='',cx=0,cy=0,sx=0,sy=0,P=[],lc=null;
+   const need={m:2,l:2,h:1,v:1,c:6,s:4,q:4,z:0};const segs=[];
+   while(i<toks.length){if(/[a-zA-Z]/.test(toks[i]))cmd=toks[i++];const lo=cmd.toLowerCase(),rel=cmd===lo,n=need[lo];if(n===undefined)return;
+     if(lo==='z'){segs.push(['Z']);continue}const a=toks.slice(i,i+n).map(parseFloat);i+=n;
+     if(lo==='m'){cx=a[0]+(rel?cx:0);cy=a[1]+(rel?cy:0);sx=cx;sy=cy;segs.push(['M',[cx,cy]]);cmd=rel?'l':'L'}
+     else if(lo==='l'){cx=a[0]+(rel?cx:0);cy=a[1]+(rel?cy:0);segs.push(['L',[cx,cy]])}
+     else if(lo==='h'){cx=a[0]+(rel?cx:0);segs.push(['L',[cx,cy]])}
+     else if(lo==='v'){cy=a[0]+(rel?cy:0);segs.push(['L',[cx,cy]])}
+     else if(lo==='c'){const o=rel?[cx,cy]:[0,0];const p=[[a[0]+o[0],a[1]+o[1]],[a[2]+o[0],a[3]+o[1]],[a[4]+o[0],a[5]+o[1]]];lc=p[1];cx=p[2][0];cy=p[2][1];segs.push(['C',...p])}
+     else if(lo==='s'){const o=rel?[cx,cy]:[0,0];const r=lc?[2*cx-lc[0],2*cy-lc[1]]:[cx,cy];const p=[r,[a[0]+o[0],a[1]+o[1]],[a[2]+o[0],a[3]+o[1]]];lc=p[1];cx=p[2][0];cy=p[2][1];segs.push(['C',...p])}
+     else return}
+   const mp=L.getScreenCTM();if(!mp)return;const inv=mp.inverse();
+   const cen=G.map(g=>{const b=g.getBBox(),m=g.getScreenCTM();const p=new DOMPoint(b.x+b.width/2,b.y+b.height/2).matrixTransform(m).matrixTransform(inv);return[p.x,p.y]});
+   const vec=G.map(g=>{const m=inv.multiply(g.parentNode.getScreenCTM());return(dx,dy)=>[m.a*dx+m.c*dy,m.b*dx+m.d*dy]});
+   const tick=()=>{FL.raf=requestAnimationFrame(tick);if(!FL.run)return;
+     const off=G.map((g,k)=>{const t=(getComputedStyle(g).translate||'0px 0px').split(' ').map(parseFloat);return vec[k](t[0]||0,t[1]||0)});
+     const mv=p=>{let W=0,X=0,Y=0;cen.forEach((c,k)=>{const d=Math.hypot(p[0]-c[0],p[1]-c[1]),w=1/(d*d*d+1);W+=w;X+=w*off[k][0];Y+=w*off[k][1]});return[p[0]+X/W,p[1]+Y/W].map(v=>+v.toFixed(2))};
+     L.setAttribute('d',segs.map(q=>q[0]==='Z'?'Z':q[0]+q.slice(1).map(mv).join(' ')).join(''))};
+   tick()};
+
+ window.__float={on(v){FL.run=!!v;if(v)startC();if(v)start();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
 {const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';if(window.__float)__float.on(k==='mapa');
   }}
 // ---- Cuenta regresiva: una sola pantalla; el 3, 2, 1 cambia y el fondo oscuro se va aclarando hasta 0, y empieza el nivel ----
