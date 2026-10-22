@@ -12141,8 +12141,10 @@ window.__tut=(()=>{
  const clouds=()=>{const w=svg.querySelector('g.fw[data-f="mapa"]');if(!w)return[];
    const G0=[...w.querySelectorAll('g')].find(g=>{let b;try{b=g.getBBox()}catch(_){return false}const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height);return Math.abs(q2[0]-q[0]-400)<4&&Math.abs(q2[1]-q[1]-477)<4});
    return G0?[...G0.children].filter(e=>e.tagName==='path'&&e.getBBox().width<120).slice(0,12):[]};
- const startC=()=>{if(calm||FL.cl)return;FL.cl=1;clouds().forEach((e,i)=>{if(!e.animate)return;const d=(i%2?-1:1)*(9+(i*5)%8);
-   FL.push(e.animate([{translate:'0px 0px'},{translate:d+'px '+(i%2?2:-2)+'px'},{translate:'0px 0px'}],{duration:16000+i*2300,iterations:Infinity,easing:'ease-in-out',delay:-i*3100}))})};
+ const startC=()=>{if(calm||FL.cl)return;FL.cl=1;const [fx]=FR.mapa,FW=FR.mapa[2];   // las nubes avanzan de izquierda a derecha, salen por un lado y vuelven a entrar por el otro (loop continuo)
+   clouds().forEach((e,i)=>{if(!e.animate)return;const bb=e.getBBox(),q=absPt(e,bb.x,bb.y),q2=absPt(e,bb.x+bb.width,bb.y+bb.height),x=q[0]-fx,w=q2[0]-q[0];
+     const st=-(x+w+8),en=FW-x+8,sp=4.2+(i*7%5)*.9,dur=(en-st)/sp*1000,p0=(x+w+8)/(en-st);
+     FL.push(e.animate([{translate:st+'px 0px'},{translate:en+'px 0px'}],{duration:dur,iterations:Infinity,easing:'linear',delay:-p0*dur}))})};
  const start=()=>{if(calm||FL.isl)return;FL.isl=1;
    rcs.forEach((rc,i)=>{const els=islandEls(rc).filter((e,_,a)=>!a.some(o=>o!==e&&o.contains(e)));if(!els.length)return;const g=els.length>1?grupo(els):els[0];if(!g.animate)return;
      FL.push(g.animate([{translate:'0px 0px'},{translate:(i%2?-1.6:1.6)+'px -5.5px'},{translate:'0px 0px'}],{duration:3400+i*620,iterations:Infinity,easing:'ease-in-out',delay:-i*1100}))});
