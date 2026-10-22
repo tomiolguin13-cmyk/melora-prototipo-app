@@ -12153,16 +12153,17 @@ window.__tut=(()=>{
    const inv=g.getCTM().inverse();els.forEach(e=>{const m=inv.multiply(e.getCTM());g.appendChild(e);e.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')')});return g};
  const linea=()=>{const w=svg.querySelector('g.fw[data-f="mapa"]');if(!w)return null;
    return [...w.querySelectorAll('path')].find(e=>{const d=getComputedStyle(e).strokeDasharray;return d&&d!=='none'})||null};
- const clouds=()=>{const w=svg.querySelector('g.fw[data-f="mapa"]');if(!w)return[];
+ const clouds=(fk)=>{const w=svg.querySelector('g.fw[data-f="'+(fk||'mapa')+'"]');if(!w)return[];
    const G0=[...w.querySelectorAll('g')].find(g=>{let b;try{b=g.getBBox()}catch(_){return false}const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height);return Math.abs(q2[0]-q[0]-400)<4&&Math.abs(q2[1]-q[1]-477)<4});
    return G0?[...G0.children].filter(e=>e.tagName==='path'&&e.getBBox().width<120).slice(0,12):[]};
- const startC=()=>{if(calm||FL.cl)return;FL.cl=1;const [fx,fy]=FR.mapa;   // cada nube va y vuelve en horizontal dentro de su propio rango; el rango usa solo la mitad del espacio libre hacia sus vecinas, así nunca se superponen
-   const cs=clouds().map(e=>{const bb=e.getBBox(),q=absPt(e,bb.x,bb.y),q2=absPt(e,bb.x+bb.width,bb.y+bb.height);return{e,x:q[0]-fx,y:q[1]-fy,w:q2[0]-q[0],h:q2[1]-q[1]}});
-   cs.forEach((c,i)=>{if(!c.e.animate)return;let L=45,R=45;
+ const startC=()=>{if(calm||FL.cl)return;FL.cl=1;FL.cla=[];   // las nubes de las pantallas de bienvenida y de Mi Camino son las mismas y se mueven juntas: no hay salto al pasar de una a otra
+   const defs=['mapa','cw','cf'].map(fk=>{const [fx,fy]=FR[fk];return clouds(fk).map(e=>{const bb=e.getBBox(),q=absPt(e,bb.x,bb.y),q2=absPt(e,bb.x+bb.width,bb.y+bb.height);return{e,x:q[0]-fx,y:q[1]-fy,w:q2[0]-q[0],h:q2[1]-q[1]}})});
+   const cs=defs[0];   // rangos calculados una sola vez con las nubes de Mi Camino; cada pantalla usa el mismo movimiento
+   cs.forEach((c,i)=>{let L=45,R=45;
      cs.forEach((o,j)=>{if(i===j||o.y>c.y+c.h+8||c.y>o.y+o.h+8)return;
        if(o.x+o.w/2<c.x+c.w/2)L=Math.min(L,Math.max(0,(c.x-(o.x+o.w))/2-4));else R=Math.min(R,Math.max(0,(o.x-(c.x+c.w))/2-4))});
      const dur=(L+R)/2.4*1000;if(L+R<4)return;
-     FL.push(c.e.animate([{translate:(-L)+'px 0px'},{translate:R+'px 0px'}],{duration:dur,iterations:Infinity,direction:'alternate',easing:'ease-in-out',delay:-((i*.37)%1)*dur*2}))})};
+     defs.forEach(d=>{const e=d[i]&&d[i].e;if(e&&e.animate)FL.cla.push(e.animate([{translate:(-L)+'px 0px'},{translate:R+'px 0px'}],{duration:dur,iterations:Infinity,direction:'alternate',easing:'ease-in-out',delay:-((i*.37)%1)*dur*2}))})})};
  const start=()=>{if(calm||FL.isl)return;FL.isl=1;
    rcs.forEach((rc,i)=>{const els=islandEls(rc).filter((e,_,a)=>!a.some(o=>o!==e&&o.contains(e)));if(!els.length)return;const g=els.length>1?grupo(els):els[0];if(!g.animate)return;(FL.isg=FL.isg||[]).push(g);
      FL.push(g.animate([{translate:'0px 0px'},{translate:(i%2?-1.6:1.6)+'px -5.5px'},{translate:'0px 0px'}],{duration:3400+i*620,iterations:Infinity,easing:'ease-in-out',delay:-i*1100}))});
@@ -12210,8 +12211,8 @@ window.__tut=(()=>{
    FL.intro.forEach(a=>a.pause());
    FL.intro[0].finished.then(()=>{L.removeAttribute('mask');mk.remove();FL.mp=null}).catch(()=>{})};
  const playIntro=()=>{if(!FL.intro||FL.introPlayed)return;FL.introPlayed=1;setTimeout(()=>FL.intro.forEach(a=>{try{a.currentTime=0;a.play()}catch(e){}}),180)};
- window.__float={prep(){if(calm||FL.intro||FL.introPlayed)return;try{start();intro()}catch(e){window.__pe=String(e)}},on(v){FL.run=!!v;if(v)startC();if(v)start();if(v)intro();if(v)playIntro();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
-{const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';if(window.__float)__float.on(k==='mapa');
+ window.__float={clouds(v){if(v)startC();(FL.cla||[]).forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},prep(){if(calm||FL.intro||FL.introPlayed)return;try{start();intro()}catch(e){window.__pe=String(e)}},on(v){FL.run=!!v;if(v)start();if(v)intro();if(v)playIntro();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
+{const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';if(window.__float){__float.on(k==='mapa');__float.clouds(k==='mapa'||k==='cw'||k==='cf')}
   }}
 // ---- Cuenta regresiva: una sola pantalla; el 3, 2, 1 cambia y el fondo oscuro se va aclarando hasta 0, y empieza el nivel ----
 window.__cd=(()=>{
