@@ -12107,11 +12107,19 @@ window.__tut=(()=>{
   const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k==='t1'){cancelAnimationFrame(raf);clearTimeout(wt);set(0)}};
   return {page:()=>p,set,animTo};
 })();
-// ---- Mi Camino: las islas flotan suavemente (cada una a su ritmo); se pausa cuando no se ve la pantalla ----
+// ---- Mi Camino: cada isla flota junto con su número, como un solo bloque; la línea punteada avanza de una isla a la otra ----
 {const FL=[],rcs=H.mapa.slice(0,4).map(h=>h.slice(0,4));
  const calm=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
- const start=()=>{if(calm||FL.length)return;rcs.forEach((rc,i)=>{islandEls(rc).forEach(e=>{if(!e.animate)return;
-   FL.push(e.animate([{translate:'0px 0px'},{translate:(i%2?-1.6:1.6)+'px -5.5px'},{translate:'0px 0px'}],{duration:3400+i*620,iterations:Infinity,easing:'ease-in-out',delay:-i*1100}))})})};
+ const grupo=els=>{   // mete la isla y su número en un mismo grupo, sin moverlos de lugar
+   const ancla=els[els.length-1],par=ancla.parentNode,g=document.createElementNS(NS,'g');g.setAttribute('class','isla-bloque');par.insertBefore(g,ancla);
+   const inv=g.getCTM().inverse();els.forEach(e=>{const m=inv.multiply(e.getCTM());g.appendChild(e);e.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')')});return g};
+ const linea=()=>{const w=svg.querySelector('g.fw[data-f="mapa"]');if(!w)return null;
+   return [...w.querySelectorAll('path')].find(e=>{const d=getComputedStyle(e).strokeDasharray;return d&&d!=='none'})||null};
+ const start=()=>{if(calm||FL.length)return;
+   rcs.forEach((rc,i)=>{const els=islandEls(rc).filter((e,_,a)=>!a.some(o=>o!==e&&o.contains(e)));if(!els.length)return;const g=els.length>1?grupo(els):els[0];if(!g.animate)return;
+     FL.push(g.animate([{translate:'0px 0px'},{translate:(i%2?-1.6:1.6)+'px -5.5px'},{translate:'0px 0px'}],{duration:3400+i*620,iterations:Infinity,easing:'ease-in-out',delay:-i*1100}))});
+   const L=linea();if(L&&L.animate){const per=(getComputedStyle(L).strokeDasharray.split(/[ ,]+/).map(parseFloat).filter(n=>!isNaN(n)).reduce((a,b)=>a+b,0))||17;
+     FL.push(L.animate([{strokeDashoffset:'0px'},{strokeDashoffset:(-per)+'px'}],{duration:1100,iterations:Infinity,easing:'linear'}))}};
  window.__float={on(v){if(v)start();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
 {const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';if(window.__float)__float.on(k==='mapa');
   }}
