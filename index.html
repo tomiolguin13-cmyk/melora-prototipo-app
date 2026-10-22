@@ -11341,16 +11341,19 @@ function islandTap(rc,to,r){
 const BTNC=new WeakMap();
 function greenIn(g){const f=e=>{const m=/rgb\((\d+), (\d+), (\d+)\)/.exec(getComputedStyle(e).fill);return !!m&&+m[2]>=150&&+m[2]-+m[1]>=40&&+m[2]-+m[3]>=90};
  return f(g)||[...g.querySelectorAll('path,rect,circle')].some(f)}
-function btnBounce(r,to){try{if(!r||!r.getAttribute||(cur==='mapa'&&to==='m1modal')||cur==='practica')return;let els=BTNC.get(r);
+function btnBounce(r,to){try{if(!r||!r.getAttribute||(cur==='mapa'&&to==='m1modal')||cur==='practica')return false;let els=BTNC.get(r);
  if(!els){els=[];const w=svg.querySelector('g.fw[data-f="'+cur+'"]');if(w){const rx=+r.getAttribute('x'),ry=+r.getAttribute('y'),rw=+r.getAttribute('width'),rh=+r.getAttribute('height'),cx=rx+rw/2,cy=ry+rh/2;let best=null,ba=1e9;
   w.querySelectorAll('g,path,rect').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}if(!b.width)return;const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),gw=q2[0]-q[0],gh=q2[1]-q[1];
    if(gw<rw*.8||gw>rw*1.25||gh<rh*.75||gh>rh*1.3)return;if(Math.hypot((q[0]+q2[0])/2-cx,(q[1]+q2[1])/2-cy)>10)return;const a=gw*gh;if(a<ba){ba=a;best=g}});
   if(!best){let ba2=0;   // si no hay una pieza del mismo tamaño (flechas, cruces, íconos de la barra, filas), se toma la más grande que entra en la zona táctil
    w.querySelectorAll('g,path,rect,circle').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}if(!b.width)return;const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),gw=q2[0]-q[0],gh=q2[1]-q[1];
     const mx=(q[0]+q2[0])/2,my=(q[1]+q2[1])/2;if(mx<rx||mx>rx+rw||my<ry||my>ry+rh||gw>rw*1.5||gh>rh*1.5)return;const a=gw*gh;if(a<rw*rh*.05||a<=ba2)return;ba2=a;best=g})}
-  if(best)els=[best]}BTNC.set(r,els);r._bs=rw>130||rh>90?'1.04':'1.06'}
- els.forEach(e=>{if(!e.animate)return;e.style.transformBox='fill-box';e.style.transformOrigin='50% 50%';e.animate([{scale:'1'},{scale:r._bs||'1.06',offset:.42},{scale:'1'}],{duration:420,easing:'ease-in-out'})})}catch(e){}}
-function act(to,r){if(window.__scrolled)return;if(to==='noop')return;if(to!=='f'&&to!=='tog'&&!String(to).startsWith('t:'))btnBounce(r,to);if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
+  if(best)els=[best]}BTNC.set(r,els);{const bw=+r.getAttribute('width'),bh=+r.getAttribute('height');r._bs=bw>130||bh>90?'1.04':'1.06'}}
+ let ok=false;els.forEach(e=>{if(!e.animate)return;e.style.transformBox='fill-box';e.style.transformOrigin='50% 50%';ok=true;const sc=r._bs||'1.06';
+  if(e.hasAttribute('transform')||getComputedStyle(e).transform!=='none')e.animate([{scale:'1'},{scale:sc,offset:.45},{scale:'1'}],{duration:360,easing:'ease-in-out'});
+  else e.animate([{transform:'scale(1)'},{transform:'scale('+sc+')',offset:.45},{transform:'scale(1)'}],{duration:360,easing:'ease-in-out'})});return ok}catch(er){window.__be=String(er);return false}}
+function act(to,r,nd){if(window.__scrolled)return;if(to==='noop')return;if(!nd&&to!=='f'&&to!=='tog'&&!String(to).startsWith('t:')&&btnBounce(r,to)){svg.style.pointerEvents='none';setTimeout(()=>{svg.style.pointerEvents='';act(to,r,1)},180);return}   // se ve el rebote y recién ahí cambia de pantalla
+ if(to==='f'){if(ring)ring.setAttribute('stroke','none');ring=r;r.setAttribute('stroke','#2c6bff');r.setAttribute('fill-opacity',.06);return}
  if(to==='tog'){if(window.__tuner&&cur==='tunerOff'){__tuner.toOk(()=>go('tunerOk',0))}else go(cur==='tunerOff'?'tunerOk':'tunerOff',0);return}
  if(to==='apr'){window.__cancApr&&__cancApr();return}
  if(to==='back'){NAVDIR=-1;go(hist.pop()||(['i1','i2','i3','i4','i5','i6','c1','c2','lg'].includes(cur)?'m1':'inicio'),0);NAVDIR=1;return}
@@ -12118,7 +12121,7 @@ window.__tut=(()=>{
   const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k==='t1'){cancelAnimationFrame(raf);clearTimeout(wt);set(0)}};
   return {page:()=>p,set,animTo};
 })();
-// ---- Mi Camino: cada isla flota junto con su número, como un solo bloque; la línea punteada avanza de una isla a la otra ----
+// ---- Mi Camino: cada isla flota junto con su número, como un solo bloque; la línea punteada avanza; las nubes derivan muy despacio ----
 {const FL=[],rcs=H.mapa.slice(0,4).map(h=>h.slice(0,4));
  const calm=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
  const grupo=els=>{   // mete la isla y su número en un mismo grupo, sin moverlos de lugar
@@ -12126,12 +12129,17 @@ window.__tut=(()=>{
    const inv=g.getCTM().inverse();els.forEach(e=>{const m=inv.multiply(e.getCTM());g.appendChild(e);e.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')')});return g};
  const linea=()=>{const w=svg.querySelector('g.fw[data-f="mapa"]');if(!w)return null;
    return [...w.querySelectorAll('path')].find(e=>{const d=getComputedStyle(e).strokeDasharray;return d&&d!=='none'})||null};
- const start=()=>{if(calm||FL.length)return;
+ const clouds=()=>{const w=svg.querySelector('g.fw[data-f="mapa"]');if(!w)return[];
+   const G0=[...w.querySelectorAll('g')].find(g=>{let b;try{b=g.getBBox()}catch(_){return false}const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height);return Math.abs(q2[0]-q[0]-400)<4&&Math.abs(q2[1]-q[1]-477)<4});
+   return G0?[...G0.children].filter(e=>e.tagName==='path'&&e.getBBox().width<120).slice(0,12):[]};
+ const startC=()=>{if(calm||FL.cl)return;FL.cl=1;clouds().forEach((e,i)=>{if(!e.animate)return;const d=(i%2?-1:1)*(9+(i*5)%8);
+   FL.push(e.animate([{translate:'0px 0px'},{translate:d+'px '+(i%2?2:-2)+'px'},{translate:'0px 0px'}],{duration:16000+i*2300,iterations:Infinity,easing:'ease-in-out',delay:-i*3100}))})};
+ const start=()=>{if(calm||FL.isl)return;FL.isl=1;
    rcs.forEach((rc,i)=>{const els=islandEls(rc).filter((e,_,a)=>!a.some(o=>o!==e&&o.contains(e)));if(!els.length)return;const g=els.length>1?grupo(els):els[0];if(!g.animate)return;
      FL.push(g.animate([{translate:'0px 0px'},{translate:(i%2?-1.6:1.6)+'px -5.5px'},{translate:'0px 0px'}],{duration:3400+i*620,iterations:Infinity,easing:'ease-in-out',delay:-i*1100}))});
    const L=linea();if(L&&L.animate){const per=(getComputedStyle(L).strokeDasharray.split(/[ ,]+/).map(parseFloat).filter(n=>!isNaN(n)).reduce((a,b)=>a+b,0))||17;
      FL.push(L.animate([{strokeDashoffset:'0px'},{strokeDashoffset:(-per)+'px'}],{duration:1100,iterations:Infinity,easing:'linear'}))}};
- window.__float={on(v){if(v)start();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
+ window.__float={on(v){if(v)startC();if(v)start();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
 {const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';if(window.__float)__float.on(k==='mapa');
   }}
 // ---- Cuenta regresiva: una sola pantalla; el 3, 2, 1 cambia y el fondo oscuro se va aclarando hasta 0, y empieza el nivel ----
