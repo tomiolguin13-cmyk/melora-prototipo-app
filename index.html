@@ -12166,6 +12166,27 @@ window.__cd=(()=>{
   const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k!=='t1')reset()};
   return {run,reset,running:()=>running};
 })();
+// ---- Foro: el corazón (me gusta) y el marcador (guardados) de cada publicación se pueden tocar ----
+(()=>{const fw=svg.querySelector('g.fw[data-f="foro"]');if(!fw)return;
+ const lst=[...fw.querySelectorAll('g')].find(g=>g.children.length>30);if(!lst)return;
+ const A=e=>{const b=e.getBBox(),q=absPt(e,b.x,b.y),q2=absPt(e,b.x+b.width,b.y+b.height);return [q[0],q[1],q2[0]-q[0],q2[1]-q[1]]};
+ const loc=(e)=>{const b=e.getBBox(),M=lst.getCTM().inverse().multiply(e.getCTM()),p=svg.createSVGPoint();p.x=b.x;p.y=b.y;const a=p.matrixTransform(M);p.x=b.x+b.width;p.y=b.y+b.height;const c=p.matrixTransform(M);return {x:a.x,y:a.y,w:c.x-a.x,h:c.y-a.y}};
+ const cards=[...lst.querySelectorAll('rect')].filter(r=>{const b=r.getBBox();return Math.abs(b.width-285)<2&&Math.abs(b.height-123)<2});
+ const RED='#ef0f30',GRY='#afafaf';
+ const pop=e=>{if(!e.animate)return;e.style.transformBox='fill-box';e.style.transformOrigin='50% 50%';e.animate([{scale:'1'},{scale:'1.4',offset:.4},{scale:'1'}],{duration:340,easing:'ease-out'})};
+ const hit=(e,pad,fn)=>{const l=loc(e),r=document.createElementNS(NS,'rect');[['x',l.x-pad],['y',l.y-pad-2],['width',l.w+pad*2],['height',l.h+pad*2+4],['rx',6],['fill','#fff'],['fill-opacity',.001]].forEach(([k,v])=>r.setAttribute(k,v));
+   r.style.cursor='pointer';r.addEventListener('click',ev=>{ev.stopPropagation();if(window.__scrolled)return;fn()});lst.appendChild(r);return r};
+ cards.forEach(c=>{const a=A(c),inside=[];
+  lst.querySelectorAll('path').forEach(p=>{const q=A(p);if(q[0]>=a[0]&&q[0]<=a[0]+a[2]&&q[1]>=a[1]+90&&q[1]<=a[1]+a[3]&&q[2]<14&&q[3]<14)inside.push([q[0]-a[0],p])});
+  const heart=inside.find(([x,p])=>x>70&&x<100),mark=inside.find(([x])=>x>240);
+  if(heart){const p=heart[1],g=p.parentNode,tx=g.querySelector('tspan')||g.querySelector('text');const sw=getComputedStyle(p).strokeWidth;
+   let liked=getComputedStyle(p).fill!=='none'&&getComputedStyle(p).fill!=='rgba(0, 0, 0, 0)';const base=parseInt(tx&&tx.textContent,10),init=liked;
+   const paint=()=>{p.style.fill=liked?RED:'none';p.style.stroke=liked?'none':GRY;p.style.strokeWidth=sw;if(tx&&!isNaN(base))tx.textContent=base+(liked?1:0)-(init?1:0)};
+   hit(p,9,()=>{liked=!liked;paint();pop(p)})}
+  if(mark){const p=mark[1];let saved=getComputedStyle(p).fill!=='none'&&getComputedStyle(p).fill!=='rgba(0, 0, 0, 0)';
+   const paint=()=>{p.style.fill=saved?GRY:'none';p.style.stroke=GRY};
+   hit(p,10,()=>{saved=!saved;paint();pop(p)})}});
+ window.__foroN=cards.length})();
 window.__build=(()=>{ // las piezas de la guitarra se arrastran hasta su lugar
  const W=svg.querySelector('g.fw[data-f="c1"]');if(!W)return null;
  const ox=FR.c1[0]-(+W.dataset.dx)-3751.6,oy=FR.c1[1]-(+W.dataset.dy),sh=a=>[a[0]+ox,a[1]+oy,a[2],a[3]];
