@@ -11376,11 +11376,13 @@ function act(to,r,nd){if(window.__scrolled)return;if(to==='noop')return;if(!nd&&
 const DONE=window.__DONE={1:false,4:false};
 function mundoKey(){return DONE[4]?'m1c':DONE[1]?'m1b':'m1'}
 window.__mundoPct=()=>20*((DONE[1]?1:0)+(DONE[4]?1:0));
+const STARS=window.__STARS={1:3,4:2};   // estrellas ganadas en cada nivel (el 4 se actualiza al terminar la práctica)
+window.__totalStars=()=>[1,2,3,4,5].reduce((a,L)=>a+(DONE[L]?(STARS[L]||0):0),0);
 const LAND=['practica','fin','t1','t2','t3','t4','cd3','cd2','cd1'];
 function go(k,push){if(k==='practica'&&!window.__fromCd)k='t1';if(k==='cd3'){if(cur==='t1'&&window.__tut&&__tut.page()>=3.9&&window.__cd)__cd.run();return}   // Comenzar: la cuenta regresiva ocurre en la misma pantalla
     // antes de la práctica va el tutorial
  if(k==='m1'||k==='m1b'||k==='m1c')k=mundoKey();if(k==='m1modal'){if(seen.w)k=mundoKey();else seen.w=1}   // la bienvenida sale solo la primera vez que se toca el mundo
- if(k==='fin')DONE[4]=true;if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
+ if(k==='fin'){DONE[4]=true;if(window.__litStars)STARS[4]=__litStars()}if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
  if(push){if(['inicio','tunerOff','camino','comunidad'].includes(k)||k==='canciones'&&cur==='inicio')hist=[];if(['canciones','mundo','foro','i1'].includes(k))hist.push(cur)}
  if(k==='mapa')seen.c=1;if(k==='comHub')seen.m=1;if(k===cur)return;show(k)}
 function rotFit(x,y,w,h,app){
@@ -11552,6 +11554,7 @@ const KX=[S.x,...L.map(p=>p.x)];
 function camX(i,k){const P1=KX[i],P2=KX[i+1],P0=i>0?KX[i-1]:P1,P3=i+2<KX.length?KX[i+2]:P2,k2=k*k,k3=k2*k;
  return .5*(2*P1+(-P0+P2)*k+(2*P0-5*P1+4*P2-P3)*k2+(-P0+3*P1-3*P2+P3)*k3)-S.x}
 function setBall(x,y,sx=1,sy=1){ball.setAttribute('transform',`translate(${x} ${y}) scale(${sx} ${sy})`)}
+window.__litStars=()=>stars.filter(s=>/249, 209, 56/.test(getComputedStyle(s).fill)).length;
 function resetP(){cancelAnimationFrame(raf);got=0;seg=0;busy=0;t0=0;SCN&&SCN.set(0);stars.forEach(s=>{s.style.fill='#c9c8c8';s.classList.remove('on')});setBall(S.x,S.y);ball.style.opacity=.55;$('play').textContent='▶ Empezar'}
 function step(ts){if(!t0)t0=ts;const NR=N.length,u=Math.min((ts-t0)/(seg===0?1100:B),1),k=seg===0?Math.pow(u,1.7):u,a=seg?L[seg-1]:S,b=L[seg];   // el primer tramo arranca en cámara lenta y se acelera
  SCN&&SCN.set(camX(seg,k));setBall(S.x,a.y+(b.y-a.y)*k-4*44*k*(1-k),1/(k>.92&&seg<NR?1+(k-.92)*2:1),k>.92&&seg<NR?1+(k-.92)*2:1);ball.style.opacity=seg<NR?1:Math.max(0,1-Math.max(0,k-.45)/.55);
@@ -11942,18 +11945,21 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     arr.sort((a,b)=>a.y-b.y);const rows=[];arr.forEach(a=>{const r=rows[rows.length-1];if(r&&a.y-r.y0<20)r.items.push(a);else rows.push({y0:a.y,items:[a]})});
     starRows[key]=rows.map(r=>r.items.sort((a,b)=>a.x-b.x))});
   const animStars=(k,lvls)=>{const rows=starRows[k];if(!rows)return;
-    rows.flat().forEach(a=>{a.c.style.fill='';a.c.classList.remove('spop')});
-    lvls.forEach((L,j)=>{const r=rows[L-1];if(!r)return;const ys=r.filter(a=>a.yellow);ys.forEach(a=>a.c.style.fill='#c4c4c4');
-      ys.forEach((a,i)=>setTimeout(()=>{if(cur!==k)return;a.c.style.fill='';a.c.classList.remove('spop');void a.c.getBoundingClientRect();a.c.classList.add('spop')},2000+j*900+i*380))})};
+    rows.flat().forEach(a=>{a.c.classList.remove('spop')});
+    rows.forEach((r,i)=>{const L=i+1,n=DONE[L]?(STARS[L]||0):0,nuevo=lvls.indexOf(L);
+      r.forEach((a,j)=>{const on=j<n;a.c.style.fill=(on&&nuevo<0)?'#f9d138':'#c4c4c4';   // las estrellas que se ganan según lo que se sacó en el nivel
+        if(on&&nuevo>=0)setTimeout(()=>{if(cur!==k)return;a.c.style.fill='#f9d138';a.c.classList.remove('spop');void a.c.getBoundingClientRect();a.c.classList.add('spop')},2000+nuevo*900+j*380)})})};
   let raf=0,shownM=0,shownI=0;const shownL={1:false,4:false};   // lo último que vio la persona: la barra sube desde ahí hasta el valor nuevo
   const run=(o,from,to,done)=>{cancelAnimationFrame(raf);if(!o)return;o.setV(from);if(to<=from){o.setV(to);return}
     const t0=performance.now()+300,DUR=1400;   // espera a que termine el fundido de entrada
     const step=ts=>{const k=Math.max(0,Math.min(1,(ts-t0)/DUR));o.setV(from+(to-from)*ease(k));if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
-  window.__prog=k=>{cancelAnimationFrame(raf);
+  let PILL=null;const pills=()=>{if(PILL)return PILL;PILL=[];Object.keys(FR).forEach(fk=>{const w=fwOf(fk);if(!w)return;const [fx,fy]=FR[fk];
+    w.querySelectorAll('text').forEach(t=>{if(!/^\s*\d+\s*$/.test(t.textContent))return;let b;try{b=t.getBBox()}catch(e){return}const q=absPt(t,b.x,b.y);if(Math.abs(q[0]-fx-271)<4&&Math.abs(q[1]-fy-55)<4)PILL.push(t)})});return PILL};
+  const setPills=()=>{const n=__totalStars();pills().forEach(t=>{const sp=[...t.querySelectorAll('tspan')].find(x=>/\d/.test(x.textContent))||t;sp.textContent=String(n)})};   // la estrellita de arriba muestra el total
+  window.__prog=k=>{cancelAnimationFrame(raf);setPills();
    if(rings[k]){const P=__mundoPct(),lv=[];if(DONE[1]&&!shownL[1])lv.push(1);if(DONE[4]&&!shownL[4])lv.push(4);
     run(rings[k],Math.min(shownM,P),P);animStars(k,lv);shownM=P;shownL[1]=DONE[1];shownL[4]=DONE[4];
-    if(k==='m1c'&&!DONE[1]){(starRows.m1c[0]||[]).forEach(a=>{if(a.yellow)a.c.style.fill='#c4c4c4'})}   // solo se hizo el nivel 4: el 1 sigue vacío
-    const n=(DONE[1]?3:0)+(DONE[4]?2:0),w=fwOf(k),et=w&&[...w.querySelectorAll('text')].find(t=>/Estrellas conseguidas/.test(t.textContent));
+    const n=__totalStars(),w=fwOf(k),et=w&&[...w.querySelectorAll('text')].find(t=>/Estrellas conseguidas/.test(t.textContent));
     if(et){const sp=[...et.querySelectorAll('tspan')].reverse().find(t=>/\d/.test(t.textContent))||et;sp.textContent=sp.textContent.replace(/\d+\s*$/,n)}}
    else if(k==='inicio'){const T=window.__mundoPct?__mundoPct():0;run(bar,Math.min(shownI,T),T);shownI=T}
    else{Object.values(rings).forEach(r=>r&&r.setV(__mundoPct()));bar&&bar.setV(window.__mundoPct?__mundoPct():0)}};
