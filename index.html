@@ -11198,7 +11198,7 @@ function core(k){cur=k;if(window.__tuner)__tuner.on(k);if(k!=='practica'){try{SC
  clearInterval(tun);
  }
 function show(k){if(SLIDING)SLIDING.finish();if((k==='cw'||k==='cf'||k==='mapa')&&window.__float&&__float.clouds)__float.clouds(true);   // las nubes ya se mueven antes de que la pantalla entre (no hay salto al arrancar)
- if(k==='comW'&&window.__fillComW)__fillComW();if(/^m1[bc]?$/.test(k)&&window.__nodes)__nodes.paint(k);if(window.__pop)__pop.prep(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
+ if(k==='comW'&&window.__fillComW)__fillComW();if(/^m1[bc]?$/.test(k)&&window.__nodes)__nodes.paint(k);if(k==='cw'&&window.__fillCwNav)__fillCwNav();if(window.__pop)__pop.prep(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
  if(window.__instant){cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;return}   // mismo fondo: sin corte
  const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
  const tg=(prevK==='tunerOff'||prevK==='tunerOk')&&(k==='tunerOff'||k==='tunerOk');
@@ -11901,6 +11901,17 @@ window.__pop=(()=>{const ST={},calm=matchMedia&&matchMedia('(prefers-reduced-mot
 window.__strays=(()=>{let n=0;['mapa','cw','cf'].forEach(fk=>{const w=svg.querySelector('g.fw[data-f="'+fk+'"]');if(!w)return;
  w.querySelectorAll('path,line,polyline').forEach(e=>{const cs=getComputedStyle(e);if(cs.stroke==='none'||!/255, 255, 255/.test(cs.stroke)||(cs.strokeDasharray&&cs.strokeDasharray!=='none'))return;let b;try{b=e.getBBox()}catch(x){return}
   if(b.width<8&&b.height<8){e.style.display='none';n++}})});return n})();
+// Bienvenida de Mi Camino: si el tablero no trae la barra de menú en esa pantalla, se copia la de "¿Cómo funciona?" (misma posición)
+window.__fillCwNav=(()=>{let done=false;return()=>{if(done)return;try{
+ const wa=svg.querySelector('g.fw[data-f="cw"]'),wb=svg.querySelector('g.fw[data-f="cf"]');if(!wa||!wb)return;
+ const isNav=(w,k)=>[...w.querySelectorAll('g')].find(g=>{let b;try{b=g.getBBox()}catch(e){return false}const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height);return Math.abs(q2[0]-q[0]-285)<4&&Math.abs(q2[1]-q[1]-62)<4});
+ done=true;if(isNav(wa))return;const src=isNav(wb);if(!src)return;
+ const ov=[...wa.children].find(c=>c.tagName==='rect'&&getComputedStyle(c).opacity<.9&&/rgb\(0, 0, 0\)/.test(getComputedStyle(c).fill));if(!ov)return;
+ const cl=src.cloneNode(true);cl.style.pointerEvents='none';wa.insertBefore(cl,ov);
+ const tn=e=>(e.getAttribute('transform')||'').match(/-?\d*\.?\d+/g).map(parseFloat),Ta=tn(wa),Tb=tn(wb);
+ const sl=src.transform&&src.transform.baseVal&&src.transform.baseVal.numberOfItems?src.transform.baseVal.consolidate().matrix:null,L0=sl?DOMMatrix.fromMatrix(sl):new DOMMatrix();
+ const m=new DOMMatrix().translate(Tb[0]-Ta[0]+FR.cw[0]-FR.cf[0],Tb[1]-Ta[1]+FR.cw[1]-FR.cf[1]).multiply(L0);
+ cl.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')')}catch(e){window.__fe2=String(e)}}})();
 // Bienvenida de Comunidad: el fondo es exactamente el de la pantalla Comunidad (con sus ilustraciones), no el borrador gris
 window.__fillComW=(()=>{let done=false;return()=>{if(done)return;try{
  const wa=svg.querySelector('g.fw[data-f="comW"]'),wb=svg.querySelector('g.fw[data-f="comHub"]');if(!wa||!wb)return;
