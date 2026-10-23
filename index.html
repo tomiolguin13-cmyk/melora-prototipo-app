@@ -11897,6 +11897,9 @@ window.__pop=(()=>{const ST={},calm=matchMedia&&matchMedia('(prefers-reduced-mot
   const b2=o.g.animate([{opacity:0,scale:'.88'},{opacity:1,scale:'1'}],{duration:430,delay:625,easing:'cubic-bezier(.2,1.15,.4,1)',fill:'both'});
   b2.onfinish=()=>{o.g.style.opacity='';b2.cancel()}};
  return{prep,play}})();
+// Comunidad: el título (y el subtítulo) bajan para quedar a la misma altura que Afinador y Mi Camino
+window.__comTitle=(()=>{const w=svg.querySelector('g.fw[data-f="comHub"]');if(!w)return;
+ [...w.querySelectorAll('text')].forEach(t=>{const x=t.textContent.trim();if(/^Comunidad/.test(x))t.style.translate='0px 9.2px';else if(/^Compart/.test(x))t.style.translate='0px 7px'})})();
 // Bienvenida de Comunidad: el fondo es exactamente el de la pantalla Comunidad (con sus ilustraciones), no el borrador gris
 window.__fillComW=(()=>{let done=false;return()=>{if(done)return;try{
  const wa=svg.querySelector('g.fw[data-f="comW"]'),wb=svg.querySelector('g.fw[data-f="comHub"]');if(!wa||!wb)return;
