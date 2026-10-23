@@ -11420,7 +11420,7 @@ function core(k){cur=k;if(window.__tuner)__tuner.on(k);if(k!=='practica'){try{SC
  clearInterval(tun);
  }
 function show(k){if(SLIDING)SLIDING.finish();if((k==='cw'||k==='cf'||k==='mapa')&&window.__float&&__float.clouds)__float.clouds(true);   // las nubes ya se mueven antes de que la pantalla entre (no hay salto al arrancar)
- if(k==='comW'&&window.__fillComW)__fillComW();if(window.__pop)__pop.prep(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
+ if(k==='comW'&&window.__fillComW)__fillComW();if(/^m1[bc]?$/.test(k)&&window.__nodes)__nodes.paint(k);if(window.__pop)__pop.prep(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='mapa'&&window.__float&&__float.prep)__float.prep();   // primera vez en Mi Camino: las islas y la línea quedan ocultas antes de que entre la pantalla
  if(window.__instant){cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1;return}   // mismo fondo: sin corte
  const prevK=cur,nn=!!(window.__nav&&__nav.has(prevK)&&__nav.has(k));
  const tg=(prevK==='tunerOff'||prevK==='tunerOk')&&(k==='tunerOff'||k==='tunerOk');
@@ -12125,7 +12125,21 @@ window.__fillComW=(()=>{let done=false;return()=>{if(done)return;try{
  wa.insertBefore(cl,bg);bg.style.display='none';done=true}catch(e){window.__fe=String(e)}}})();
 // Las pantallas de bienvenida de Mi Camino no muestran las islas: aparecen recién con la animación de entrada
 {let hid=0;window.__hideWelcomeIslands=()=>{if(hid)return;hid=1;['cw','cf'].forEach(fk=>{try{H.mapa.slice(0,4).forEach(h=>islandEls(h.slice(0,4),fk).forEach(g=>{g.style.display='none'}));const w=svg.querySelector('g.fw[data-f="'+fk+'"]');w&&[...w.querySelectorAll('path')].forEach(e=>{const d=getComputedStyle(e).strokeDasharray;if(d&&d!=='none')e.style.display='none'})}catch(e){}})}}
-{const _core=core;core=function(k){_core(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='comW'&&window.__fillComW)__fillComW();if(window.__pop)__pop.play(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
+// Mundo 1: los círculos de la línea de tiempo siguen el progreso real: tilde = completada, amarillo = la primera que falta (en curso), azul = disponibles
+window.__nodes=(()=>{let TPL=null;const CL=new WeakMap(),COL={done:'#95d12c',cur:'#f4a531',open:'#00afe5'};
+ const frame=k=>svg.querySelector('g.fw[data-f="'+k+'"]');
+ const inners=k=>{const w=frame(k);if(!w)return[];const [fx]=FR[k];
+  return [...w.querySelectorAll('circle')].filter(c=>{let b;try{b=c.getBBox()}catch(e){return false}if(Math.abs(b.width-28.4)>1)return false;const q=absPt(c,b.x,b.y);return q[0]-fx>19&&q[0]-fx<25}).map(c=>{const b=c.getBBox(),q=absPt(c,b.x,b.y);return{c,y:q[1]}}).sort((a,b)=>a.y-b.y).map(o=>o.c)};
+ const nodeRoot=c=>{let nr=c.parentNode;if(!nr.querySelector('polyline')&&nr.parentNode&&nr.parentNode.children.length===2&&nr.parentNode.querySelector('polyline'))nr=nr.parentNode;return nr};
+ const center=c=>{const b=c.getBBox();return absPt(c,b.x+b.width/2,b.y+b.height/2)};
+ const findTpl=()=>{if(TPL)return TPL;for(const k of ['m1b','m1c']){for(const c of inners(k)){const nr=nodeRoot(c),p=nr.querySelector('polyline');if(p){TPL={p,c};return TPL}}}return null};
+ const paint=k=>{try{const list=inners(k);if(!list.length)return;const tpl=findTpl();let cur=-1;list.forEach((c,i)=>{if(cur<0&&!DONE[i+1])cur=i});
+  list.forEach((c,i)=>{const done=!!DONE[i+1],st=done?'done':i===cur?'cur':'open';c.style.fill=COL[st];const nr=nodeRoot(c);let ps=[...nr.querySelectorAll('polyline')];
+   if(done&&!ps.length&&tpl&&!CL.has(c)){const cl=tpl.p.cloneNode(true),P=nr.getCTM(),S=tpl.p.getCTM(),a=center(c),b=center(tpl.c);
+    const m=DOMMatrix.fromMatrix(P).inverse().multiply(new DOMMatrix().translate(a[0]-b[0],a[1]-b[1])).multiply(DOMMatrix.fromMatrix(S));cl.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')');cl.removeAttribute('display');nr.appendChild(cl);CL.set(c,cl)}
+   if(CL.has(c))ps.push(CL.get(c));ps.forEach(p=>{p.style.display=done?'':'none'})})}catch(e){window.__ne=String(e)}};
+ return{paint}})();
+{const _core=core;core=function(k){_core(k);if(/^m1[bc]?$/.test(k)&&window.__nodes)__nodes.paint(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='comW'&&window.__fillComW)__fillComW();if(window.__pop)__pop.play(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
 /* ===== Tutorial previo a la práctica Hotel California: "¿Cómo funciona?" (4 pasos) → Comenzar → cuenta regresiva 3-2-1 → práctica ===== */
 window.__tut=(()=>{
   const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),H1=fwOf('t1'),mkg=()=>document.createElementNS(NS,'g');if(!H1)return null;
