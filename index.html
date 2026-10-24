@@ -11995,7 +11995,7 @@ window.__tut=(()=>{
     pages.push({img,txt,dg,sx,sy});[img,txt,dg].forEach(g=>H1.appendChild(g))});
   {const w=fwOf('t4');if(w){const c=[...w.children].reverse().find(c=>c.tagName==='g'&&/Comenzar/.test(c.textContent));if(c){btn=mkg();btn.appendChild(c);H1.appendChild(btn);btnS=[nwx('t1')-nwx('t4'),nwy('t1')-nwy('t4')]}}}
   {const UI=mkg();UI.setAttribute('id','tutUI');   // todo lo que cambia (título, textos, imágenes, puntos, botón) va en un grupo para poder desvanecerlo junto
-   const ti=[...H1.children].find(c=>c.tagName==='text'&&/funciona/.test(c.textContent));if(ti)UI.appendChild(ti);
+   const ti=[...H1.children].find(c=>c.tagName==='text'&&/funciona/.test(c.textContent));if(ti)UI.appendChild(ti);const om=[...H1.children].find(c=>c.tagName==='text'&&/Omitir/.test(c.textContent));if(om)UI.appendChild(om);
    pages.forEach(o=>[o.img,o.txt,o.dg].forEach(g=>UI.appendChild(g)));if(btn)UI.appendChild(btn);H1.appendChild(UI);window.__tutUI=UI}
   // la ilustración se recorta con la forma redondeada de la tarjeta (en el tablero a veces el recorte es un rectángulo y el mástil asoma por las esquinas)
   pages.forEach((o,n)=>{try{const g=o.img.firstElementChild;if(!g)return;const cs=getComputedStyle(g).clipPath,m=/url\("?#([^")]+)/.exec(cs);if(!m)return;
@@ -12023,7 +12023,7 @@ window.__tut=(()=>{
     j=cl(j,0,4);animTo(j);setTimeout(()=>{window.__scrolled=false},80)};
   svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
   const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k==='t1'){cancelAnimationFrame(raf);clearTimeout(wt);set(0)}};
-  return {page:()=>p,set,animTo,skip:()=>{cancelAnimationFrame(raf);clearTimeout(wt);d=null;set(4)}};
+  return {page:()=>p,set,animTo,skip:()=>{cancelAnimationFrame(raf);clearTimeout(wt);d=null}};
 })();
 // ---- Mi Camino: cada isla flota junto con su número, como un solo bloque; la línea punteada avanza; las nubes derivan muy despacio ----
 {const FL=[],rcs=H.mapa.slice(0,4).map(h=>h.slice(0,4));
@@ -12101,7 +12101,7 @@ window.__cd=(()=>{
   const ov=[...W.children].find(c=>c.tagName==='rect'&&(()=>{try{const b=c.getBBox();return b.width>700&&b.height>300}catch(e){return false}})());
   const nums=[];
   ['cd3','cd2','cd1'].forEach(k=>{const w=fwOf(k);if(!w)return;const g=mkg(),sx=nwx('t1')-nwx(k),sy=nwy('t1')-nwy(k);
-    [...w.children].forEach(c=>{if(c.tagName==='text'&&/^\s*[123]\s*$/.test(c.textContent))g.appendChild(c)});
+    [...w.querySelectorAll('text')].forEach(c=>{if(!/^\s*[123]\s*$/.test(c.textContent))return;let b;try{b=c.getBBox()}catch(e){return}if(b.height>90&&b.height<130&&!g.firstChild){const a=w.getCTM().inverse().multiply(c.getCTM());g.appendChild(c);c.setAttribute('transform','matrix('+[a.a,a.b,a.c,a.d,a.e,a.f].join(' ')+')')}});
     g.setAttribute('transform','translate('+sx+' '+sy+')');g.setAttribute('opacity',0);g.style.pointerEvents='none';W.appendChild(g);nums.push(g)});
   W.querySelectorAll('path').forEach(c=>{let b;try{b=c.getBBox()}catch(e){return}   // antes de jugar no hay estrellas ganadas
     if(Math.abs(b.width-19.6)<.9&&Math.abs(b.height-18.8)<.9&&getComputedStyle(c).fill==='rgb(249, 209, 56)')c.style.fill='#c9c8c8'});
