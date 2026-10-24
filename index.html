@@ -11162,7 +11162,7 @@ function sfxBubbles(delayMs,durMs){try{bubStop();if(window.__mute)return;const A
  BUB={g,nodes}}catch(e){}}
 window.__bub={start:sfxBubbles,stop:bubStop};
 window.__introSnd=()=>{try{if(window.__mute)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!TAPC)TAPC=new AC();if(TAPC.state==='suspended')TAPC.resume();
- const c=TAPC,t0=c.currentTime+.18,T=[0,.65,1.3,2.0],F=[420,520,640,800];   // una burbujita por isla, cada una más aguda, y un chispeo suave mientras se dibuja la línea
+ const c=TAPC,t0=c.currentTime+.18,T=[0,.65,1.3,2.0],F=[520,520,520,520];   // una burbujita por isla, cada una más aguda, y un chispeo suave mientras se dibuja la línea
  const pop=(t,f,v,d)=>{const o=c.createOscillator(),e=c.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*1.7,t+d);
   e.gain.setValueAtTime(.0001,t);e.gain.exponentialRampToValueAtTime(v,t+.012);e.gain.exponentialRampToValueAtTime(.0001,t+d+.08);o.connect(e);e.connect(c.destination);o.start(t);o.stop(t+d+.1)};
  T.forEach((t,i)=>pop(t0+t,F[i],.2,.13));
