@@ -11166,8 +11166,8 @@ window.__introSnd=()=>{try{if(window.__mute)return;const AC=window.AudioContext|
  const pop=(t,f,v,d)=>{const o=c.createOscillator(),e=c.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*1.7,t+d);
   e.gain.setValueAtTime(.0001,t);e.gain.exponentialRampToValueAtTime(v,t+.012);e.gain.exponentialRampToValueAtTime(.0001,t+d+.08);o.connect(e);e.connect(c.destination);o.start(t);o.stop(t+d+.1)};
  T.forEach((t,i)=>pop(t0+t,F[i],.2,.13));
- const lf=c.createBiquadFilter();lf.type='lowpass';lf.frequency.value=420;lf.connect(c.destination);   // línea punteada: golpecitos graves y opacos, siempre del mismo tono
- for(let t=.05;t<2.0;t+=.13){const o=c.createOscillator(),e=c.createGain(),tt=t0+t;o.type='sine';o.frequency.setValueAtTime(190,tt);o.frequency.exponentialRampToValueAtTime(150,tt+.09);
+ const lf=c.createBiquadFilter();lf.type='lowpass';lf.frequency.value=800;lf.connect(c.destination);   // línea punteada: golpecitos graves y opacos, siempre del mismo tono
+ for(let t=.05;t<2.0;t+=.13){const o=c.createOscillator(),e=c.createGain(),tt=t0+t;o.type='sine';o.frequency.setValueAtTime(330,tt);o.frequency.exponentialRampToValueAtTime(270,tt+.09);
   e.gain.setValueAtTime(.0001,tt);e.gain.exponentialRampToValueAtTime(.11,tt+.02);e.gain.exponentialRampToValueAtTime(.0001,tt+.13);o.connect(e);e.connect(lf);o.start(tt);o.stop(tt+.15)}}catch(e){}};
 let HAPT=null;
 function buzz(){sfxTap();try{if(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
