@@ -11068,7 +11068,7 @@ const SIG=[47,502,229,39],X=[250,150,34,34],BK=[30,30,50,50],BK2=[14,42,56,52];
 const H={
 i1:[[...BK2,'back'],[55.5,613.9,211,48,'c1']],
 c1:[[...BK2,'back']],c2:[[...BK2,'back']],lg:[],lgm:[[64,420,193,52,'m1']],m1c:[[...BK2,'mapa'],[66,339,237,68,'i1'],[66,421,237,69,T('Esta lección no está en el tablero')],[66,503,237,70,T('Esta lección no está en el tablero')],[66,586,237,68,'practica'],[66,668,237,68,T('Esta lección no está en el tablero')]],
-t1:[[537,283,157,36,'cd3']],t2:[],t3:[],t4:[],cd3:[],cd2:[],cd1:[],
+t1:[[537,283,157,36,'cd3'],[618,18,90,42,'omit']],t2:[],t3:[],t4:[],cd3:[],cd2:[],cd1:[],
 splash:[[42,391,244,44,'crear'],[42,445,244,44,'login']],
 crear:[[39,157,245,40,'inicio'],[39,210,245,40,'inicio'],[39,264,245,40,'inicio'],[39,359,245,40,'f'],[39,411,245,40,'f'],[39,465,245,40,'f'],[39,537,245,44,'inicio'],[24,40,54,54,'splash']],
 login:[[39,157,245,40,'inicio'],[39,210,245,40,'inicio'],[39,264,245,40,'inicio'],[39,359,245,40,'f'],[39,411,245,40,'f'],[39,465,245,40,'f'],[39,537,245,44,'inicio'],[24,40,54,54,'splash']],
@@ -11161,6 +11161,12 @@ function sfxBubbles(delayMs,durMs){try{bubStop();if(window.__mute)return;const A
   o.connect(e);e.connect(g);o.start(t0+t);o.stop(t0+t+d+.05);nodes.push(o);t+=.045+rnd()*.05}
  BUB={g,nodes}}catch(e){}}
 window.__bub={start:sfxBubbles,stop:bubStop};
+window.__introSnd=()=>{try{if(window.__mute)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!TAPC)TAPC=new AC();if(TAPC.state==='suspended')TAPC.resume();
+ const c=TAPC,t0=c.currentTime+.18,T=[0,.65,1.3,2.0],F=[420,520,640,800];   // una burbujita por isla, cada una más aguda, y un chispeo suave mientras se dibuja la línea
+ const pop=(t,f,v,d)=>{const o=c.createOscillator(),e=c.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*1.7,t+d);
+  e.gain.setValueAtTime(.0001,t);e.gain.exponentialRampToValueAtTime(v,t+.012);e.gain.exponentialRampToValueAtTime(.0001,t+d+.08);o.connect(e);e.connect(c.destination);o.start(t);o.stop(t+d+.1)};
+ T.forEach((t,i)=>pop(t0+t,F[i],.2,.13));
+ for(let t=.08;t<2.0;t+=.11+Math.random()*.05)pop(t0+t,900+t*260+Math.random()*120,.035,.05)}catch(e){}};
 let HAPT=null;
 function buzz(){sfxTap();try{if(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  if(navigator.vibrate){navigator.vibrate(9);return}
@@ -11180,7 +11186,7 @@ window.__mundoPct=()=>20*((DONE[1]?1:0)+(DONE[4]?1:0));
 const STARS=window.__STARS={1:3,4:2};   // estrellas ganadas en cada nivel (el 4 se actualiza al terminar la práctica)
 window.__totalStars=()=>[1,2,3,4,5].reduce((a,L)=>a+(DONE[L]?(STARS[L]||0):0),0);
 const LAND=['practica','fin','t1','t2','t3','t4','cd3','cd2','cd1'];
-function go(k,push){if(k==='practica'&&!window.__fromCd)k='t1';if(k==='cd3'){if(cur==='t1'&&window.__tut&&__tut.page()>=3.9&&window.__cd)__cd.run();return}   // Comenzar: la cuenta regresiva ocurre en la misma pantalla
+function go(k,push){if(k==='practica'&&!window.__fromCd)k='t1';if(k==='omit'){if(cur==='t1'&&window.__cd&&window.__tut){__tut.skip();__cd.run()}return}if(k==='cd3'){if(cur==='t1'&&window.__tut&&__tut.page()>=3.9&&window.__cd)__cd.run();return}   // Comenzar: la cuenta regresiva ocurre en la misma pantalla
     // antes de la práctica va el tutorial
  if(k==='m1'||k==='m1b'||k==='m1c')k=mundoKey();if(k==='m1modal'){if(seen.w)k=mundoKey();else seen.w=1}   // la bienvenida sale solo la primera vez que se toca el mundo
  if(k==='fin'){DONE[4]=true;if(window.__litStars)STARS[4]=__litStars()}if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
@@ -11752,7 +11758,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
         if(on&&nuevo>=0)setTimeout(()=>{if(cur!==k)return;a.c.style.fill='#f9d138';a.c.classList.remove('spop');void a.c.getBoundingClientRect();a.c.classList.add('spop');sfx('star',.21,1+.14*j)},2000+nuevo*900+j*380)})})};
   let raf=0,shownM=0,shownI=0;const shownL={1:false,4:false};   // lo último que vio la persona: la barra sube desde ahí hasta el valor nuevo
   const run=(o,from,to,done)=>{cancelAnimationFrame(raf);if(!o)return;o.setV(from);if(to<=from){o.setV(to);return}
-    const t0=performance.now()+300,DUR=1400;if(window.__bub)__bub.start(300,DUR);   // espera a que termine el fundido de entrada
+    const t0=performance.now()+300,DUR=1400;if(window.__bub&&cur!=='inicio')__bub.start(300,DUR);   // espera a que termine el fundido de entrada
     const step=ts=>{const k=Math.max(0,Math.min(1,(ts-t0)/DUR));o.setV(from+(to-from)*ease(k));if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
   let PILL=null;const pills=()=>{if(PILL)return PILL;PILL=[];Object.keys(FR).forEach(fk=>{const w=fwOf(fk);if(!w)return;const [fx,fy]=FR[fk];
     w.querySelectorAll('text').forEach(t=>{if(!/^\s*\d+\s*$/.test(t.textContent))return;let b;try{b=t.getBBox()}catch(e){return}const q=absPt(t,b.x,b.y);if(Math.abs(q[0]-fx-271)<4&&Math.abs(q[1]-fy-55)<4)PILL.push(t)})});return PILL};
@@ -11970,6 +11976,10 @@ window.__tut=(()=>{
   const pages=[];let btn=null,btnS=[0,0];
   {const w4=fwOf('t4');if(w4)[...w4.children].forEach(c=>{   // si el último paso viene envuelto en un grupo junto con el botón, se desarma para tratar cada pieza por separado
     if(c.tagName==='g'&&c.children.length>2&&/Comenzar/.test(c.textContent)&&!c.getAttribute('transform')){[...c.children].forEach(x=>w4.insertBefore(x,c));c.remove()}})}
+  ['t1','t2','t3','t4'].forEach(k=>{const w=fwOf(k);if(!w)return;   // en el tablero nuevo las piezas de cada paso vienen metidas dentro de un grupo grande: se sacan al nivel del cuadro
+    [...w.children].forEach(c=>{if(c.tagName!=='g'||c.getAttribute('transform')||c.children.length>10||c.children.length<2)return;const b=rel(c,k);if(!b||b.w<900)return;
+      [...c.children].forEach(x=>{if(x.tagName==='g'&&x.children.length>20&&(rel(x,k)||{w:0}).w>900)return;w.insertBefore(x,c.nextSibling?c.nextSibling:null)})});
+  });
   ['t1','t2','t3','t4'].forEach(k=>{const w=fwOf(k);if(!w)return;
     const img=mkg(),txt=mkg(),dg=mkg(),sx=nwx('t1')-nwx(k),sy=nwy('t1')-nwy(k);
     [...w.children].forEach(c=>{const b=rel(c,k);if(!b)return;
@@ -12007,7 +12017,7 @@ window.__tut=(()=>{
     j=cl(j,0,4);animTo(j);setTimeout(()=>{window.__scrolled=false},80)};
   svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
   const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k==='t1'){cancelAnimationFrame(raf);clearTimeout(wt);set(0)}};
-  return {page:()=>p,set,animTo};
+  return {page:()=>p,set,animTo,skip:()=>{cancelAnimationFrame(raf);clearTimeout(wt);d=null;set(4)}};
 })();
 // ---- Mi Camino: cada isla flota junto con su número, como un solo bloque; la línea punteada avanza; las nubes derivan muy despacio ----
 {const FL=[],rcs=H.mapa.slice(0,4).map(h=>h.slice(0,4));
@@ -12074,7 +12084,7 @@ window.__tut=(()=>{
      FL.intro.push(g.animate([{opacity:0,scale:'.5'},{opacity:1,scale:'1'}],{duration:480,delay:Math.max(0,T[i]-90),easing:'cubic-bezier(.2,1.25,.4,1)',fill:'backwards'}))});
    FL.intro.forEach(a=>a.pause());
    FL.intro[0].finished.then(()=>{L.removeAttribute('mask');mk.remove();FL.mp=null}).catch(()=>{})};
- const playIntro=()=>{if(!FL.intro||FL.introPlayed)return;FL.introPlayed=1;setTimeout(()=>FL.intro.forEach(a=>{try{a.currentTime=0;a.play()}catch(e){}}),180)};
+ const playIntro=()=>{if(!FL.intro||FL.introPlayed)return;FL.introPlayed=1;if(window.__introSnd)__introSnd();setTimeout(()=>FL.intro.forEach(a=>{try{a.currentTime=0;a.play()}catch(e){}}),180)};
  window.__float={clouds(v){if(v)startC();(FL.cla||[]).forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},prep(){if(calm||FL.intro||FL.introPlayed)return;try{start();intro()}catch(e){window.__pe=String(e)}},on(v){FL.run=!!v;if(v)start();if(v)intro();if(v)playIntro();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
 {const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';if(window.__float){__float.on(k==='mapa');__float.clouds(k==='mapa'||k==='cw'||k==='cf')}
   }}
