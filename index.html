@@ -11759,8 +11759,8 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
       r.forEach((a,j)=>{const on=j<n;a.c.style.fill=(on&&nuevo<0)?'#f9d138':'#c4c4c4';   // las estrellas que se ganan según lo que se sacó en el nivel
         if(on&&nuevo>=0)setTimeout(()=>{if(cur!==k)return;a.c.style.fill='#f9d138';a.c.classList.remove('spop');void a.c.getBoundingClientRect();a.c.classList.add('spop');sfx('star',.21,1+.14*j)},2000+nuevo*900+j*380)})})};
   let raf=0,shownM=0,shownI=0;const shownL={1:false,4:false};   // lo último que vio la persona: la barra sube desde ahí hasta el valor nuevo
-  const run=(o,from,to,done)=>{cancelAnimationFrame(raf);if(!o)return;o.setV(from);if(to<=from){o.setV(to);return}
-    const t0=performance.now()+300,DUR=1400;if(window.__bub&&cur!=='inicio')__bub.start(300,DUR);   // espera a que termine el fundido de entrada
+  const run=(o,from,to,done,quiet)=>{cancelAnimationFrame(raf);if(!o)return;o.setV(from);if(to<=from){o.setV(to);return}
+    const t0=performance.now()+300,DUR=1400;if(window.__bub&&!quiet)__bub.start(300,DUR);   // espera a que termine el fundido de entrada
     const ov=o.pulse?0:Math.min(100-to,.045*(to-from)+1),BN=520;   // la barra se pasa un poquito y vuelve (rebote); el aro, que no puede pasarse, hace un latido
     const step=ts=>{const k=Math.max(0,Math.min(1,(ts-t0)/DUR));o.setV(from+(to+ov-from)*ease(k),to);
       if(k<1){raf=requestAnimationFrame(step);return}
@@ -11774,7 +11774,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     run(rings[k],Math.min(shownM,P),P);animStars(k,lv);shownM=P;shownL[1]=DONE[1];shownL[4]=DONE[4];
     const n=__totalStars(),w=fwOf(k),et=w&&[...w.querySelectorAll('text')].find(t=>/Estrellas conseguidas/.test(t.textContent));
     if(et){const sp=[...et.querySelectorAll('tspan')].reverse().find(t=>/\d/.test(t.textContent))||et;sp.textContent=sp.textContent.replace(/\d+\s*$/,n)}}
-   else if(k==='inicio'){const T=window.__mundoPct?__mundoPct():0;run(bar,Math.min(shownI,T),T);shownI=T}
+   else if(k==='inicio'){const T=window.__mundoPct?__mundoPct():0;run(bar,Math.min(shownI,T),T,null,true);shownI=T}
    else{Object.values(rings).forEach(r=>r&&r.setV(__mundoPct()));bar&&bar.setV(window.__mundoPct?__mundoPct():0)}};
   window.__progParts={rings,bar};
 }
