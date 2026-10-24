@@ -11188,7 +11188,7 @@ window.__mundoPct=()=>20*((DONE[1]?1:0)+(DONE[4]?1:0));
 const STARS=window.__STARS={1:3,4:2};   // estrellas ganadas en cada nivel (el 4 se actualiza al terminar la práctica)
 window.__totalStars=()=>[1,2,3,4,5].reduce((a,L)=>a+(DONE[L]?(STARS[L]||0):0),0);
 const LAND=['practica','fin','t1','t2','t3','t4','cd3','cd2','cd1'];
-function go(k,push){if(k==='practica'&&!window.__fromCd)k='t1';if(k==='omit'){if(cur==='t1'&&window.__cd&&window.__tut&&__tut.downPage()<.45){__tut.skip();__cd.run()}return}if(k==='cd3'){if(cur==='t1'&&window.__tut&&__tut.page()>=3.9&&window.__cd)__cd.run();return}   // Comenzar: la cuenta regresiva ocurre en la misma pantalla
+function go(k,push){if(k==='practica'&&!window.__fromCd)k='t1';if(k==='omit'){if(cur==='t1'&&window.__cd&&window.__tut&&__tut.downPage()<.45){__tut.skip();__cd.run(true)}return}if(k==='cd3'){if(cur==='t1'&&window.__tut&&__tut.page()>=3.9&&window.__cd)__cd.run();return}   // Comenzar: la cuenta regresiva ocurre en la misma pantalla
     // antes de la práctica va el tutorial
  if(k==='m1'||k==='m1b'||k==='m1c')k=mundoKey();if(k==='m1modal'){if(seen.w)k=mundoKey();else seen.w=1}   // la bienvenida sale solo la primera vez que se toca el mundo
  if(k==='fin'){DONE[4]=true;if(window.__litStars)STARS[4]=__litStars()}if(k==='tuner')k='tunerOff';if(k==='camino')k=seen.c?'mapa':'cw';if(k==='comunidad')k=seen.m?'comHub':'comW';
@@ -11367,7 +11367,7 @@ window.__litStars=()=>stars.filter(s=>/249, 209, 56/.test(getComputedStyle(s).fi
 function resetP(){cancelAnimationFrame(raf);got=0;seg=0;busy=0;t0=0;SCN&&SCN.set(0);stars.forEach(s=>{s.style.fill='#c9c8c8';s.classList.remove('on')});setBall(S.x,S.y);ball.style.opacity=.55;$('play').textContent='▶ Empezar'}
 function step(ts){if(!t0)t0=ts;const NR=N.length,u=Math.min((ts-t0)/(seg===0?1100:B),1),k=seg===0?Math.pow(u,1.7):u,a=seg?L[seg-1]:S,b=L[seg];   // el primer tramo arranca en cámara lenta y se acelera
  SCN&&SCN.set(camX(seg,k));setBall(S.x,a.y+(b.y-a.y)*k-4*44*k*(1-k),1/(k>.92&&seg<NR?1+(k-.92)*2:1),k>.92&&seg<NR?1+(k-.92)*2:1);ball.style.opacity=seg<NR?1:Math.max(0,1-Math.max(0,k-.45)/.55);
- if(u>=1){if(seg<NR){pluck(F[seg]);flash(seg);got++;{const si=[Math.round(N.length*.375),Math.round(N.length*.75)].indexOf(got);if(si>=0){const s=stars[si];s.style.fill='#f9d138';s.classList.remove('on');void s.getBBox();s.classList.add('on');sfx('star',.21,1+.14*si)}}}
+ if(u>=1){if(seg<NR){pluck(F[seg]);flash(seg);got++;{const si=[Math.round(N.length*.375),Math.round(N.length*.75)].indexOf(got);if(si>=0){const s=stars[si];s.style.fill='#f9d138';s.classList.remove('on');void s.getBBox();s.classList.add('on')}}}
   seg++;t0=0;if(seg>=NR+1){busy=0;$('play').textContent='▶ Otra vez';setTimeout(()=>{if(cur==='practica')go('fin',0)},900);return}}
  raf=requestAnimationFrame(step)}
 $('play').onclick=()=>{if(busy)return;ac();resetP();busy=1;$('play').textContent='…';raf=requestAnimationFrame(step)};
@@ -11986,6 +11986,8 @@ window.__tut=(()=>{
     [...w.children].forEach(c=>{if(c.tagName!=='g'||c.getAttribute('transform')||c.children.length>10||c.children.length<2)return;const b=rel(c,k);if(!b||b.w<900)return;
       [...c.children].forEach(x=>{if(x.tagName==='g'&&x.children.length>20&&(rel(x,k)||{w:0}).w>900)return;w.insertBefore(x,c.nextSibling?c.nextSibling:null)})});
   });
+  {const w4=fwOf('t4');if(w4){const c=[...w4.children].find(c=>{if(c.tagName!=='g'||c.children.length<4||!/Comenzar/.test(c.textContent))return false;const b=rel(c,'t4');return b&&b.w<800});   // el último paso viene en un grupo con el botón: se separa para que el texto y el dibujo aparezcan enseguida y solo el botón llegue después
+    if(c){const tr=c.getAttribute('transform')||'';[...c.children].forEach(x=>{const xt=x.getAttribute('transform')||'';x.setAttribute('transform',(tr+' '+xt).trim());w4.insertBefore(x,c)});c.remove()}}}
   ['t1','t2','t3','t4'].forEach(k=>{const w=fwOf(k);if(!w)return;
     const img=mkg(),txt=mkg(),dg=mkg(),sx=nwx('t1')-nwx(k),sy=nwy('t1')-nwy(k);
     [...w.children].forEach(c=>{const b=rel(c,k);if(!b)return;
@@ -12107,13 +12109,13 @@ window.__cd=(()=>{
   W.querySelectorAll('path').forEach(c=>{let b;try{b=c.getBBox()}catch(e){return}   // antes de jugar no hay estrellas ganadas
     if(Math.abs(b.width-19.6)<.9&&Math.abs(b.height-18.8)<.9&&getComputedStyle(c).fill==='rgb(249, 209, 56)')c.style.fill='#c9c8c8'});
   const O0=ov?(parseFloat(getComputedStyle(ov).opacity)||1):1;   // opacidad original del fondo oscuro: así no hay salto al empezar
-  let raf=0,gen=0,running=false;const OUT=380,DUR=3300;
+  let raf=0,gen=0,running=false,OUT=380;const DUR=3300;
   const draw=(ms)=>{   // ms<0: se apagan los textos del tutorial; después cuenta 3-2-1 mientras el fondo oscuro se aclara
     if(ms<0){UI.setAttribute('opacity',Math.max(0,Math.min(1,-ms/OUT)).toFixed(3));return}
     UI.setAttribute('opacity',0);const k=Math.min(1,ms/DUR);if(ov)ov.style.opacity=(O0*(1-k)).toFixed(3);
     nums.forEach((g,i)=>{const lo=i*DUR/3,hi=(i+1)*DUR/3,F=170;let o=0;if(ms>=lo&&ms<hi)o=Math.min(1,(ms-lo)/F,(hi-ms)/F);g.setAttribute('opacity',Math.max(0,o).toFixed(3))})};
   const reset=()=>{cancelAnimationFrame(raf);gen++;running=false;if(ov)ov.style.opacity='';UI.setAttribute('opacity',1);nums.forEach(g=>g.setAttribute('opacity',0))};
-  const run=()=>{if(running)return;reset();running=true;const g=gen,t0=performance.now()+OUT;
+  const run=(fast)=>{if(running)return;OUT=fast?140:380;reset();running=true;const g=gen,t0=performance.now()+OUT;
     const st=ts=>{if(g!==gen||cur!=='t1')return;const ms=ts-t0;draw(ms);
       if(ms>=DUR){window.__instant=1;window.__fromCd=1;go('practica',0);window.__fromCd=0;window.__instant=0;running=false;return}raf=requestAnimationFrame(st)};raf=requestAnimationFrame(st)};
   const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k!=='t1')reset()};
