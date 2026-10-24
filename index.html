@@ -11148,6 +11148,19 @@ function sfx(n,vol,rate){try{if(window.__mute)return;const AC=window.AudioContex
  const bf=SFXB[n];if(!bf)return;const s=TAPC.createBufferSource(),g=TAPC.createGain();g.gain.value=vol;s.buffer=bf;if(rate)s.playbackRate.value=rate;s.connect(g);g.connect(TAPC.destination);s.start(0)}catch(e){}}
 function sfxTap(){sfx('tap',.39)}   // volúmenes parejos: botón −30 dB, estrellas −26 dB, nivel completado −23 dB
 window.__sfx=sfx;
+// Burbujas continuas mientras sube la barra de progreso: sonido generado (sin archivo); el tono sube junto con la barra y se corta justo cuando llega
+let BUB=null;
+function bubStop(){if(!BUB)return;try{const c=TAPC,g=BUB.g;g.gain.cancelScheduledValues(c.currentTime);g.gain.setValueAtTime(g.gain.value,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+.04);BUB.nodes.forEach(n=>{try{n.stop(c.currentTime+.06)}catch(e){}})}catch(e){}BUB=null}
+function sfxBubbles(delayMs,durMs){try{bubStop();if(window.__mute)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!TAPC)TAPC=new AC();if(TAPC.state==='suspended')TAPC.resume();
+ const c=TAPC,t0=c.currentTime+delayMs/1000,T=durMs/1000,g=c.createGain();g.gain.setValueAtTime(.0001,c.currentTime);g.gain.setValueAtTime(1,t0);g.gain.setValueAtTime(1,t0+T-.05);g.gain.linearRampToValueAtTime(0,t0+T);g.connect(c.destination);
+ const nodes=[];let t=0,seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+ while(t<T-.06){const p=t/T,f=300+Math.pow(p,.85)*1000+rnd()*25,   // cada burbuja es un poco más aguda que la anterior
+  o=c.createOscillator(),e=c.createGain(),d=.07+rnd()*.05;
+  o.type='sine';o.frequency.setValueAtTime(f,t0+t);o.frequency.exponentialRampToValueAtTime(f*1.55,t0+t+d);
+  e.gain.setValueAtTime(.0001,t0+t);e.gain.exponentialRampToValueAtTime(.075+.03*rnd(),t0+t+.008);e.gain.exponentialRampToValueAtTime(.0001,t0+t+d+.03);
+  o.connect(e);e.connect(g);o.start(t0+t);o.stop(t0+t+d+.05);nodes.push(o);t+=.045+rnd()*.05}
+ BUB={g,nodes}}catch(e){}}
+window.__bub={start:sfxBubbles,stop:bubStop};
 let HAPT=null;
 function buzz(){sfxTap();try{if(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  if(navigator.vibrate){navigator.vibrate(9);return}
@@ -11739,7 +11752,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
         if(on&&nuevo>=0)setTimeout(()=>{if(cur!==k)return;a.c.style.fill='#f9d138';a.c.classList.remove('spop');void a.c.getBoundingClientRect();a.c.classList.add('spop');sfx('star',.21,1+.14*j)},2000+nuevo*900+j*380)})})};
   let raf=0,shownM=0,shownI=0;const shownL={1:false,4:false};   // lo último que vio la persona: la barra sube desde ahí hasta el valor nuevo
   const run=(o,from,to,done)=>{cancelAnimationFrame(raf);if(!o)return;o.setV(from);if(to<=from){o.setV(to);return}
-    const t0=performance.now()+300,DUR=1400;   // espera a que termine el fundido de entrada
+    const t0=performance.now()+300,DUR=1400;if(window.__bub)__bub.start(300,DUR);   // espera a que termine el fundido de entrada
     const step=ts=>{const k=Math.max(0,Math.min(1,(ts-t0)/DUR));o.setV(from+(to-from)*ease(k));if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
   let PILL=null;const pills=()=>{if(PILL)return PILL;PILL=[];Object.keys(FR).forEach(fk=>{const w=fwOf(fk);if(!w)return;const [fx,fy]=FR[fk];
     w.querySelectorAll('text').forEach(t=>{if(!/^\s*\d+\s*$/.test(t.textContent))return;let b;try{b=t.getBBox()}catch(e){return}const q=absPt(t,b.x,b.y);if(Math.abs(q[0]-fx-271)<4&&Math.abs(q[1]-fy-55)<4)PILL.push(t)})});return PILL};
@@ -11948,7 +11961,7 @@ window.__nodes=(()=>{let TPL=null;const CL=new WeakMap(),COL={done:'#95d12c',cur
     const m=DOMMatrix.fromMatrix(P).inverse().multiply(new DOMMatrix().translate(a[0]-b[0],a[1]-b[1])).multiply(DOMMatrix.fromMatrix(S));cl.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')');cl.removeAttribute('display');nr.appendChild(cl);CL.set(c,cl)}
    if(CL.has(c))ps.push(CL.get(c));ps.forEach(p=>{p.style.display=done?'':'none'})})}catch(e){window.__ne=String(e)}};
  return{paint}})();
-{const _core=core;core=function(k){_core(k);if((k==='lgm'||k==='fin')&&window.__sfx)setTimeout(()=>{if(cur===k)__sfx('win',.79)},250);if(/^m1[bc]?$/.test(k)&&window.__nodes)__nodes.paint(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='comW'&&window.__fillComW)__fillComW();if(window.__pop)__pop.play(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
+{const _core=core;core=function(k){_core(k);if(window.__bub&&!(/^(m1|m1b|m1c|inicio)$/.test(k)))__bub.stop();if((k==='lgm'||k==='fin')&&window.__sfx)setTimeout(()=>{if(cur===k)__sfx('win',.79)},250);if(/^m1[bc]?$/.test(k)&&window.__nodes)__nodes.paint(k);if((k==='cw'||k==='cf')&&window.__hideWelcomeIslands)__hideWelcomeIslands();if(k==='comW'&&window.__fillComW)__fillComW();if(window.__pop)__pop.play(k);if(IK.includes(k)||k==='c1')svg.style.touchAction='none'}}
 /* ===== Tutorial previo a la práctica Hotel California: "¿Cómo funciona?" (4 pasos) → Comenzar → cuenta regresiva 3-2-1 → práctica ===== */
 window.__tut=(()=>{
   const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),H1=fwOf('t1'),mkg=()=>document.createElementNS(NS,'g');if(!H1)return null;
