@@ -11451,7 +11451,8 @@ setApp(INSTALLED);
     const dOn=dots[0].getAttribute('class'),dOff=dots[1].getAttribute('class');
     const nat=tt.map(t=>tp(t)[0]-tp(tt[0])[0]);               // posición original respecto del hueco: 0, -150, -300
     const FW=cards[0].closest('.fw'),ddx=FW?+FW.dataset.dx:0,ddy=FW?+FW.dataset.dy:0;   // desplazamiento de la pantalla en el tablero
-    const cp=mk('clipPath',{id:'dynClip'});mk('rect',{x:2188-ddx,y:3020-ddy,width:153,height:188},cp);
+    const cp=mk('clipPath',{id:'dynClip'});mk('rect',{x:2196.2-ddx,y:3025.9-ddy,width:137.2,height:175.5,rx:12},cp);   // recorte con la forma de la tarjeta: lo que desliza no se sale del rectángulo
+    
     const clip=document.createElementNS(NS,'g');clip.setAttribute('clip-path','url(#dynClip)');(FW||svg).appendChild(clip);
     cards.forEach(c=>clip.appendChild(c));
     {const b0=cards[0].firstElementChild;   // el rectángulo blanco queda fijo y opaco; solo cambia lo de adentro (imagen, textos y botón van juntos)
