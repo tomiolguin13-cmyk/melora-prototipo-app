@@ -11834,7 +11834,7 @@ document.addEventListener('animationend',e=>{const c=e.target&&e.target.classLis
  function stripes(){
   if(st)return st;const L=stripesIn('tunerOff');if(!L)return null;L.sort((a,b)=>a[1]-b[1]);st=L.map(a=>a[0]);return st.length>=13?st:(st=null)}
  function stripesIn(fk){const w=svg.querySelector('g.fw[data-f="'+fk+'"]');if(!w)return null;const [fx,fy]=FR[fk],L=[];
-  const par=[...w.querySelectorAll('path')].find(c=>c.parentNode.children.length>20&&getComputedStyle(c).fill==='rgb(255, 255, 255)');if(!par)return null;
+  const par=[...w.querySelectorAll('path')].find(c=>c.parentNode.children.length>=13&&getComputedStyle(c).fill==='rgb(255, 255, 255)');if(!par)return null;
   [...par.parentNode.children].forEach(c=>{if(c.tagName!=='path')return;let b;try{b=c.getBBox()}catch(e){return}
    const q=absPt(c,b.x,b.y),q2=absPt(c,b.x+b.width,b.y+b.height),x=q[0]-fx,y=q[1]-fy,ww=q2[0]-q[0],hh=q2[1]-q[1];
    if(y>100&&y<290&&ww<80&&hh<80&&hh>15&&x+ww/2>50&&x+ww/2<275)L.push([c,x+ww/2])});
