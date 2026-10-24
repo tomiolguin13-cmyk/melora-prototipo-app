@@ -11305,7 +11305,7 @@ function slideTo(a,b,fade){
 // Selector de pantallas
 $('jump').innerHTML=Object.keys(LBL).map(k=>`<option value="${k}">${LBL[k]}</option>`).join('');
 $('jump').onchange=e=>{hist=[];if(['mapa'].includes(e.target.value))seen.c=1;go(e.target.value,0)};
-$('rst').onclick=()=>{seen={c:0,m:0};hist=[];ring&&ring.setAttribute('stroke','none');go('splash',0)};
+$('rst').onclick=()=>{seen={c:0,m:0};hist=[];ring&&ring.setAttribute('stroke','none');go('splash',0);setTimeout(()=>window.__splashIntro&&__splashIntro(),60)};
 addEventListener('resize',fit);
 // Práctica de melodía
 // Notas leídas directamente del tablero (círculos y píldoras), de izquierda a derecha
@@ -12197,6 +12197,24 @@ window.__build=(()=>{ // las piezas de la guitarra se arrastran hasta su lugar
  const _prog=window.__prog;window.__prog=k=>{_prog&&_prog(k);if(k==='c1')reset()};
  return {reset,P};
 })();
+// ---- Pantalla de inicio: la marca entra animada y después queda quieta ----
+window.__splashIntro=(()=>{
+ const w=svg.querySelector('g.fw[data-f="splash"]');if(!w||matchMedia('(prefers-reduced-motion: reduce)').matches)return()=>{};
+ const kids=[...w.children],logo=kids.find(c=>c.tagName==='g'&&/elora/.test(c.textContent)&&c.children.length===2),tag=kids.find(c=>c.tagName==='text'&&/Aprend/.test(c.textContent));
+ if(!logo)return()=>{};
+ const icon=logo.querySelector('path'),word=logo.querySelector('text');
+ const btns=kids.filter(c=>(c.tagName==='path'||c.tagName==='g')&&c!==logo&&c.getBBox&&(()=>{const b=c.getBBox();const q=absPt(c,b.x,b.y);return q[1]-FR.splash[1]>380&&q[1]-FR.splash[1]<500&&b.width>200})());
+ const spk=kids.filter(c=>c.tagName==='path'&&(()=>{const b=c.getBBox();return Math.abs(b.width-29)<2&&Math.abs(b.height-29)<2})());
+ const run=()=>{
+  const A=(e,kf,o)=>{if(e&&e.animate){e.style.transformBox='fill-box';e.style.transformOrigin=o||'50% 50%';e.animate(kf,{fill:'backwards',easing:'cubic-bezier(.22,1,.36,1)',...(kf.opt||{})})}};
+  const an=(e,kf,dur,delay,easing,origin)=>{if(!e||!e.animate)return;e.style.transformBox='fill-box';e.style.transformOrigin=origin||'50% 50%';e.animate(kf,{duration:dur,delay,fill:'backwards',easing:easing||'cubic-bezier(.22,1,.36,1)'})};
+  an(icon,[{opacity:0,scale:'.2',rotate:'-30deg'},{opacity:1,scale:'1.18',rotate:'7deg',offset:.6},{opacity:1,scale:'1',rotate:'0deg'}],720,120,'ease-out','50% 60%');
+  an(word,[{opacity:0,translate:'-18px 0px'},{opacity:1,translate:'0px 0px'}],620,430);
+  an(tag,[{opacity:0,translate:'0px 12px'},{opacity:1,translate:'0px 0px'}],560,820);
+  btns.forEach((e,i)=>an(e,[{opacity:0,translate:'0px 18px'},{opacity:1,translate:'0px 0px'}],520,1020+Math.floor(i/2)*110));
+  spk.forEach((e,i)=>an(e,[{opacity:0,scale:'0',rotate:'-90deg'},{opacity:1,scale:'1.3',rotate:'10deg',offset:.65},{opacity:1,scale:'1',rotate:'0deg'}],600,650+i*140,'ease-out'))};
+ return run})();
 show('splash');
+__splashIntro();
 </script>
 </body></html>
