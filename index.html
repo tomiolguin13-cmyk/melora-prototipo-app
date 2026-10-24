@@ -11727,7 +11727,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     const TH=tb.width*.125,RM=tb.width/2-TH/2,cap=document.createElementNS(NS,'circle');   // punta redondeada mientras el aro se va llenando
     cap.setAttribute('r',TH/2);cap.setAttribute('fill',getComputedStyle(teal[0]).fill);cap.style.display='none';cap.style.pointerEvents='none';
     teal[teal.length-1].parentNode.insertBefore(cap,teal[teal.length-1].nextSibling);
-    return {P,setV(v){if(v>=P||v<=0){cap.style.display='none'}
+    return {P,pulse(){teal.forEach(p=>{if(!p.animate)return;p.style.transformBox='fill-box';p.style.transformOrigin='50% 50%';p.animate([{scale:'1'},{scale:'1.045',offset:.4},{scale:'.99',offset:.7},{scale:'1'}],{duration:480,easing:'ease-out'})})},setV(v){if(v>=P||v<=0){cap.style.display='none'}
       if(v>=P){teal.forEach(p=>p.removeAttribute('clip-path'));setTxt(txt,P);return}
       if(v>0){const a=(3.6*v-90)*Math.PI/180;cap.setAttribute('cx',(cx+RM*Math.cos(a)).toFixed(2));cap.setAttribute('cy',(cy+RM*Math.sin(a)).toFixed(2));cap.style.display=''}
       wd.setAttribute('d',wedge(3.6*v));teal.forEach(p=>p.setAttribute('clip-path','url(#'+id+')'));setTxt(txt,Math.round(v))}};
@@ -11742,7 +11742,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     const fr=fill.getBoundingClientRect(),dist=t=>{const r=t.getBoundingClientRect();return Math.hypot(r.x+r.width/2-(fr.x+fr.width),r.y+r.height/2-(fr.y+fr.height/2))};
     const txt=[...w.querySelectorAll('text')].filter(t=>pctOf(t)>0).sort((a,b)=>dist(a)-dist(b))[0];if(!txt)return null;
     const P0=pctOf(txt)||40,W0=+fill.getAttribute('width');
-    return {setV(p){fill.setAttribute('width',(W0*p/P0).toFixed(2));fill.style.opacity=p<=0?0:1;setTxt(txt,Math.round(p))}};
+    return {setV(p,t){fill.setAttribute('width',(W0*p/P0).toFixed(2));fill.style.opacity=p<=0?0:1;setTxt(txt,Math.round(t==null?p:Math.min(p,t)))}};
   })();
   // estrellitas de la lista de niveles: las que se ganan al completar un nivel se llenan una por una (mismo efecto que el corazón)
   const starRows={};
@@ -11759,7 +11759,11 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   let raf=0,shownM=0,shownI=0;const shownL={1:false,4:false};   // lo último que vio la persona: la barra sube desde ahí hasta el valor nuevo
   const run=(o,from,to,done)=>{cancelAnimationFrame(raf);if(!o)return;o.setV(from);if(to<=from){o.setV(to);return}
     const t0=performance.now()+300,DUR=1400;if(window.__bub&&cur!=='inicio')__bub.start(300,DUR);   // espera a que termine el fundido de entrada
-    const step=ts=>{const k=Math.max(0,Math.min(1,(ts-t0)/DUR));o.setV(from+(to-from)*ease(k));if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
+    const ov=o.pulse?0:Math.min(100-to,.045*(to-from)+1),BN=520;   // la barra se pasa un poquito y vuelve (rebote); el aro, que no puede pasarse, hace un latido
+    const step=ts=>{const k=Math.max(0,Math.min(1,(ts-t0)/DUR));o.setV(from+(to+ov-from)*ease(k),to);
+      if(k<1){raf=requestAnimationFrame(step);return}
+      if(o.pulse)o.pulse();if(ov<=0.01){o.setV(to,to);return}
+      const tb=performance.now(),st2=t2=>{const j=Math.min(1,(t2-tb)/BN);o.setV(to+ov*Math.cos(j*Math.PI*1.5)*(1-j),to);if(j<1)raf=requestAnimationFrame(st2);else o.setV(to,to)};raf=requestAnimationFrame(st2)};raf=requestAnimationFrame(step)};
   let PILL=null;const pills=()=>{if(PILL)return PILL;PILL=[];Object.keys(FR).forEach(fk=>{const w=fwOf(fk);if(!w)return;const [fx,fy]=FR[fk];
     w.querySelectorAll('text').forEach(t=>{if(!/^\s*\d+\s*$/.test(t.textContent))return;let b;try{b=t.getBBox()}catch(e){return}const q=absPt(t,b.x,b.y);if(Math.abs(q[0]-fx-271)<4&&Math.abs(q[1]-fy-55)<4)PILL.push(t)})});return PILL};
   const setPills=()=>{const n=__totalStars();pills().forEach(t=>{const sp=[...t.querySelectorAll('tspan')].find(x=>/\d/.test(x.textContent))||t;sp.textContent=String(n)})};   // la estrellita de arriba muestra el total
