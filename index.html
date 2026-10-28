@@ -13191,33 +13191,36 @@ window.__n3=(()=>{
  const NN=['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'],OPEN=[64,59,55,50,45,40];   // cuerda 1..6 (MIDI de la cuerda al aire)
  const noteOf=(st,fr)=>{const m=OPEN[st-1]+fr;return{name:NN[m%12],f:440*Math.pow(2,(m-69)/12)}};
  const ORG={n3a:[13600,6000],n3b:[14000,6000],n3c:[14400,6000],n3d:[14800,6000],n3e:[15200,6000],n3f:[15600,6000]},FW=324,FH=702;
- const QS=[{st:3,fr:2},{st:2,fr:3},{st:1,fr:1}],PROG=[.68,.8,.92];
+ const QS=[{base:0,sub:'Tocá en el mástil la nota de arriba',notes:[{st:3,fr:2}]},
+  {base:0,sub:'Ahora son tres notas: tocalas en orden',notes:[{st:3,fr:2},{st:2,fr:1},{st:2,fr:3}]},
+  {base:4,sub:'Más difícil: trastes del 5 al 8',notes:[{st:3,fr:5},{st:3,fr:7},{st:2,fr:5},{st:2,fr:6}]}],PROG=[.68,.8,.92],TOTALN=8;
+ let ni=0,placed=[];
  const FB={n3b:{x:26,y:436,w:270,h:118},n3d:{x:26,y:372,w:270,h:118}};
  let sel={st:3,fr:2},fing=-1,qi=0,stars=0,miss=false,answered=false,wr3=0;
  const fwEl=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),Q=(k,id)=>fwEl(k)&&fwEl(k).querySelector('#'+id);
  const bar=f=>`<rect x="76" y="62" width="150" height="10" rx="5" fill="#fff" fill-opacity=".45"/><rect id="n3bar" x="76" y="62" width="${150*f}" height="10" rx="5" fill="${GREEN}"/><rect id="n3barhl" x="80" y="64" width="${Math.max(0,150*f-8)}" height="2.6" rx="1.3" fill="#fff" fill-opacity=".45"/>`;
- const pill=(cx,cy,fr,hl)=>{const w=36,col=FC[fr];let o='';if(hl)o+=`<rect x="${cx-w/2-5}" y="${cy-16}" width="${w+10}" height="32" rx="16" fill="${col}" fill-opacity=".35"/>`;
+ const pill=(cx,cy,fr,hl,base)=>{const w=36,col=FC[fr-(base||0)];let o='';if(hl)o+=`<rect x="${cx-w/2-5}" y="${cy-16}" width="${w+10}" height="32" rx="16" fill="${col}" fill-opacity=".35"/>`;
   return o+`<rect x="${cx-w/2}" y="${cy-9}" width="${w}" height="24" rx="12" fill="#000" fill-opacity=".14"/><rect x="${cx-w/2}" y="${cy-12}" width="${w}" height="24" rx="12" fill="${col}"/><text x="${cx}" y="${cy+5.5}" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="15" fill="#fff">${fr}</text>`};
- const tab=(x,y,w,h,notes,hl,labels)=>{let o=cardBg(y,h);const top=y+34,gap=(h-68)/5,x0=x+(labels?46:22),x1=x+w-22;
+ const tab=(x,y,w,h,notes,hl,labels,base)=>{let o=cardBg(y,h);const top=y+34,gap=(h-68)/5,x0=x+(labels?46:22),x1=x+w-22;
   for(let i=0;i<6;i++){const yy=top+gap*i;o+=`<line x1="${x0-6}" y1="${yy.toFixed(1)}" x2="${x1}" y2="${yy.toFixed(1)}" stroke="${NAVY}" stroke-opacity=".28" stroke-width="1.7" stroke-linecap="round"/>`;
    if(labels)o+=`<text x="${x+22}" y="${(yy+4).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="500" font-size="12" fill="#8a8a8a">${i+1}</text>`}
-  notes.forEach(([c,st,fr],k)=>{o+=pill(x0+12+c*(x1-x0-30),top+gap*(st-1),fr,hl===k)});return o};
+  notes.forEach(([c,st,fr],k)=>{o+=pill(x0+12+c*(x1-x0-30),top+gap*(st-1),fr,hl===k,base)});return o};
  const tabX=(x,w,labels,c)=>{const x0=x+(labels?46:22),x1=x+w-22;return x0+12+c*(x1-x0-30)};
  const geo=f=>{const nut=f.x+34,cw=(f.w-34-14)/4,top=f.y+16,gap=(f.h-32)/5;return{nut,cw,top,gap}};
- const fret=(f,dots,mark,markCol)=>{const {x,y,w,h}=f,{nut,cw,top,gap}=geo(f);
+ const fret=(f,dots,mark,markCol,base)=>{base=base||0;const {x,y,w,h}=f,{nut,cw,top,gap}=geo(f);
   let o=`<rect x="${x}" y="${y+3}" width="${w}" height="${h}" rx="16" fill="#000" fill-opacity=".16"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="#854c31"/><rect x="${nut-4}" y="${y+6}" width="5" height="${h-12}" fill="#f3e1d0"/>`;
-  for(let k=1;k<=4;k++){const fx=nut+cw*k;o+=`<line x1="${fx.toFixed(1)}" y1="${y+8}" x2="${fx.toFixed(1)}" y2="${y+h-8}" stroke="#f3e1d0" stroke-opacity=".75" stroke-width="2"/><text x="${(nut+cw*(k-.5)).toFixed(1)}" y="${y+h+17}" text-anchor="middle" font-family="Fredoka" font-weight="500" font-size="12" fill="#fff">${k}</text>`}
+  for(let k=1;k<=4;k++){const fx=nut+cw*k;o+=`<line x1="${fx.toFixed(1)}" y1="${y+8}" x2="${fx.toFixed(1)}" y2="${y+h-8}" stroke="#f3e1d0" stroke-opacity=".75" stroke-width="2"/><text x="${(nut+cw*(k-.5)).toFixed(1)}" y="${y+h+17}" text-anchor="middle" font-family="Fredoka" font-weight="500" font-size="12" fill="#fff">${k+base}</text>`}
   for(let i=0;i<6;i++){const yy=top+gap*i;o+=`<line x1="${x+10}" y1="${yy.toFixed(1)}" x2="${x+w-8}" y2="${yy.toFixed(1)}" stroke="${SC[5-i]}" stroke-width="${[.9,1.2,1.5,1.9,2.3,2.8][i]}" stroke-linecap="round"/><text x="${x+17}" y="${(yy+4).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="500" font-size="10.5" fill="#f3e1d0">${i+1}</text>`}
-  dots.forEach(([st,fr])=>{const cx=nut+cw*(fr-.5),cy=top+gap*(st-1);o+=`<circle cx="${cx.toFixed(1)}" cy="${(cy+2).toFixed(1)}" r="12" fill="#000" fill-opacity=".2"/><circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="12" fill="${FC[fr]}"/><text x="${cx.toFixed(1)}" y="${(cy+5).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="14" fill="#fff">${fr}</text>`});
-  if(mark){const [st,fr]=mark,cx=nut+cw*(fr-.5),cy=top+gap*(st-1);o+=`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="26" fill="${markCol||'#fff'}" fill-opacity=".25"/><circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="19" fill="none" stroke="${markCol||'#fff'}" stroke-width="3"/>`}
+  dots.forEach(([st,fr])=>{const cx=nut+cw*(fr-base-.5),cy=top+gap*(st-1);o+=`<circle cx="${cx.toFixed(1)}" cy="${(cy+2).toFixed(1)}" r="12" fill="#000" fill-opacity=".2"/><circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="12" fill="${FC[fr-base]}"/><text x="${cx.toFixed(1)}" y="${(cy+5).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="14" fill="#fff">${fr}</text>`});
+  if(mark){const [st,fr]=mark,cx=nut+cw*(fr-base-.5),cy=top+gap*(st-1);o+=`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="26" fill="${markCol||'#fff'}" fill-opacity=".25"/><circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="19" fill="none" stroke="${markCol||'#fff'}" stroke-width="3"/>`}
   return o};
 const chip=(x,y,txt,bg,fg,hand)=>{const w=txt.length*7.6+(hand?38:24);return `<rect x="${x}" y="${y+2.5}" width="${w}" height="24" rx="12" fill="#000" fill-opacity=".16"/><rect x="${x}" y="${y}" width="${w}" height="24" rx="12" fill="${bg}"/>`+(hand?`<path d="M${x+11} ${y+7} l0 10 m-4 -4 l4 4 l4 -4" fill="none" stroke="${fg}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`:'')+`<text x="${x+(hand?w/2+7:w/2)}" y="${y+16.5}" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="13" fill="${fg}">${txt}</text>`};
  const callout=(cx,text)=>{const w=214,x=161-w/2,y=372,tip=Math.max(x+20,Math.min(x+w-20,cx));return `<rect x="${x}" y="${y}" width="${w}" height="30" rx="15" fill="${PURPLE}"/><path d="M${tip-7} ${y+29}l7 9 7-9z" fill="${PURPLE}"/><text x="161" y="${y+20}" text-anchor="middle" font-family="Fredoka" font-weight="500" font-size="13" fill="#fff">${text}</text>`};
  const frame=(k,body,bg)=>{const [x,y]=ORG[k],g=document.createElementNS(NS,'g');g.setAttribute('class','fw');g.setAttribute('data-f',k);g.setAttribute('data-dx',0);g.setAttribute('data-dy',0);
   g.innerHTML=`<rect x="${x}" y="${y}" width="${FW}" height="${FH}" fill="${bg}"/><g transform="translate(${x+1} ${y+3})">${body}</g>`;svg.insertBefore(g,$('hs')||null);FR[k]=[x,y,FW,FH]};
- const infoD=(state,st,fr)=>{const n=noteOf(st,fr).name;
+ const infoD=(state,st,fr,cnt)=>{const n=noteOf(st,fr).name;
   if(state==='idle')return `<circle cx="62" cy="562" r="22" fill="#d9eefb"/><path transform="translate(62 562)" d="M0 11C-3 8-10 1-10-4C-10-9-6-11 0-11C6-11 10-9 10-4C10 1 3 8 0 11Z" fill="#52b8e7"/><text x="98" y="552" font-family="Fredoka" font-weight="700" font-size="20" fill="${NAVY}">Tu turno</text><text x="98" y="571" font-family="Switzer-Regular" font-size="12" fill="${NAVY}">Ubicá la nota en el diapasón</text><text x="98" y="587" font-family="Switzer-Regular" font-size="12" fill="${NAVY}">o tocala con tu guitarra.</text>`;
-  if(state==='ok')return `<circle cx="62" cy="565" r="22" fill="${GDARK}"/><circle cx="62" cy="562.5" r="22" fill="${GREEN}"/><path d="M52 563l7 7 12-14" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><text x="98" y="558" font-family="Fredoka" font-weight="700" font-size="21" fill="${NAVY}">¡Correcto!</text><text x="98" y="578" font-family="Switzer-Regular" font-size="12" fill="${NAVY}">Traste ${fr} de la ${st}.ª cuerda: suena ${n}.</text>`;
+  if(state==='ok')return `<circle cx="62" cy="565" r="22" fill="${GDARK}"/><circle cx="62" cy="562.5" r="22" fill="${GREEN}"/><path d="M52 563l7 7 12-14" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><text x="98" y="558" font-family="Fredoka" font-weight="700" font-size="21" fill="${NAVY}">¡Correcto!</text><text x="98" y="578" font-family="Switzer-Regular" font-size="12" fill="${NAVY}">${cnt>1?`Tocaste las ${cnt} notas en orden.`:`Traste ${fr} de la ${st}.ª cuerda: suena ${n}.`}</text>`;
   return `<circle cx="62" cy="565" r="22" fill="#b0102a"/><circle cx="62" cy="562.5" r="22" fill="#ef0f30"/><path d="M53 554l18 18M71 554l-18 18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><text x="98" y="558" font-family="Fredoka" font-weight="700" font-size="21" fill="${NAVY}">¡Casi!</text><text x="98" y="578" font-family="Switzer-Regular" font-size="12" fill="${NAVY}">Eso fue cuerda ${st}, traste ${fr}. Probá otra.</text>`};
  const fingers=()=>{let o=`<rect x="26" y="209" width="270" height="290" rx="26" fill="#000" fill-opacity=".14"/><rect x="26" y="206" width="270" height="290" rx="26" fill="${PURPLE}"/>`;
   for(let k=0;k<4;k++){const yy=250+k*62,on=k===fing;
@@ -13230,7 +13233,7 @@ const chip=(x,y,txt,bg,fg,hand)=>{const w=txt.length*7.6+(hand?38:24);return `<r
   frame('n3a',back()+title(['Tablatura y','digitación'],'Así se escribe dónde van tus dedos')+tag(26,198,128,'En tu guitarra')+fret({x:26,y:226,w:270,h:104},[[3,2],[2,3],[1,4]])+arrow+tag(26,404,128,'En la tablatura')+tab(26,434,270,140,[[.2,3,2],[.5,2,3],[.8,1,4]],-1,false)+btn(55,618,211,'Comenzar'),'#52b8e7');
   frame('n3b',back()+bar(.25)+title(['Las líneas son','las cuerdas'],'Los números son los trastes')+'<g id="n3tabB"></g><g id="n3calB"></g><g id="n3fbB"></g>'+btn(55,618,211,'Siguiente'),'#52b8e7');
   frame('n3c',back()+bar(.5)+title(['Cada color','es un dedo'],'El color te dice qué dedo usar')+'<g id="n3fing"></g><text id="n3fl" x="161" y="540" text-anchor="middle" font-family="Fredoka" font-weight="500" font-size="16" fill="#fff"></text>'+btn(55,618,211,'Siguiente'),'#52b8e7');
-  frame('n3d',back()+bar(PROG[0])+`<g id="n3pill"><rect x="258" y="58" width="52" height="22" rx="11" fill="#d0cfd0"/><rect x="258" y="56" width="52" height="22" rx="11" fill="#fff"/><g id="n3pst"></g></g>`+title(['¡A practicar!'],'Tocá en el mástil la nota de arriba')+'<g id="n3tabD"></g><g id="n3fbD"></g>'+chip(36,184,'Nota a tocar','#fff',NAVY)+chip(36,360,'Tocá acá',GREEN,'#fff',true)+'<g id="n3infoD"></g>'+btn(55,618,211,'Continuar','n3dbtn'),'#52b8e7');
+  frame('n3d',back()+bar(PROG[0])+`<g id="n3pill"><rect x="258" y="58" width="52" height="22" rx="11" fill="#d0cfd0"/><rect x="258" y="56" width="52" height="22" rx="11" fill="#fff"/><g id="n3pst"></g></g>`+title(['¡A practicar!'],'Tocá en el mástil la nota de arriba','n3subD')+'<g id="n3tabD"></g><g id="n3fbD"></g><g id="n3chipA"></g>'+chip(36,360,'Tocá acá',GREEN,'#fff',true)+'<g id="n3infoD"></g>'+btn(55,618,211,'Continuar','n3dbtn'),'#52b8e7');
   const src=fwEl('n2d').querySelector('#n2card').cloneNode(true);src.setAttribute('id','n3card');
   [...src.querySelectorAll('text')].forEach(t=>{if(/Notas en cuerdas/.test(t.textContent))t.textContent='3. Lectura en tablatura y digitación'});
   const L=T1(105,'¡Lo lograste!')+`<text x="161" y="146" text-anchor="middle" font-family="Switzer-Medium" font-size="17" fill="#fff">Ya sabés leer tablatura</text><text x="161" y="168" text-anchor="middle" font-family="Switzer-Medium" font-size="17" fill="#fff">y qué dedo usar.</text>`+tab(26,236,270,150,[[.15,3,2],[.4,2,3],[.62,2,1],[.85,1,4]],-1,false)+fret({x:26,y:420,w:270,h:110},[[3,2],[2,3],[1,4]])+'@@';
@@ -13242,21 +13245,25 @@ const chip=(x,y,txt,bg,fg,hand)=>{const w=txt.length*7.6+(hand?38:24);return `<r
   const ca=Q('n3b','n3calB');if(ca)ca.innerHTML=callout(cx,`Cuerda ${st} · traste ${fr} · ${nt.name}`);
   const f=Q('n3b','n3fbB');if(f)f.innerHTML=fret(FB.n3b,[[st,fr]])};
  const renderC=()=>{const g=Q('n3c','n3fing');if(g)g.innerHTML=fingers();const l=Q('n3c','n3fl');if(l)l.textContent=fing<0?'Tocá un dedo':`El dedo ${FN[fing].toLowerCase()} va en el traste ${fing+1}`};
- const renderD=(state,st,fr,mark)=>{const q=QS[qi];
-  const t=Q('n3d','n3tabD');if(t)t.innerHTML=tab(26,196,270,138,[[.5,q.st,q.fr]],0,true);
+ const renderD=(state,st,fr,mark)=>{const q=QS[qi],n=q.notes.length,base=q.base;
+  const xs=i=>n===1?.5:.05+.9*i/(n-1);
+  const t=Q('n3d','n3tabD');if(t)t.innerHTML=tab(26,196,270,138,q.notes.map((o,i)=>[xs(i),o.st,o.fr]),state==='ok'?-1:ni,true,base);
+  const sb=Q('n3d','n3subD');if(sb)sb.textContent=q.sub;const ca=Q('n3d','n3chipA');if(ca)ca.innerHTML=chip(36,184,n>1?'Notas a tocar (en orden)':'Nota a tocar','#fff',NAVY);
   __exBar('n3bar','n3barhl','n3d',150*PROG[qi]);const p=Q('n3d','n3pst');if(p)p.innerHTML=pillStars(stars);
-  const i=Q('n3d','n3infoD');if(i)i.innerHTML=cardBg(520,84)+infoD(state||'idle',st,fr);
-  const f=Q('n3d','n3fbD');if(f)f.innerHTML=fret(FB.n3d,state==='ok'?[[q.st,q.fr]]:[],mark,state==='bad'?'#ef0f30':'#fff')+((state||'idle')==='idle'?`<rect x="${FB.n3d.x-4}" y="${FB.n3d.y-4}" width="${FB.n3d.w+8}" height="${FB.n3d.h+8}" rx="22" fill="none" stroke="#fff" stroke-width="3.5"><animate attributeName="stroke-opacity" values=".25;1;.25" dur="1.6s" repeatCount="indefinite"/></rect>`:'');
+  const i=Q('n3d','n3infoD');if(i)i.innerHTML=cardBg(520,84)+infoD(state||'idle',st,fr,n);
+  const f=Q('n3d','n3fbD');if(f)f.innerHTML=fret(FB.n3d,placed.map(o=>[o.st,o.fr]),mark,state==='bad'?'#ef0f30':'#fff',base)+((state||'idle')==='idle'?`<rect x="${FB.n3d.x-4}" y="${FB.n3d.y-4}" width="${FB.n3d.w+8}" height="${FB.n3d.h+8}" rx="22" fill="none" stroke="#fff" stroke-width="3.5"><animate attributeName="stroke-opacity" values=".25;1;.25" dur="1.6s" repeatCount="indefinite"/></rect>`:'');
   const bt=Q('n3d','n3dbtn');if(bt)bt.style.opacity=answered?1:.35};
  const cell=(ev,k)=>{const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;const u=p.matrixTransform(svg.getScreenCTM().inverse()),lx=u.x-ORG[k][0]-1,ly=u.y-ORG[k][1]-3,{nut,cw,top,gap}=geo(FB[k]);
-  return{st:Math.max(1,Math.min(6,Math.round((ly-top)/gap)+1)),fr:Math.max(1,Math.min(4,Math.floor((lx-nut)/cw)+1))}};
+  return{st:Math.max(1,Math.min(6,Math.round((ly-top)/gap)+1)),fr:Math.max(1,Math.min(4,Math.floor((lx-nut)/cw)+1))+(k==='n3d'?QS[qi].base:0)}};
  const tapB=c=>{sel=c;renderB();pluck(noteOf(c.st,c.fr).f)};
- const tapD=c=>{pluck(noteOf(c.st,c.fr).f);const q=QS[qi];if(answered)return;
-  if(c.st===q.st&&c.fr===q.fr){answered=true;if(!miss)stars++;renderD('ok',c.st,c.fr,[c.st,c.fr]);if(!miss)__popStar('n3d','n3pst');if(window.__sfx)setTimeout(()=>__sfx('star',.21,1.1),160)}
+ const tapD=c=>{pluck(noteOf(c.st,c.fr).f);const q=QS[qi],tg=q.notes[ni];if(answered)return;
+  if(c.st===tg.st&&c.fr===tg.fr){placed.push({st:c.st,fr:c.fr});ni++;
+   if(ni>=q.notes.length){answered=true;if(!miss)stars++;renderD('ok',c.st,c.fr,[c.st,c.fr]);if(!miss)__popStar('n3d','n3pst');if(window.__sfx)setTimeout(()=>__sfx('star',.21,1.1),160)}
+   else{renderD('idle',c.st,c.fr)}}
   else{miss=true;wr3++;renderD('bad',c.st,c.fr,[c.st,c.fr]);setTimeout(nope,120);const ic=Q('n3d','n3infoD');if(ic&&ic.animate)ic.animate([{translate:'0 0'},{translate:'-6px 0'},{translate:'6px 0'},{translate:'-4px 0'},{translate:'0 0'}],{duration:300})}};
  const next=()=>{if(!answered){const bt=Q('n3d','n3dbtn');if(bt&&bt.animate)bt.animate([{translate:'0 0'},{translate:'-5px 0'},{translate:'5px 0'},{translate:'0 0'}],{duration:240});return}
-  if(qi<QS.length-1){qi++;answered=false;miss=false;renderD('idle')}else{DONE[3]=true;STARS[3]=Math.max(1,stars);go('n3e',0)}};
- const earned3=()=>STARS[3]||3,acc3=()=>Math.round(100*3/(3+wr3));
+  if(qi<QS.length-1){qi++;answered=false;miss=false;ni=0;placed=[];renderD('idle')}else{DONE[3]=true;STARS[3]=Math.max(1,stars);go('n3e',0)}};
+ const earned3=()=>STARS[3]||3,acc3=()=>Math.round(100*TOTALN/(TOTALN+wr3));
  const dPop=()=>{const w=document.querySelector('g.fw[data-f="n3f"]'),card=Q('n3f','n3card'),dim=Q('n3f','n3dim');if(!card)return;const grp=card.children[1],big=grp?[grp.children[2],grp.children[1],grp.children[0]].filter(Boolean):[];
   const pr=[...card.querySelectorAll('text')].find(x=>/%$/.test(x.textContent.trim()));if(pr)pr.textContent=acc3()+'%';
   let wr=card.parentNode;if(!wr.classList||!wr.classList.contains('n3w')){const g=document.createElementNS(NS,'g');g.setAttribute('class','n3w');wr.insertBefore(g,card);g.appendChild(card);wr=g}
@@ -13272,10 +13279,10 @@ const chip=(x,y,txt,bg,fg,hand)=>{const w=txt.length*7.6+(hand?38:24);return `<r
     rc.setAttribute('x',fx+1+f.x);rc.setAttribute('y',fy+3+f.y);rc.setAttribute('width',f.w);rc.setAttribute('height',f.h);rc.setAttribute('fill','#fff');rc.setAttribute('fill-opacity',.001);rc.style.cursor='pointer';
     rc.addEventListener('click',ev=>{if(window.__scrolled)return;const c=cell(ev,k);if(k==='n3b')tapB(c);else tapD(c)});g.appendChild(rc)});
    Object.assign(BG,{n3a:{css:'#52b8e7',top:'#52b8e7'},n3b:{css:'#52b8e7',top:'#52b8e7'},n3c:{css:'#52b8e7',top:'#52b8e7'},n3d:{css:'#52b8e7',top:'#52b8e7'},n3e:{css:'#00cf66',top:'#00cf66'},n3f:{css:'#004f27',top:'#004f27'}})},
-  enter(k){if(k==='n3a'){sel={st:3,fr:2};fing=-1;qi=0;stars=0;miss=false;answered=false;wr3=0}
+  enter(k){if(k==='n3a'){sel={st:3,fr:2};fing=-1;qi=0;stars=0;miss=false;answered=false;wr3=0;ni=0;placed=[]}
    if(k==='n3b')renderB();
    if(k==='n3c')renderC();
-   if(k==='n3d'){qi=0;stars=0;miss=false;answered=false;wr3=0;__exBar0('n3bar','n3barhl','n3d');renderD('idle')}
+   if(k==='n3d'){qi=0;stars=0;miss=false;answered=false;wr3=0;ni=0;placed=[];__exBar0('n3bar','n3barhl','n3d');renderD('idle')}
    if(k==='n3e'){const p=Q('n3e','n3pstE');if(p)p.innerHTML=pillStars(earned3());__fin.run(()=>{__fin.swap('n3f');dPop()})}
    if(k==='n3f'){const p=Q('n3f','n3pstE');if(p)p.innerHTML=pillStars(earned3());if(!window.__instant)dPop()}},
   act(a){if(a==='back'){const m={n3a:'m1',n3b:'n3a',n3c:'n3b',n3d:'n3c'}[cur];NAVDIR=-1;go(m||'m1',0);NAVDIR=1;return}
