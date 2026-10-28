@@ -12382,6 +12382,16 @@ window.__build=(()=>{ // las piezas de la guitarra se arrastran hasta su lugar
   p.hit.style.cursor='grab';p.hit.style.touchAction='none';p.g.appendChild(p.hit)};
  const tf=(p,dx,dy,s)=>{const sx=s,tx=p.cx+dx-sx*p.cx,ty=p.cy+dy-sx*p.cy;return `translate(${tx}px,${ty}px) scale(${sx})`};
  const toTray=p=>{let ref=null;for(let j=P.indexOf(p)+1;j<P.length;j++)if(P[j].g.parentNode===inner){ref=P[j].g;break}inner.insertBefore(p.g,ref)};
+
+ // sonidos del nivel 1: levantar la pieza, soltarla mal, y encajarla (una nota de guitarra distinta cada vez, que suben hasta cerrar el nivel)
+ const c1s=(()=>{const ctx=()=>{if(window.__mute)return null;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!TAPC)TAPC=new AC();if(TAPC.state==='suspended')TAPC.resume();return TAPC};
+  const tone=(c,type,f0,f1,t0,dur,vol,lp)=>{const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f0,t0);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t0+dur);let n=g;if(lp){const fl=c.createBiquadFilter();fl.type='lowpass';fl.frequency.value=lp;g.connect(fl);n=fl}
+   g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+.008);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g);n.connect(c.destination);o.start(t0);o.stop(t0+dur+.03)};
+  const NOTES=[329.63,392,440,523.25,587.33,659.25];
+  return{pick(){try{const c=ctx();if(!c)return;tone(c,'sine',420,640,c.currentTime,.07,.06)}catch(e){}},
+   miss(){try{const c=ctx();if(!c)return;tone(c,'sine',200,130,c.currentTime,.2,.1,700)}catch(e){}},
+   place(n){try{const c=ctx();if(!c)return;const t=c.currentTime,f=NOTES[Math.min(n,5)];tone(c,'sine',150,95,t,.09,.14);   // golpecito al encajar
+    tone(c,'triangle',f,0,t+.02,1.1,.15,Math.min(4200,f*9));tone(c,'sawtooth',f*2.003,0,t+.02,.5,.025,3000)}catch(e){}}}})();
  let won=false;
  const reset=()=>{won=false;P.forEach(p=>{p.g.style.transition='';p.g.style.transform='';p.parts.forEach(q=>{q.el.style.transition='';q.el.style.transform=''});toTray(p);p.placed=false;if(p.hit){p.hit.remove();p.hit=null}hitOn(p)})};
  P.forEach(p=>{
@@ -12389,14 +12399,14 @@ window.__build=(()=>{ // las piezas de la guitarra se arrastran hasta su lugar
   p.g.addEventListener('pointerdown',e=>{if(p.placed||dr||SLIDING||cur!=='c1')return;e.preventDefault();
    const r=svg.getBoundingClientRect();dr={id:e.pointerId,x:e.clientX,y:e.clientY,u:svg.viewBox.baseVal.width/(r.width||1),dx:0,dy:0};
    DL.appendChild(p.g);try{p.g.setPointerCapture(e.pointerId)}catch(_){}
-   p.g.style.transition='transform .16s ease-out';p.g.style.transform=tf(p,0,0,p.c.ds);setTimeout(()=>{if(dr)p.g.style.transition=''},170)});
+   c1s.pick();p.g.style.transition='transform .16s ease-out';p.g.style.transform=tf(p,0,0,p.c.ds);setTimeout(()=>{if(dr)p.g.style.transition=''},170)});
   p.g.addEventListener('pointermove',e=>{if(!dr||e.pointerId!==dr.id)return;dr.dx=(e.clientX-dr.x)*dr.u;dr.dy=(e.clientY-dr.y)*dr.u;p.g.style.transform=tf(p,dr.dx,dr.dy,p.c.ds)});
   const up=e=>{if(!dr||e.pointerId!==dr.id)return;const D=dr;dr=null;try{p.g.releasePointerCapture(e.pointerId)}catch(_){}
    const c=p.c,mx=p.cx+D.dx,my=p.cy+D.dy,t=c.to,pad=22,inside=mx>t[0]-pad&&mx<t[0]+t[2]+pad&&my>t[1]-pad&&my<t[1]+t[3]+pad,ok=inside||Math.hypot(mx-p.tcx,my-p.tcy)<48;
-   if(!ok){p.g.style.transition='transform .28s cubic-bezier(.3,1.3,.5,1)';p.g.style.transform=tf(p,0,0,1);
+   if(!ok){c1s.miss();p.g.style.transition='transform .28s cubic-bezier(.3,1.3,.5,1)';p.g.style.transform=tf(p,0,0,1);
     setTimeout(()=>{if(!p.placed){p.g.style.transition='';p.g.style.transform='';toTray(p)}},290);return}
    // encaja: pasa a su capa y se acomoda en su lugar con un pequeño rebote
-   p.placed=true;if(p.hit){p.hit.remove();p.hit=null}
+   p.placed=true;c1s.place(P.filter(q=>q.placed).length-1);if(p.hit){p.hit.remove();p.hit=null}
    const cur0=p.g.style.transform;SG[c.z].appendChild(p.g);
    p.parts.forEach(q=>{if(q.el!==p.g){q.el.style.transform=cur0}});
    if(p.parts[0].el!==p.g)p.g.style.transform='';
