@@ -13981,7 +13981,13 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
     const fr=fill.getBoundingClientRect(),dist=t=>{const r=t.getBoundingClientRect();return Math.hypot(r.x+r.width/2-(fr.x+fr.width),r.y+r.height/2-(fr.y+fr.height/2))};
     const txt=[...w.querySelectorAll('text')].filter(t=>pctOf(t)>0).sort((a,b)=>dist(a)-dist(b))[0];if(!txt)return null;
     const P0=pctOf(txt)||40,W0=+fill.getAttribute('width');
-    return {setV(p,t){fill.setAttribute('width',(W0*p/P0).toFixed(2));fill.style.opacity=p<=0?0:1;setTxt(txt,Math.round(t==null?p:Math.min(p,t)))}};
+    const fb=fill.getBBox();let hl=null,HW0=0;
+    {const cand=[...w.querySelectorAll('rect,path')].find(r=>{if(r===fill)return false;let q;try{q=r.getBBox()}catch(e){return false}return q.height>1&&q.height<4.5&&q.width>20&&q.width<W0&&q.x>=fb.x-.5&&q.y>=fb.y-.5&&q.y<fb.y+fb.height/2&&getComputedStyle(r).fill.includes('255, 255, 255')});
+     if(cand){const q=cand.getBBox(),NS2='http://www.w3.org/2000/svg';hl=document.createElementNS(NS2,'rect');   // el brillo pasa a ser un rectángulo redondeado para poder estirarlo junto con la barra
+      [['x',q.x],['y',q.y],['width',q.width],['height',q.height],['rx',q.height/2]].forEach(([k,v])=>hl.setAttribute(k,v));
+      hl.style.fill=getComputedStyle(cand).fill;hl.style.pointerEvents='none';if(cand.getAttribute('transform'))hl.setAttribute('transform',cand.getAttribute('transform'));
+      cand.parentNode.insertBefore(hl,cand.nextSibling);cand.style.display='none';HW0=q.width}}
+    return {setV(p,t){fill.setAttribute('width',(W0*p/P0).toFixed(2));fill.style.opacity=p<=0?0:1;if(hl){const ww=Math.max(0,W0*p/P0-(W0-HW0));hl.setAttribute('width',ww.toFixed(2));hl.style.opacity=ww<=1?0:1}setTxt(txt,Math.round(t==null?p:Math.min(p,t)))}};
   })();
   // estrellitas de la lista de niveles: las que se ganan al completar un nivel se llenan una por una (mismo efecto que el corazón)
   const starRows={};
