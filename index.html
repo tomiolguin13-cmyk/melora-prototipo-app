@@ -14458,6 +14458,10 @@ window.__u3=(()=>{
    // plantillas del aro: se clonan antes de ocultarlos
   });
   ['u3e','u3f'].forEach(k=>{C[k]={pill:Lb.mkPill(k)}});
+  // sombras negras de tarjetas, tableros y etiquetas (no se tocan): se ocultan; solo los botones llevan sombra
+  ['u3a','u3b','u3c',...FAM,'u3e','u3f'].forEach(k=>{const w=fwOf(k);if(!w)return;
+   w.querySelectorAll('path,rect').forEach(r=>{const cs=getComputedStyle(r);if(!/rgb\(0, 0, 0\)/.test(cs.fill)||cs.fillOpacity!=='1'||cs.opacity!=='1')return;let b;try{b=r.getBBox()}catch(_){return}if(b.width>90&&b.height>20&&b.height<400)r.style.display='none'});
+   w.querySelectorAll('circle').forEach(c=>{const cs=getComputedStyle(c);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1')c.style.fillOpacity='.14'})});
   // "Continuar": el diseño de este paso no trae botón; se copia el botón verde de "Siguiente" de la pantalla anterior
   try{const src=fwOf('u3c'),dk=fwOf('u3dk');const kids=[...src.children],ti=kids.findIndex(e=>e.tagName==='text'&&/Siguiente/.test(e.textContent));
    if(ti>1&&dk){const trio=[kids[ti-2],kids[ti-1],kids[ti]].map(e=>e.cloneNode(true));trio.forEach(e=>{dk.appendChild(e)});
@@ -15057,7 +15061,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   const SEL='text,path,g,circle,rect,line,polyline,polygon',btns=[];
   const darks=[...svg.querySelectorAll(SHADOW)].map(d=>({d,r:d.getBoundingClientRect()}));
   const sc=svg.getScreenCTM().a;
-  [...svg.querySelectorAll(FACE)].forEach(E=>{
+  [...svg.querySelectorAll(FACE)].filter(e=>!e.closest('text')).forEach(E=>{
     const er=E.getBoundingClientRect();if(!er.width||!er.height)return;
     // sombra oscura de este botón: la que se superpone casi toda con la cara
     let L=1e9,T=1e9,R=-1e9,B=-1e9,n=0;
