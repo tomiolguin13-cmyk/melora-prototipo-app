@@ -13312,6 +13312,7 @@ window.__u2=(()=>{
  const ovOf=k=>{const c=C[k];if(c.ov)return c.ov;const par=(c.L[1]||c.L[2]).parentNode,g=document.createElementNS(NSV,'g');g.setAttribute('class','u2ov');par.appendChild(g);c.ov=g;return g};
  const drawStr=(k,sel,amp,ph,halo)=>{const c=C[k];if(!c||!c.L)return;const g=ovOf(k);g.innerHTML='';
   for(let i=0;i<6;i++){const gg=geo(k,i);if(!gg||!gg.el)continue;gg.el.style.display=i===sel?'none':''}
+  for(let i=0;i<6;i++){const q=geo(k,i);if(q&&!q.el&&i!==sel)g.insertAdjacentHTML('beforeend','<line x1="'+q.x1+'" y1="'+q.y1+'" x2="'+q.x2+'" y2="'+q.y2+'" stroke="rgb('+SCOL[i].join(',')+')" stroke-width="'+q.sw+'" stroke-linecap="round"/>')}   // la roja de este diseño es un trazo ondulado: se redibuja recta
   if(sel<0||sel>5)return;const gg=geo(k,sel);if(!gg)return;
   const n=24,w=Math.max(1.4,gg.sw*(amp>0?1:1));let d='';
   for(let q=0;q<=n;q++){const t=q/n,y=gg.y1+(gg.y2-gg.y1)*t,x=gg.x1+(gg.x2-gg.x1)*t+(amp>0?amp*Math.sin(q*Math.PI*.9+ph)*(1-.35*t):0);d+=(q?'L':'M')+x.toFixed(2)+' '+y.toFixed(2)}
@@ -13408,6 +13409,9 @@ window.__u2=(()=>{
    const ts=texts(k);c.sub=ts.find(t=>/Tocá la cuerda/.test(t.textContent));if(c.sub){try{const b=c.sub.getBBox();c.subX=b.x+b.width/2}catch(e){}}
    c.card=ts.find(t=>/^Esa es la/.test(t.textContent.trim()));
   });
+  ['u2b',...FAM].forEach(k=>{const w=fwOf(k);if(!w)return;   // sombras: las tarjetas (no se tocan) no llevan; las de los números se suavizan
+   w.querySelectorAll('rect').forEach(r=>{const cs=getComputedStyle(r);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1'&&cs.opacity==='1'){let b;try{b=r.getBBox()}catch(_){return}if(b.width>250&&b.height>90)r.style.display='none'}});
+   w.querySelectorAll('circle').forEach(c=>{const cs=getComputedStyle(c);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1')c.style.fillOpacity='.14'})});
   const cb=C.u2b;cb.sel=mkSel();const tb=texts('u2b');cb.info={ord:tb.filter(t=>/^\d\.ª cuerda$/.test(t.textContent.trim())),name:tb.filter(t=>NM.includes(t.textContent.trim())&&t.textContent.trim().length<5),desc:tb.filter(t=>DESC.includes(t.textContent.trim()))};
   {const ref=(FAM.map(k=>C[k].bar).find(Boolean));FAM.forEach(k=>{if(!C[k].bar&&ref){C[k].bar=barFrom(k,ref);if(C[k].bar)C[k].bar.set=ref.setFn}})}
   ['u2d','u2dp'].forEach(k=>{C[k]={pill:mkPill(k)}});
