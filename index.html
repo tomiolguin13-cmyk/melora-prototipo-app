@@ -11980,7 +11980,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
       if(o.pulse)o.pulse();if(ov<=0.01){o.setV(to,to);return}
       const tb=performance.now(),st2=t2=>{const j=Math.min(1,(t2-tb)/BN);o.setV(to+ov*Math.cos(j*Math.PI*1.5)*(1-j),to);if(j<1)raf=requestAnimationFrame(st2);else o.setV(to,to)};raf=requestAnimationFrame(st2)};raf=requestAnimationFrame(step)};
   let PILL=null;const pills=()=>{if(PILL)return PILL;PILL=[];Object.keys(FR).forEach(fk=>{const w=fwOf(fk);if(!w)return;const [fx,fy]=FR[fk];
-    w.querySelectorAll('text').forEach(t=>{if(!/^\s*\d+\s*$/.test(t.textContent))return;let b;try{b=t.getBBox()}catch(e){return}const q=absPt(t,b.x,b.y);if(Math.abs(q[0]-fx-271)<4&&Math.abs(q[1]-fy-55)<4)PILL.push(t)})});return PILL};
+    w.querySelectorAll('text').forEach(t=>{if(!/^\s*\d+\s*$/.test(t.textContent))return;let b;try{b=t.getBBox()}catch(e){return}const q=absPt(t,b.x,b.y);if(Math.abs(q[0]-fx-271)<6&&Math.abs(q[1]-fy-60)<12)PILL.push(t)})});return PILL};
   const setPills=()=>{const n=__totalStars();pills().forEach(t=>{const sp=[...t.querySelectorAll('tspan')].find(x=>/\d/.test(x.textContent))||t;sp.textContent=String(n)})};   // la estrellita de arriba muestra el total
   window.__prog=k=>{cancelAnimationFrame(raf);setPills();
    if(rings[k]){const P=__mundoPct(),lv=[];if(DONE[1]&&!shownL[1])lv.push(1);if(DONE[2]&&!shownL[2])lv.push(2);if(DONE[3]&&!shownL[3])lv.push(3);if(DONE[4]&&!shownL[4])lv.push(4);
