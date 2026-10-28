@@ -14373,6 +14373,7 @@ window.__u2=(()=>{
   ['u2b',...FAM].forEach(k=>{const w=fwOf(k);if(!w)return;   // sombras: las tarjetas (no se tocan) no llevan; las de los números se suavizan
    w.querySelectorAll('rect').forEach(r=>{const cs=getComputedStyle(r);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1'&&cs.opacity==='1'){let b;try{b=r.getBBox()}catch(_){return}if(b.width>250&&b.height>90)r.style.display='none'}});
    w.querySelectorAll('circle').forEach(c=>{const cs=getComputedStyle(c);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1')c.style.fillOpacity='.14'})});
+  ['u3e','u3f'].forEach(k=>{const w=fwOf(k);if(!w)return;[...w.querySelectorAll('g')].forEach(g=>{if(/^Nota a tocar/.test((g.textContent||'').trim())&&g.querySelectorAll('text').length===1)g.style.display='none'});w.querySelectorAll('text').forEach(x=>{if(/^Nota a tocar/.test(x.textContent.trim())&&!x.closest('g[style*="display: none"]'))x.style.display='none'})});
   const cb=C.u2b;cb.sel=mkSel();const tb=texts('u2b');cb.info={ord:tb.filter(t=>/^\d\.ª cuerda$/.test(t.textContent.trim())),name:tb.filter(t=>NM.includes(t.textContent.trim())&&t.textContent.trim().length<5),desc:tb.filter(t=>DESC.includes(t.textContent.trim()))};
   {const ref=(FAM.map(k=>C[k].bar).find(Boolean));FAM.forEach(k=>{if(!C[k].bar&&ref){C[k].bar=barFrom(k,ref);if(C[k].bar)C[k].bar.set=ref.setFn}})}
   ['u2d','u2dp'].forEach(k=>{C[k]={pill:mkPill(k)}});
@@ -14416,7 +14417,7 @@ window.__u3=(()=>{
  const OPEN=[64,59,55,50,45,40],NN=['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'];
  const noteOf=(st,fr)=>{const m=OPEN[st-1]+fr;return {name:NN[m%12],f:440*Math.pow(2,(m-69)/12)}};
  // 1 nota → 3 notas en orden → 4 notas en trastes más altos
- const QS=[{notes:[[3,2]],base:0},{notes:[[3,2],[2,1],[2,3]],base:0},{notes:[[4,5],[2,6],[3,7],[1,8]],base:4}];
+ const QS=[{notes:[[3,2],[2,1],[2,3]],base:0}];   // solo el ejercicio que diseñó Tomás: 3 notas en orden
  const TOTAL=QS.reduce((a,q)=>a+q.notes.length,0);
  const COL={1:['rgb(66,158,29)','rgb(149,209,44)'],2:['rgb(198,130,40)','rgb(244,165,49)'],3:['rgb(168,66,193)','rgb(201,77,240)'],4:['rgb(0,140,163)','rgb(0,175,229)']};
  const GLOW={1:'rgba(149,209,44,.35)',2:'rgba(244,165,49,.35)',3:'rgba(201,77,240,.35)',4:'rgba(0,175,229,.35)'};
@@ -14469,7 +14470,7 @@ window.__u3=(()=>{
   ['u3e','u3f'].forEach(k=>{C[k]={pill:Lb.mkPill(k)}});
   // sombras negras de tarjetas, tableros y etiquetas (no se tocan): se ocultan; solo los botones llevan sombra
   ['u3a','u3b','u3c',...FAM,'u3e','u3f'].forEach(k=>{const w=fwOf(k);if(!w)return;
-   w.querySelectorAll('path,rect').forEach(r=>{const cs=getComputedStyle(r);if(!/rgb\(0, 0, 0\)/.test(cs.fill)||cs.fillOpacity!=='1'||cs.opacity!=='1')return;let b;try{b=r.getBBox()}catch(_){return}if(b.width>90&&b.height>30&&b.height<400)r.style.display='none'});
+   w.querySelectorAll('path,rect').forEach(r=>{const cs=getComputedStyle(r);if(!/rgb\(0, 0, 0\)/.test(cs.fill)||cs.fillOpacity!=='1'||cs.opacity!=='1')return;let b;try{b=r.getBBox()}catch(_){return}if(b.width>90&&b.height>30&&b.height<400)r.style.display='none';else if(b.width>90&&b.height>20&&b.height<=30)r.style.fillOpacity='.16'});
    w.querySelectorAll('circle').forEach(c=>{const cs=getComputedStyle(c);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1')c.style.fillOpacity='.14'})});
   // "Continuar": el diseño de este paso no trae botón; se copia el botón verde de "Siguiente" de la pantalla anterior
   try{const src=fwOf('u3c'),dk=fwOf('u3dk');const kids=[...src.children],ti=kids.findIndex(e=>e.tagName==='text'&&/Siguiente/.test(e.textContent));
@@ -14513,7 +14514,7 @@ window.__u3=(()=>{
  const renderAll=()=>FAM.forEach(render);
  const setPills=(n,popIdx)=>{[...FAM,'u3e','u3f'].forEach(k=>{const p=C[k]&&C[k].pill;if(!p)return;p.forEach((s,j)=>{s.style.fill=j<n?YEL:GRAYS;s.style.stroke=j<n?YEL:GRAYS;
    if(popIdx===j&&cur===k&&s.animate){s.style.transformBox='fill-box';s.style.transformOrigin='50% 50%';s.animate([{scale:'1'},{scale:'1.7',offset:.4},{scale:'1'}],{duration:480,easing:'ease-out'})}})})};
- const bars=(anim,delay)=>FAM.forEach(k=>{const c=C[k];if(c&&c.bar)c.bar.set(okQ/QS.length,anim&&cur===k,delay)});
+ const bars=(anim,delay)=>FAM.forEach(k=>{const c=C[k];if(!c||!c.bar)return;const f=(okQ+(answered?0:ni/QS[qi].notes.length))/QS.length;c.bar.set(Math.min(1,f),anim&&cur===k,delay)});
  const resetQ=()=>{qi=0;ni=0;placed=[];stars=0;miss=false;answered=false;wrongs=0;okQ=0;bad=null;FAM.forEach(k=>{if(C[k]&&C[k].bar)C[k].bar.set(0,false)});setPills(0);renderAll()};
  // ----- toques en el mástil -----
  const cell=(ev,k)=>{const c=C[k],p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;const u=p.matrixTransform(svg.getScreenCTM().inverse()),[fx,fy]=FR[k],x=u.x-fx,y=u.y-fy;
@@ -14523,8 +14524,8 @@ window.__u3=(()=>{
  const shake=e=>{if(e&&e.animate)e.animate([{translate:'0 0'},{translate:'-5px 0'},{translate:'5px 0'},{translate:'0 0'}],{duration:240})};
  const tap=ev=>{const k=cur;if(!FAM.includes(k)||k==='u3dk'||!C[k]||!C[k].fb)return;const c=cell(ev,k),q=QS[qi],t=q.notes[ni];pluck(noteOf(c.st,c.fr).f);
   if(c.st===t[0]&&c.fr===t[1]){placed.push({st:c.st,fr:c.fr});ni++;bad=null;
-   if(ni>=q.notes.length){answered=true;okQ++;if(!miss)stars++;renderAll();showF('u3dk');bars(true,0);setPills(stars,miss?-1:stars-1);if(window.__sfx)setTimeout(()=>__sfx('star',.21,1.1),160)}
-   else{renderAll();if(k!=='u3d')showF('u3d')}}
+   if(ni>=q.notes.length){answered=true;okQ++;stars=Math.max(1,3-wrongs);renderAll();showF('u3dk');bars(true,0);setPills(stars,stars-1);if(window.__sfx)setTimeout(()=>__sfx('star',.21,1.1),160)}
+   else{renderAll();if(k!=='u3d')showF('u3d');bars(true,0)}}
   else{miss=true;wrongs++;bad={st:c.st,fr:c.fr};renderAll();if(k!=='u3dx')showF('u3dx');setTimeout(nope,120)}};
  const next=()=>{if(!answered)return;
   if(qi<QS.length-1){qi++;ni=0;placed=[];answered=false;miss=false;bad=null;renderAll();showF('u3d');bars(true,0)}
@@ -15425,14 +15426,20 @@ window.__fin=(()=>{const HOLD=1100,WIN=250,YEL='#f9d138',GR='#c9c8c8';let T=0,TW
  const pill=(k,n)=>{const w=fw(k);if(!w)return;w.querySelectorAll('g').forEach(e=>{const ps=[...e.children].filter(c=>c.tagName==='polygon');if(ps.length===3&&e.children.length===3)ps.forEach((s,j)=>{s.style.fill=j<n?YEL:'#c4c4c4';s.style.stroke=j<n?YEL:'#c4c4c4'})})};
  const anim=(k,dim,card,btn,big,earned)=>{
   if(dim&&dim.animate){const o=+getComputedStyle(dim).opacity||1;dim.animate([{opacity:0},{opacity:o}],{duration:320,fill:'backwards'})}
-  [card,btn].forEach(e=>{if(e&&e.animate){e.style.transformBox='fill-box';e.style.transformOrigin='50% 50%';e.animate([{opacity:0,scale:'.82'},{opacity:1,scale:'1.04',offset:.65},{opacity:1,scale:'1'}],{duration:460,delay:120,easing:'ease-out',fill:'backwards'})}});
+  const KF=[{opacity:0,scale:'.82'},{opacity:1,scale:'1.04',offset:.65},{opacity:1,scale:'1'}],OP={duration:460,delay:120,easing:'ease-out',fill:'backwards'};
+  if(card&&card.animate){card.style.transformBox='fill-box';card.style.transformOrigin='50% 50%';card.animate(KF,OP)}
+  // el botón es parte de la ventana: sus piezas crecen alrededor del centro de la tarjeta, así aparecen juntos y como un solo bloque
+  const bl=Array.isArray(btn)?btn:btn?[btn]:[];
+  if(bl.length&&card){const cr=card.getBoundingClientRect(),cx=cr.x+cr.width/2,cy=cr.y+cr.height/2;
+   bl.forEach(e=>{if(!e.animate)return;const m=e.parentNode.getScreenCTM&&e.parentNode.getScreenCTM();if(!m)return;const p=svg.createSVGPoint();p.x=cx;p.y=cy;const l=p.matrixTransform(m.inverse());
+    e.style.transformBox='view-box';e.style.transformOrigin=l.x+'px '+l.y+'px';e.animate(KF,OP)})}
   big.forEach((p,j)=>{p.style.fill=j<earned?YEL:GR;if(j<earned&&p.animate){p.style.transformBox='fill-box';p.style.transformOrigin='50% 50%';p.animate([{scale:'0',opacity:0},{scale:'1.3',opacity:1,offset:.6},{scale:'1',opacity:1}],{duration:420,delay:520+j*300,easing:'ease-out',fill:'backwards'});
    if(window.__sfx)setTimeout(()=>{if(cur===k)__sfx('star',.21,1+.14*j)},520+j*300+120)}})};
  // cartel de pantalla completa del tablero: [fondo oscuro, tarjeta, botón]
  const popup=(k,earned,acc)=>{const w=fw(k);if(!w)return;const kids=[...w.children],di=kids.findIndex(e=>e.tagName==='rect'&&/rgb\(0, 0, 0\)/.test(getComputedStyle(e).fill)&&e.getBBox().width>300);if(di<0)return;
   const dim=kids[di],card=kids[di+1],btn=kids[di+2];const big=bigOf(card);if(earned==null)earned=big.filter(p=>/249, 209, 56/.test(getComputedStyle(p).fill)).length;
   const pr=card&&[...card.querySelectorAll('text')].find(t=>/%$/.test(t.textContent.trim()));if(pr&&acc!=null)pr.textContent=acc+'%';
-  anim(k,dim,card,btn&&btn.tagName==='g'&&btn.children.length<=3?btn:null,big,earned)};
+  anim(k,dim,card,btn&&btn.tagName==='g'&&btn.children.length<=3?btn:kids.slice(di+2).filter(e=>/^(path|rect|text|circle)$/.test(e.tagName)),big,earned)};
  const run=show=>{clearTimeout(T);clearTimeout(TW);const k=cur;TW=setTimeout(()=>{if(cur===k&&window.__sfx)__sfx('win',.79)},WIN);T=setTimeout(()=>{if(cur===k)show()},HOLD)};
  return{run,popup,anim,swap,pill,bigOf,HOLD}})();
 // Mi Camino: trazos sueltos (restos de la línea punteada de 2-3 px) que quedaban flotando sin sentido, se ocultan
