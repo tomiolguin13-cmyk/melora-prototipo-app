@@ -13085,6 +13085,12 @@ window.__n2=(()=>{
   for(let k=0;k<6;k++){const i=5-k,py=sy(2040)+k*47,ay=sy(2085)+k*27,ax=sx(xn(i)+(xb(i)-xn(i))*((2085+k*29-2058)/275));
    o+=`<line x1="${ax.toFixed(1)}" y1="${ay.toFixed(1)}" x2="233" y2="${(py+14.5).toFixed(1)}" stroke="${PURPLE}" stroke-width="1.9" stroke-linecap="round"/><circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="4.4" fill="${PURPLE}"/>`}
   for(let k=0;k<6;k++)o+=pill(233,sy(2040)+k*47,ORD[5-k]+' '+NAMES[5-k]);return o};
+ const guitarFing=(cx,top,s,dots)=>{let o=`<g transform="translate(${cx} ${top}) scale(${s}) translate(${-GX} ${-GY})"><use href="#n2g"/>`;
+  for(let i=0;i<6;i++)o+=`<line x1="${xn(i)}" y1="2058" x2="${xb(i)}" y2="2333.56" stroke="${SC[i]}" stroke-width="${(SW[i]*.9+.35).toFixed(2)}" stroke-linecap="round"/>`;
+  o+='</g>';const sx=x=>cx+(x-GX)*s,sy=y=>top+(y-GY)*s;dots.forEach(d=>{const X=sx(xn(d[0])+(xb(d[0])-xn(d[0]))*d[1]),Y=sy(2058+275*d[1]);o+=`<line x1="${X.toFixed(1)}" y1="${Y.toFixed(1)}" x2="216" y2="${d[4]}" stroke="${PURPLE}" stroke-width="1.9" stroke-linecap="round"/>`});
+  o+=`<g transform="translate(${cx} ${top}) scale(${s}) translate(${-GX} ${-GY})">`;
+  dots.forEach(d=>{const y=2058+275*d[1],x=xn(d[0])+(xb(d[0])-xn(d[0]))*d[1];o+=`<circle cx="${x.toFixed(1)}" cy="${(y+3).toFixed(1)}" r="${(8/s).toFixed(1)}" fill="#000" fill-opacity=".18"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(8/s).toFixed(1)}" fill="${d[2]}" stroke="#fff" stroke-width="${(1.6/s).toFixed(2)}"/><text x="${x.toFixed(1)}" y="${(y+4.2/s).toFixed(1)}" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="${(11/s).toFixed(1)}" fill="#fff">${d[3]}</text>`});
+  return o+'</g>'};
  const zoomBase=k=>{const [cx,cy]=CZ[k],id='n2z'+k;
   return `<defs><linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient><mask id="${id}"><rect width="322" height="696" fill="#000"/><rect x="0" y="236" width="322" height="44" fill="url(#${id}g)"/><rect x="0" y="280" width="322" height="420" fill="#fff"/></mask></defs><g mask="url(#${id})"><g transform="translate(${cx} ${cy}) scale(${ZS}) translate(${-ZX} ${-ZCY})"><use href="#n2g"/><g id="n2s${k}"></g></g></g><g id="n2r${k}"></g>`};
  const strMarkup=(sel,amp,ph)=>{let o='';for(let i=0;i<6;i++){const y0=2150,y1=2333.56,x0=xAt(i,y0),w=(SW[i]*1.15+.3).toFixed(2);
@@ -13156,7 +13162,7 @@ window.__n2=(()=>{
    if(p.animate)p.animate([{scale:'0',opacity:0},{scale:'1.3',opacity:1,offset:.6},{scale:'1',opacity:1}],{duration:420,delay:350+j*320,easing:'ease-out',fill:'backwards'});
    if(j<earned&&window.__sfx)setTimeout(()=>{if(cur==='n2d')__sfx('star',.21,1+.14*j)},350+j*320+120)})};
  return{
-  h:{back,btn,title,T1,pillStars,cardBg,pluck,nope},build,addH(H){const BK2=[14,42,56,52];
+  h:{back,btn,title,T1,pillStars,cardBg,pluck,nope,guitarFing},build,addH(H){const BK2=[14,42,56,52];
    H.n2a=[[...BK2,'n2:back'],[56,621,211,47,'n2b']];
    H.n2b=[[...BK2,'n2:back'],...[0,1,2,3,4,5].map(k=>[161+(k-2.5)*40-19+1,214-19+3,38,38,'n2s:sel:'+k]),[41+1,528+3,44,44,'n2s:play'],[56,621,211,47,'n2c']];
    H.n2c=[[...BK2,'n2:back'],[56,621,211,47,'n2:next']];
@@ -13178,7 +13184,7 @@ window.__n2=(()=>{
 __n2.build();
 // ---- Mundo 1 · Nivel 3: Lectura en tablatura y digitación (cinco pantallas con las piezas del nivel 2) ----
 window.__n3=(()=>{
- const H2=__n2.h,{back,btn,title,T1,pillStars,cardBg,pluck,nope}=H2;
+ const H2=__n2.h,{back,btn,title,T1,pillStars,cardBg,pluck,nope,guitarFing}=H2;
  const NAVY='#073154',PURPLE='#764dc4',GREEN='#95d12c',GDARK='#429e1d',YEL='#f9d138';
  const FC={0:'#ffffff',1:'#95d12c',2:'#f4a531',3:'#c94df0',4:'#00afe5'},FN=['Índice','Medio','Anular','Meñique'];
  const SC=['#ef4a4a','#f4a531','#f9d138','#95d12c','#2fb5f0','#a855e8'];   // color por cuerda (6.ª → 1.ª)
@@ -13218,7 +13224,8 @@ window.__n3=(()=>{
    o+=`<circle cx="82" cy="${yy+2}" r="23" fill="#000" fill-opacity=".18"/><circle cx="82" cy="${yy}" r="23" fill="${FC[k+1]}"/><text x="82" y="${yy+7}" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="22" fill="#fff">${k+1}</text><text x="124" y="${yy-1}" font-family="Fredoka" font-weight="600" font-size="20" fill="#fff">${FN[k]}</text><text x="124" y="${yy+17}" font-family="Switzer-Regular" font-size="11.5" fill="#fff" fill-opacity=".85">Traste ${k+1}</text>`}
   return o};
  const build=()=>{
-  frame('n3a',back()+title(['Tablatura y','digitación'],'¡Aprendé a leer música de guitarra!')+'<circle cx="161" cy="330" r="118" fill="#91d5ff"/>'+tab(52,262,220,136,[[.05,3,2],[.30,2,3],[.52,2,1],[.74,1,4],[.95,3,2]],-1,false)+btn(55,618,211,'Comenzar'),'#52b8e7');
+  const LEG=[['Índice',1],['Medio',2],['Anular',3],['Meñique',4]].map((r,i)=>{const y=222+i*58;return `<rect x="216" y="${y}" width="98" height="40" rx="20" fill="${PURPLE}"/><circle cx="236" cy="${y+20}" r="13" fill="${FC[r[1]]}" stroke="#fff" stroke-width="2"/><text x="236" y="${y+25}" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="15" fill="#fff">${r[1]}</text><text x="256" y="${y+25}" font-family="Fredoka" font-weight="500" font-size="13" fill="#fff">${r[0]}</text>`}).join('');
+  frame('n3a',back()+title(['Tablatura y','digitación'],'¡Aprendé a leer música de guitarra!')+guitarFing(112,208,.97,[[4,.17,FC[1],1,242],[2,.30,FC[2],2,300],[1,.43,FC[3],3,358],[3,.56,FC[4],4,416]])+LEG+btn(55,618,211,'Comenzar'),'#52b8e7');
   frame('n3b',back()+bar(.25)+title(['Las líneas son','las cuerdas'],'Los números son los trastes')+'<g id="n3tabB"></g><g id="n3calB"></g><g id="n3fbB"></g>'+btn(55,618,211,'Siguiente'),'#52b8e7');
   frame('n3c',back()+bar(.5)+title(['Cada color','es un dedo'],'El color te dice qué dedo usar')+'<g id="n3fing"></g><text id="n3fl" x="161" y="540" text-anchor="middle" font-family="Fredoka" font-weight="500" font-size="16" fill="#fff"></text>'+btn(55,618,211,'Siguiente'),'#52b8e7');
   frame('n3d',back()+bar(PROG[0])+`<g id="n3pill"><rect x="258" y="58" width="52" height="22" rx="11" fill="#d0cfd0"/><rect x="258" y="56" width="52" height="22" rx="11" fill="#fff"/><g id="n3pst"></g></g>`+title(['¡A practicar!'],'Poné el dedo en el traste')+'<g id="n3tabD"></g><g id="n3fbD"></g><g id="n3infoD"></g>'+btn(55,618,211,'Continuar','n3dbtn'),'#52b8e7');
