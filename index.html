@@ -13629,7 +13629,7 @@ if(document.fonts){document.fonts.ready.then(fixText);if(document.fonts.addEvent
   const bar=(()=>{
     const w=fwOf('inicio');if(!w)return null;
     const rs=[...w.querySelectorAll('rect')].filter(r=>{const b=r.getBBox();return b.height>8&&b.height<10.5&&b.width>30});
-    const gr=r=>{const m=/rgb\((\d+), (\d+), (\d+)\)/.exec(getComputedStyle(r).fill);return m&&+m[2]>170&&+m[1]<80};
+    const gr=r=>{const m=/rgb\((\d+), (\d+), (\d+)\)/.exec(getComputedStyle(r).fill);return m&&+m[2]>170&&(+m[2]-+m[1])>30};
     const fill=rs.find(gr);if(!fill)return null;
     const fr=fill.getBoundingClientRect(),dist=t=>{const r=t.getBoundingClientRect();return Math.hypot(r.x+r.width/2-(fr.x+fr.width),r.y+r.height/2-(fr.y+fr.height/2))};
     const txt=[...w.querySelectorAll('text')].filter(t=>pctOf(t)>0).sort((a,b)=>dist(a)-dist(b))[0];if(!txt)return null;
