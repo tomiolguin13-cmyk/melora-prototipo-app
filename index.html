@@ -11074,7 +11074,7 @@ window.__n2=(()=>{
  const QS=[{t:'Tocá la cuerda <tspan font-family="Fredoka" font-weight="600">Sol</tspan>',a:3},{t:'Tocá la cuerda <tspan font-family="Fredoka" font-weight="600">La</tspan>',a:1},{t:'Tocá la cuerda más aguda',a:5}];
  const PROG=[.5,.7,.88];
  const xn=i=>8952.4+3.45*i,xb=i=>8951.16+4.1*i,xAt=(i,y)=>xn(i)+(xb(i)-xn(i))*((y-2058)/275.56);
- const ZS=2,ZCY=2284,CZ={n2b:[161,330,112],n2c:[161,338,116]};
+ const ZS=2.25,ZCY=2333.56,ZX=8962,CZ={n2b:[161,490,0],n2c:[161,490,0]};
  let selB=0,qi=0,stars=3,answered=false,vib=0,wrongIdx=-1;
  const fwEl=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),Q=(k,id)=>fwEl(k)&&fwEl(k).querySelector('#'+id);
  const btn=(x,y,w,text,id)=>`<g id="${id||''}"><rect x="${x}" y="${y+5}" width="${w}" height="42" rx="21" fill="${GDARK}"/><rect x="${x}" y="${y}" width="${w}" height="42" rx="21" fill="${GREEN}"/><text x="${x+w/2}" y="${y+27.5}" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="17.2" fill="#fff">${text}</text></g>`;
@@ -11092,15 +11092,15 @@ window.__n2=(()=>{
   for(let k=0;k<6;k++){const i=5-k,py=sy(2040)+k*47,ay=sy(2085)+k*27,ax=sx(xn(i)+(xb(i)-xn(i))*((2085+k*29-2058)/275));
    o+=`<line x1="${ax.toFixed(1)}" y1="${ay.toFixed(1)}" x2="233" y2="${(py+14.5).toFixed(1)}" stroke="${PURPLE}" stroke-width="1.9" stroke-linecap="round"/><circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="4.4" fill="${PURPLE}"/>`}
   for(let k=0;k<6;k++)o+=pill(233,sy(2040)+k*47,ORD[5-k]+' '+NAMES[5-k]);return o};
- const zoomBase=k=>{const [cx,cy,r]=CZ[k],id='n2z'+k;
-  return `<clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath><circle cx="${cx}" cy="${cy}" r="${r}" fill="#91d5ff"/><g clip-path="url(#${id})"><g transform="translate(${cx} ${cy}) scale(${ZS}) translate(${-GX} ${-ZCY})"><use href="#n2g"/><g id="n2s${k}"></g></g></g><g id="n2r${k}"></g>`};
- const strMarkup=(sel,amp,ph)=>{let o='';for(let i=0;i<6;i++){const y0=2200,y1=2333.56,x0=xAt(i,y0),w=(SW[i]*1.15+.3).toFixed(2);
+ const zoomBase=k=>{const [cx,cy]=CZ[k],id='n2z'+k;
+  return `<defs><linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient><mask id="${id}"><rect width="322" height="696" fill="#000"/><rect x="0" y="236" width="322" height="44" fill="url(#${id}g)"/><rect x="0" y="280" width="322" height="420" fill="#fff"/></mask></defs><g mask="url(#${id})"><g transform="translate(${cx} ${cy}) scale(${ZS}) translate(${-ZX} ${-ZCY})"><use href="#n2g"/><g id="n2s${k}"></g></g></g><g id="n2r${k}"></g>`};
+ const strMarkup=(sel,amp,ph)=>{let o='';for(let i=0;i<6;i++){const y0=2150,y1=2333.56,x0=xAt(i,y0),w=(SW[i]*1.15+.3).toFixed(2);
    if(i===sel&&amp>0){let d='';const n=24;for(let q=0;q<=n;q++){const y=y0+(y1-y0)*q/n,x=x0+(xb(i)-x0)*q/n+amp*Math.sin(q*Math.PI*.9+ph)*(1-.35*q/n);d+=(q?'L':'M')+x.toFixed(2)+' '+y.toFixed(2)}
     o+=`<path d="${d}" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="${(+w+2.2).toFixed(2)}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${SC[i]}" stroke-width="${w}" stroke-linecap="round"/>`}
    else o+=`<line x1="${x0}" y1="${y0}" x2="${xb(i)}" y2="${y1}" stroke="${SC[i]}" stroke-width="${w}" stroke-linecap="round" opacity=".92"/>`}return o};
  const drawStr=(k,sel,amp,ph)=>{const g=Q(k,'n2s'+k);if(g)g.innerHTML=strMarkup(sel,amp||0,ph||0)};
  const vibrate=(k,sel)=>{cancelAnimationFrame(vib);const t0=performance.now();const st=ts=>{const t=(ts-t0)/1000;if(t>1.5||cur!==k){drawStr(k,sel,0);return}drawStr(k,sel,.55*Math.exp(-t*2.6),t*38);vib=requestAnimationFrame(st)};vib=requestAnimationFrame(st)};
- const selector=(sel)=>{let o='';for(let k=0;k<6;k++){const x=161+(k-2.5)*40,y=470,on=k===sel,r=on?14.5:11.5;
+ const selector=(sel)=>{let o='';for(let k=0;k<6;k++){const x=161+(k-2.5)*40,y=214,on=k===sel,r=on?14.5:11.5;
    if(on)o+=`<circle cx="${x}" cy="${y}" r="19" fill="#fff" fill-opacity=".55"/>`;
    o+=`<circle cx="${x}" cy="${y+2}" r="${r}" fill="#000" fill-opacity=".14"/><circle cx="${x}" cy="${y}" r="${r}" fill="${SC[k]}"/><text x="${x}" y="${y+(on?5.5:4.5)}" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="${on?15:12}" fill="#fff">${6-k}</text>`}return o};
  const cardBg=(y,h)=>`<rect x="19" y="${y+3}" width="284" height="${h}" rx="22" fill="#000" fill-opacity=".12"/><rect x="19" y="${y}" width="284" height="${h}" rx="22" fill="#fff"/>`;
@@ -11132,11 +11132,11 @@ window.__n2=(()=>{
   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.34,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+1.7);
   const g2=c.createGain();g2.gain.value=.28;o1.connect(g);o2.connect(g2);g2.connect(g);g.connect(fl);fl.connect(c.destination);o1.start(t);o2.start(t);o1.stop(t+1.8);o2.stop(t+1.8)}catch(e){}};
  const nope=()=>{try{if(window.__mute)return;const AC=window.AudioContext||window.webkitAudioContext;if(!TAPC)TAPC=new AC();const c=TAPC,t=c.currentTime,o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(190,t);o.frequency.exponentialRampToValueAtTime(120,t+.18);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.16,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.22);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.25)}catch(e){}};
- const ring=(k,i,col)=>{const g=Q(k,'n2r'+k);if(!g)return;const [cx,cy]=CZ[k],y=2262,px=cx+(xAt(i,y)-GX)*ZS,py=cy+(y-ZCY)*ZS;
+ const ring=(k,i,col)=>{const g=Q(k,'n2r'+k);if(!g)return;const [cx,cy]=CZ[k],y=2262,px=cx+(xAt(i,y)-ZX)*ZS,py=cy+(y-ZCY)*ZS;
   g.innerHTML=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="27" fill="#fff" fill-opacity=".28"/><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="19" fill="none" stroke="#fff" stroke-width="3"/><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="10" fill="#fff" fill-opacity=".95"/><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4" fill="${col||YEL}"/>`;
   if(g.animate){g.style.transformBox='fill-box';g.style.transformOrigin='50% 50%';g.animate([{scale:'.6',opacity:0},{scale:'1.08',opacity:1,offset:.6},{scale:'1',opacity:1}],{duration:320,easing:'ease-out'})}};
  const nearest=(ev,k)=>{const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;const u=p.matrixTransform(svg.getScreenCTM().inverse()),lx=u.x-ORG[k][0]-1,[cx,cy]=CZ[k];
-  let best=0,bd=1e9;for(let i=0;i<6;i++){const x=cx+(xAt(i,2262)-GX)*ZS,d=Math.abs(x-lx);if(d<bd){bd=d;best=i}}return best};
+  let best=0,bd=1e9;for(let i=0;i<6;i++){const x=cx+(xAt(i,2262)-ZX)*ZS,d=Math.abs(x-lx);if(d<bd){bd=d;best=i}}return best};
  const tapB=i=>{selB=i;renderB();pluck(FQ[i]);vibrate('n2b',i)};
  const tapC=i=>{pluck(FQ[i]);const ok=i===QS[qi].a;
   if(answered){vibrate('n2c',i);return}
@@ -11155,11 +11155,11 @@ window.__n2=(()=>{
  return{
   h:{back,btn,title,T1,pillStars,cardBg,pluck,nope},build,addH(H){const BK2=[14,42,56,52];
    H.n2a=[[...BK2,'n2:back'],[56,621,211,47,'n2b']];
-   H.n2b=[[...BK2,'n2:back'],...[0,1,2,3,4,5].map(k=>[161+(k-2.5)*40-19+1,470-19+3,38,38,'n2s:sel:'+k]),[41+1,528+3,44,44,'n2s:play'],[56,621,211,47,'n2c']];
+   H.n2b=[[...BK2,'n2:back'],...[0,1,2,3,4,5].map(k=>[161+(k-2.5)*40-19+1,214-19+3,38,38,'n2s:sel:'+k]),[41+1,528+3,44,44,'n2s:play'],[56,621,211,47,'n2c']];
    H.n2c=[[...BK2,'n2:back'],[56,621,211,47,'n2:next']];
    H.n2d=[[64,420,193,52,'m1']]},
-  init(){['n2b','n2c'].forEach(k=>{const g=G[k];if(!g)return;const [cx,cy,r]=CZ[k],rc=document.createElementNS(NS,'rect');
-    const [fx,fy]=FR[k];rc.setAttribute('x',fx+1+cx-r);rc.setAttribute('y',fy+3+cy-r);rc.setAttribute('width',2*r);rc.setAttribute('height',2*r);rc.setAttribute('rx',r);rc.setAttribute('fill','#fff');rc.setAttribute('fill-opacity',.001);rc.style.cursor='pointer';
+  init(){['n2b','n2c'].forEach(k=>{const g=G[k];if(!g)return;const [cx,cy]=CZ[k],rc=document.createElementNS(NS,'rect');
+    const [fx,fy]=FR[k];rc.setAttribute('x',fx+1);rc.setAttribute('y',fy+3+236);rc.setAttribute('width',322);rc.setAttribute('height',262);rc.setAttribute('fill','#fff');rc.setAttribute('fill-opacity',.001);rc.style.cursor='pointer';
     rc.addEventListener('click',ev=>{if(window.__scrolled)return;const i=nearest(ev,k);if(k==='n2b')tapB(i);else tapC(i)});g.appendChild(rc)});
    Object.assign(BG,{n2a:{css:'#52b8e7',top:'#52b8e7'},n2b:{css:'#52b8e7',top:'#52b8e7'},n2c:{css:'#52b8e7',top:'#52b8e7'},n2d:{css:'#004f27',top:'#004f27'}})},
   enter(k){if(k==='n2a'){selB=0;qi=0;stars=3;answered=false}
