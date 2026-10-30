@@ -14586,7 +14586,8 @@ function greenIn(g){const f=e=>{const m=/rgb\((\d+), (\d+), (\d+)\)/.exec(getCom
  return f(g)||[...g.querySelectorAll('path,rect,circle')].some(f)}
 function btnBounce(r,to){try{if(!r||!r.getAttribute||(cur==='mapa'&&to==='m1modal')||cur==='practica')return false;let els=BTNC.get(r);
  const w=svg.querySelector('g.fw[data-f="'+cur+'"]');if(!w)return false;
- if(!els){els=[];let rx=+r.getAttribute('x'),ry=+r.getAttribute('y'),rw=+r.getAttribute('width'),rh=+r.getAttribute('height');const pad=3;
+ const _p=absPt(r,+r.getAttribute('x'),+r.getAttribute('y'));if(r._ck!==Math.round(_p[1])){els=null;r._ck=Math.round(_p[1])}   // si la lista está desplazada, la zona táctil se mide donde está ahora
+ if(!els){els=[];let rx=_p[0],ry=_p[1],rw=+r.getAttribute('width'),rh=+r.getAttribute('height');const pad=3;
   if(to==='back'||(rw===56&&rh===52)){   // el botón de retroceso se mueve entero (disco, sombra y flecha), no solo la flechita
    let disc=null;w.querySelectorAll('g,path').forEach(g=>{let b;try{b=g.getBBox()}catch(e){return}const q=absPt(g,b.x,b.y),q2=absPt(g,b.x+b.width,b.y+b.height),gw=q2[0]-q[0],gh=q2[1]-q[1];
     if(gw<40||gw>50||gh<40||gh>50)return;if(Math.hypot((q[0]+q2[0])/2-(rx+rw/2),(q[1]+q2[1])/2-(ry+rh/2))>30)return;if(!disc||gw*gh>disc[2]*disc[3])disc=[q[0],q[1],gw,gh]});
@@ -15609,6 +15610,11 @@ window.__tut=(()=>{
  window.__float={clouds(v){if(v)startC();(FL.cla||[]).forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},prep(){if(calm||FL.intro||FL.introPlayed)return;try{start();intro()}catch(e){window.__pe=String(e)}},on(v){FL.run=!!v;if(v)start();if(v)intro();if(v)playIntro();FL.forEach(a=>{try{v?a.play():a.pause()}catch(e){}})},n:()=>FL.length}}
 {const _core=core;core=function(k){_core(k);if(k==='t1')svg.style.touchAction='none';if(window.__float){__float.on(k==='mapa');__float.clouds(k==='mapa'||k==='cw'||k==='cf')}
   }}
+// ---- Mundo 1: la isla de arriba flota igual que las de Mi Camino (mismo movimiento, se mueve solo mientras la pantalla está a la vista) ----
+{const AN={},calm=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,RC=[179,93,124,120];
+ const prep=k=>{if(AN[k]!==undefined)return AN[k];AN[k]=null;try{const els=islandEls(RC,k).filter((e,_,a)=>!a.some(o=>o!==e&&o.contains(e)));if(!els.length||!els[0].animate)return null;
+   const g=els[0];AN[k]=g.animate([{translate:'0px 0px',easing:'cubic-bezier(.37,0,.63,1)'},{translate:'1.6px -5.5px',easing:'cubic-bezier(.37,0,.63,1)'},{translate:'0px 0px'}],{duration:4200,iterations:Infinity,easing:'linear'});AN[k].pause()}catch(e){window.__fe3=String(e)}return AN[k]};
+ const _c=core;core=function(k){_c(k);if(calm)return;['m1','m1b','m1c'].forEach(f=>{const a=prep(f);if(a){try{/^m1[bc]?$/.test(k)?a.play():a.pause()}catch(e){}}})}}
 // ---- Cuenta regresiva: una sola pantalla; el 3, 2, 1 cambia y el fondo oscuro se va aclarando hasta 0, y empieza el nivel ----
 window.__cd=(()=>{
   const fwOf=k=>svg.querySelector('g.fw[data-f="'+k+'"]'),W=fwOf('t1'),UI=window.__tutUI;if(!W||!UI)return null;
