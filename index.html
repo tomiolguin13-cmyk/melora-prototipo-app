@@ -14619,6 +14619,12 @@ function sfx(n,vol,rate){try{if(window.__mute)return;const AC=window.AudioContex
  const bf=SFXB[n];if(!bf)return;const s=TAPC.createBufferSource(),g=TAPC.createGain();g.gain.value=vol;s.buffer=bf;if(rate)s.playbackRate.value=rate;s.connect(g);g.connect(TAPC.destination);s.start(0)}catch(e){}}
 function sfxTap(){sfx('tap',.39)}   // volúmenes parejos: botón −30 dB, estrellas −26 dB, nivel completado −23 dB
 window.__sfx=sfx;
+// el audio se prepara al abrir la página y se destraba con el primer toque (en iPhone/Chrome el primer botón quedaba mudo porque los sonidos aún no estaban listos)
+{const AC=window.AudioContext||window.webkitAudioContext;
+ const prep=()=>{try{if(!AC)return;if(!TAPC)TAPC=new AC();sfxLoad('tap',TAPSND);sfxLoad('win',WINSND);sfxLoad('star',STARSND)}catch(e){}};
+ const unlock=()=>{try{prep();if(TAPC&&TAPC.state==='suspended')TAPC.resume();
+  if(TAPC&&!TAPC.__u){TAPC.__u=1;const b=TAPC.createBuffer(1,1,22050),s=TAPC.createBufferSource();s.buffer=b;s.connect(TAPC.destination);s.start(0)}}catch(e){}};
+ prep();['pointerdown','touchstart','mousedown','keydown'].forEach(e=>addEventListener(e,unlock,{capture:true,passive:true}))}
 // Burbujas continuas mientras sube la barra de progreso: sonido generado (sin archivo); el tono sube junto con la barra y se corta justo cuando llega
 let BUB=null;
 function bubStop(){if(!BUB)return;try{const c=TAPC,g=BUB.g;g.gain.cancelScheduledValues(c.currentTime);g.gain.setValueAtTime(g.gain.value,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+.04);BUB.nodes.forEach(n=>{try{n.stop(c.currentTime+.06)}catch(e){}})}catch(e){}BUB=null}
