@@ -14989,7 +14989,7 @@ function show(k){if(SLIDING)SLIDING.finish();if((k==='cw'||k==='cf'||k==='mapa')
  if(((prevK==='comW'&&k==='comHub')||(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa'))&&document.startViewTransition&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){   // las ventanas de bienvenida comparten el mismo fondo: solo se funde la ventana, sin mover nada de la pantalla
   NAVDIR=1;svg.style.transition='';svg.style.opacity=1;try{document.startViewTransition(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1});return}catch(e){}}
  if(prevK!==k&&!tg&&canSlide(prevK,k)){if(/^m1[bc]?$/.test(prevK)&&k==='mapa')NAVDIR=-1;   // volver: la pantalla anterior entra desde la izquierda
-  if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa')||(prevK==='comW'&&k==='comHub')||(prevK==='mapa'&&k==='m1modal')||(prevK==='m1modal'&&k==='mapa')||(prevK==='c1'&&k==='lg')||(['u2c','u2ck','u2cx'].includes(prevK)&&k==='u2d')||(prevK==='u2dp'&&/^m1/.test(k))||(prevK==='lg'&&k==='lgm')||(prevK==='lgm'&&/^m1/.test(k))||(prevK==='n2c'&&k==='n2d')||(prevK==='n2d'&&/^m1/.test(k))||(['u3d','u3dx','u3dk'].includes(prevK)&&k==='u3e')||(prevK==='u3f'&&/^m1/.test(k)));return}
+  if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa')||(prevK==='comW'&&k==='comHub')||(prevK==='mapa'&&k==='m1modal')||(prevK==='m1modal'&&k==='mapa')||(prevK==='c1'&&k==='lg')||(['u2c','u2ck','u2cx'].includes(prevK)&&k==='u2d')||(prevK==='u2dp'&&/^m1/.test(k))||(prevK==='lg'&&k==='lgm')||(prevK==='lgm'&&/^m1/.test(k))||(prevK==='n2c'&&k==='n2d')||(prevK==='n2d'&&/^m1/.test(k))||(['u2a','u2b'].includes(prevK)&&['u2a','u2b'].includes(k))||(['u3a','u3b','u3c'].includes(prevK)&&['u3a','u3b','u3c'].includes(k))||(['u3d','u3dx','u3dk'].includes(prevK)&&k==='u3e')||(prevK==='u3f'&&/^m1/.test(k)));return}
  const pL=FR[prevK]&&FR[prevK][2]>FR[prevK][3],kL=FR[k]&&FR[k][2]>FR[k][3];
  if(prevK!==k&&FR[prevK]&&FR[k]&&pL!==kL&&svg.animate&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){   // vertical <-> horizontal: el teléfono "gira"
   NAVDIR=1;const to=kL?1:-1;svg.style.transition='';svg.style.opacity=1;
@@ -15657,7 +15657,8 @@ window.__intro=(()=>{ // Introducción: solo cambia la parte del medio (imagen, 
  pages.forEach(o=>o.dy=pages[0].dgy-o.dgy);
  {const f=W1.children[1]||null;if(fixedCircle)W1.insertBefore(fixedCircle,f);W1.insertBefore(cp,f);W1.insertBefore(IW,f);pages.forEach(o=>W1.insertBefore(o.txt,f));pages.forEach(o=>W1.insertBefore(o.dg,f))}
  let p=0;
- const set=v=>{p=v;pages.forEach((o,n)=>{const tx=((n-p)*SZ-o.nx).toFixed(2);o.img.setAttribute('transform','translate('+tx+' 0)');o.txt.setAttribute('transform','translate('+tx+' 0)');const fo=Math.max(0,1-Math.abs(p-n)*1.7).toFixed(3);o.img.setAttribute('opacity',fo);o.txt.setAttribute('opacity',fo);
+ const set=v=>{p=v;pages.forEach((o,n)=>{const tx=(-o.nx).toFixed(2);   // las pantallas de introducción se desvanecen una en otra (no se deslizan)
+   o.img.setAttribute('transform','translate('+tx+' 0)');o.txt.setAttribute('transform','translate('+tx+' 0)');const fo=Math.max(0,1-Math.abs(p-n)).toFixed(3);o.img.setAttribute('opacity',fo);o.txt.setAttribute('opacity',fo);
    o.dg.setAttribute('transform','translate('+(-o.nx)+' '+o.dy+')');o.dg.setAttribute('opacity',Math.round(p)===n?1:0)})};
  set(0);
  let d=null,raf=0;const upp=()=>svg.viewBox.baseVal.width/((svg.getBoundingClientRect().width)||1);
