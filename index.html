@@ -15036,7 +15036,8 @@ function slideTo(a,b,fade){
   let t=ov.__cl;pb.path.forEach(i=>{t=t.children[i]});__nav.slide(a,b,t)}
  if(window.__m1reset)__m1reset(b);if(window.__prog)__prog(b);applyBG(b);
  const x1=ox,y1=oy,w1=bw,h1=bh,T=agua?1175:fade?330:365,t0=performance.now(),ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;let raf=0,done=false;
- const finish=()=>{if(done)return;done=true;cancelAnimationFrame(raf);SLIDING=null;
+ let bkO=null,bkA=null,bkB=null;
+ const finish=()=>{if(done)return;done=true;cancelAnimationFrame(raf);SLIDING=null;if(bkO){bkO.remove();bkA.removeAttribute('visibility');bkB.removeAttribute('visibility');bkO=null}
   // se devuelve todo a su lugar (orden original y posiciones)
   if(W){W.cp.remove();W.espuma.remove()}
   [gA,gB].forEach(o=>{o.list.forEach(w=>{const pl=places.find(p=>p[0]===w),ref=pl&&pl[1],par=o.g.parentNode;par.insertBefore(w,ref&&ref.parentNode===par?ref:o.g)});o.g.remove();o.cp.remove()});if(W)W.wr.remove();
@@ -15044,12 +15045,22 @@ function slideTo(a,b,fade){
   undo.forEach(([e,v])=>v===null?e.removeAttribute('display'):e.setAttribute('display',v));
   if(ov){ov.remove();pa.el.removeAttribute('visibility');pb.el.removeAttribute('visibility')}
   svg.style.pointerEvents='';cur=b;core(b)};
+ // el botón de retroceso queda fijo: no se desliza con la pantalla
+ if(!fade){try{const bkOf=(w,k,org)=>{if(w.__bk!==undefined)return w.__bk;let r=null;const inv=svg.getScreenCTM().inverse();
+   for(const g of w.querySelectorAll('g')){if(g.closest('defs'))continue;let bb;try{bb=g.getBBox()}catch(e){continue}if(bb.width<30||bb.width>60||bb.height<30||bb.height>60)continue;
+    const m=inv.multiply(g.getScreenCTM()),px=m.a*bb.x+m.c*bb.y+m.e-org[0],py=m.b*bb.x+m.d*bb.y+m.f-org[1];
+    if(Math.abs(px-19)<5&&Math.abs(py-47)<5){r=g;break}}
+   return w.__bk=r};
+  const ea=bkOf(wa,a,[ax,ay]),eb=bkOf(wb,b,[ox,oy]);
+  if(ea&&eb){const m=svg.getScreenCTM().inverse().multiply(ea.getScreenCTM());bkO=document.createElementNS(NS2,'g');bkO.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')');bkO.setAttribute('pointer-events','none');bkO.__m=m;
+   {const cl2=ea.cloneNode(true);cl2.removeAttribute('transform');bkO.appendChild(cl2)}bkA=ea;bkB=eb;ea.setAttribute('visibility','hidden');eb.setAttribute('visibility','hidden');svg.appendChild(bkO)}}catch(e){bkO=null}}
  SLIDING={finish};
  const step=ts=>{if(done)return;const k=Math.min(1,(ts-t0)/T),e=ease(k);
   if(agua){const ola=(lev,amp,fase)=>{let d='M'+x1+' '+(y1+h1+40);for(let x=0;x<=w1+6;x+=6){const yy=lev+amp*Math.sin(x/w1*Math.PI*3.2+fase)+amp*.45*Math.sin(x/w1*Math.PI*7.1-fase*1.7);d+=' L'+(x1+x).toFixed(1)+' '+yy.toFixed(1)}return d+' L'+(x1+w1+6)+' '+(y1+h1+40)+' Z'};
    const amp=11*Math.sin(Math.PI*Math.min(1,k*1.05)),fase=k*9,lev=y1+h1+24-(h1+60)*e;
    W.cpp.setAttribute('d',ola(lev,amp,fase));W.espuma.setAttribute('d',ola(lev-16*(1-k),amp*1.15,fase+1.3))}
   else if(fade)gB.g.style.opacity=e;else svg.setAttribute('viewBox',(ax+(x1-ax)*e)+' '+(ay+(y1-ay)*e)+' '+(aw+(w1-aw)*e)+' '+(ah+(h1-ah)*e));setOv(ax+(x1-ax)*e,ay+(y1-ay)*e);
+  if(bkO){const m=bkO.__m;bkO.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e+(x1-ax)*e,m.f+(y1-ay)*e].join(' ')+')')}
   if(k<1)raf=requestAnimationFrame(step);else finish()};
  raf=requestAnimationFrame(step)}
 // Selector de pantallas
