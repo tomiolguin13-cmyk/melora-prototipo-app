@@ -14641,7 +14641,7 @@ window.__u2=(()=>{
    c.card=ts.find(t=>/^Esa es la/.test(t.textContent.trim()));
   });
   ['u2b',...FAM].forEach(k=>{const w=fwOf(k);if(!w)return;   // sombras: las tarjetas (no se tocan) no llevan; las de los números se suavizan
-   w.querySelectorAll('rect').forEach(r=>{const cs=getComputedStyle(r);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1'&&cs.opacity==='1'){let b;try{b=r.getBBox()}catch(_){return}if(b.width>250&&b.height>90)r.style.display='none'}});
+   w.querySelectorAll('rect').forEach(r=>{const cs=getComputedStyle(r);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1'&&cs.opacity==='1'){let b;try{b=r.getBBox()}catch(_){return}if(b.width>250&&b.height>90)r.style.fillOpacity='.15'}});
    w.querySelectorAll('circle').forEach(c=>{const cs=getComputedStyle(c);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1')c.style.fillOpacity='.14'})});
   ['u3e','u3f'].forEach(k=>{const w=fwOf(k);if(!w)return;[...w.querySelectorAll('g')].forEach(g=>{if(/^Nota a tocar/.test((g.textContent||'').trim())&&g.querySelectorAll('text').length===1)g.style.display='none'});w.querySelectorAll('text').forEach(x=>{if(/^Nota a tocar/.test(x.textContent.trim())&&!x.closest('g[style*="display: none"]'))x.style.display='none'})});
   const cb=C.u2b;cb.sel=mkSel();const tb=texts('u2b');cb.info={ord:tb.filter(t=>/^\d\.ª cuerda$/.test(t.textContent.trim())),name:tb.filter(t=>NM.includes(t.textContent.trim())&&t.textContent.trim().length<5),desc:tb.filter(t=>DESC.includes(t.textContent.trim()))};
@@ -14740,7 +14740,7 @@ window.__u3=(()=>{
   ['u3e','u3f'].forEach(k=>{C[k]={pill:Lb.mkPill(k)}});
   // sombras negras de tarjetas, tableros y etiquetas (no se tocan): se ocultan; solo los botones llevan sombra
   ['u3a','u3b','u3c',...FAM,'u3e','u3f'].forEach(k=>{const w=fwOf(k);if(!w)return;
-   w.querySelectorAll('path,rect').forEach(r=>{const cs=getComputedStyle(r);if(!/rgb\(0, 0, 0\)/.test(cs.fill)||cs.fillOpacity!=='1'||cs.opacity!=='1')return;let b;try{b=r.getBBox()}catch(_){return}if(b.width>90&&b.height>30&&b.height<400)r.style.display='none';else if(b.width>90&&b.height>20&&b.height<=30)r.style.fillOpacity='.16'});
+   w.querySelectorAll('path,rect').forEach(r=>{const cs=getComputedStyle(r);if(!/rgb\(0, 0, 0\)/.test(cs.fill)||cs.fillOpacity!=='1'||cs.opacity!=='1')return;let b;try{b=r.getBBox()}catch(_){return}if(b.width>90&&b.height>30&&b.height<400)r.style.fillOpacity='.15';else if(b.width>90&&b.height>20&&b.height<=30)r.style.fillOpacity='.16'});
    w.querySelectorAll('circle').forEach(c=>{const cs=getComputedStyle(c);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1')c.style.fillOpacity='.14'})});
   // "Continuar": el diseño de este paso no trae botón; se copia el botón verde de "Siguiente" de la pantalla anterior
   try{const src=fwOf('u3c'),dk=fwOf('u3dk');const kids=[...src.children],ti=kids.findIndex(e=>e.tagName==='text'&&/Siguiente/.test(e.textContent));
@@ -15948,9 +15948,9 @@ window.__cd=(()=>{
    const paint=()=>{p.style.fill=saved?YEL:GRY;p.style.stroke=saved?YEL:GRY};
    hit(p,10,()=>{saved=!saved;paint();pop(p)})}});
  window.__foroN=cards.length})();
-// sombras negras de la bandeja de piezas (no se toca): se ocultan; solo los botones llevan sombra
+// sombra de la bandeja de piezas: suave y translúcida (la sombrita de abajo del rectángulo blanco)
 ['c1','c2'].forEach(k=>{const w=svg.querySelector('g.fw[data-f="'+k+'"]');if(!w)return;
- w.querySelectorAll('path,rect').forEach(r=>{const cs=getComputedStyle(r);if(!/rgb\(0, 0, 0\)/.test(cs.fill)||cs.fillOpacity!=='1'||cs.opacity!=='1')return;let b;try{b=r.getBBox()}catch(_){return}if(b.width>90&&b.height>30&&b.height<400)r.style.display='none'})});
+ w.querySelectorAll('path,rect').forEach(r=>{const cs=getComputedStyle(r);if(!/rgb\(0, 0, 0\)/.test(cs.fill)||cs.fillOpacity!=='1'||cs.opacity!=='1')return;let b;try{b=r.getBBox()}catch(_){return}if(b.width>90&&b.height>30&&b.height<400)r.style.fillOpacity='.15'})});
 window.__build=(()=>{ // las piezas de la guitarra se arrastran hasta su lugar
  const W=svg.querySelector('g.fw[data-f="c1"]');if(!W)return null;
  const ox=FR.c1[0]-(+W.dataset.dx)-3751.6,oy=FR.c1[1]-(+W.dataset.dy),sh=a=>[a[0]+ox,a[1]+oy,a[2],a[3]];
