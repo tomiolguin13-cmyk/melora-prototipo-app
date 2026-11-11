@@ -18064,12 +18064,34 @@ window.__u3=(()=>{
    W.check=[...w.querySelectorAll('polyline')].filter(p=>{const o=loc(p,k);return o.y>340&&o.y<400&&o.x<60});
    W.stars=[...w.querySelectorAll('path')].filter(p=>{const o=loc(p,k);return o.y>335&&o.y<360&&o.x>240&&o.w<14&&/249, 209, 56/.test(fill(p))});
    // aro de progreso: las partes verdes del círculo
-   W.arc=[...w.querySelectorAll('path')].filter(p=>{const o=loc(p,k);return o.x>40&&o.x<120&&o.y>240&&o.y<320&&/149, 209, 44/.test(fill(p))})};
-  const paintWorld=()=>{if(!W.tsp)return;const d=st.done,n=d?st.best:0;
-   W.tsp.forEach(t=>{let s=t.dataset.t0;s=s.replace(/^\d+(?= de 3 lecciones)/,d?'1':'0').replace(/(conseguidas\s*:\s*)\d+/,'$1'+n);t.textContent=s});
-   if(W.pct){W.pct.querySelector('tspan')?W.pct.querySelector('tspan').textContent=(d?33:0)+'%':W.pct.textContent=(d?33:0)+'%';W.pct.style.translate='';try{const o=loc(W.pct,'m3');W.pct.style.translate=(W.pctC-(o.x+o.w/2)).toFixed(2)+'px 0px'}catch(e){}}
-   W.check.forEach(p=>p.style.display=d?'':'none');W.arc.forEach(p=>p.style.display=d?'':'none');
-   W.stars.forEach((p,j)=>{p.style.fill=d&&j<n?YEL:'#c4c4c4'})};
+   W.arc=[...w.querySelectorAll('path')].filter(p=>{const o=loc(p,k);return o.x>40&&o.x<120&&o.y>240&&o.y<320&&/149, 209, 44/.test(fill(p))});
+   // la isla de arriba flota igual que la del Mundo 1
+   {const isl=[...w.children].find(g=>{let o;try{o=loc(g,k)}catch(e){return false}return g.tagName==='g'&&o.x>150&&o.y<130&&o.w>100&&o.w<170&&o.h>90&&o.h<170});
+    if(isl&&isl.animate){W.isl=isl.animate([{translate:'0px 0px',easing:'cubic-bezier(.37,0,.63,1)'},{translate:'1.6px -5.5px',easing:'cubic-bezier(.37,0,.63,1)'},{translate:'0px 0px'}],{duration:4200,iterations:Infinity,easing:'linear'});W.isl.pause()}}
+   // puntitos de las lecciones (de arriba hacia abajo): colores del tablero = nivel 1 completado
+   W.nodes=[...w.querySelectorAll('circle')].map(c=>[c,loc(c,k)]).filter(([c,o])=>o.x<40&&Math.abs(o.w-28)<4&&o.y>330).sort((a,b)=>a[1].y-b[1].y).map(([c])=>({c,f0:fill(c)}));
+   const track=[...w.querySelectorAll('path')].find(p=>{const o=loc(p,k);return Math.abs(o.w-68)<4&&Math.abs(o.h-68)<4&&/175, 216, 236/.test(fill(p))});
+   if(track){const b=track.getBBox(),cx=b.x+b.width/2,cy=b.y+b.height/2,TH=b.width*.125,RM=b.width/2-TH/2,Cc=2*Math.PI*RM,g=document.createElementNS(NSV,'g'),c=document.createElementNS(NSV,'circle');
+    [['cx',cx],['cy',cy],['r',RM],['fill','none'],['stroke','#95d12c'],['stroke-width',TH],['stroke-linecap','round'],['transform','rotate(-90 '+cx+' '+cy+')']].forEach(([q,v])=>c.setAttribute(q,v));
+    c.style.pointerEvents='none';g.appendChild(c);track.parentNode.insertBefore(g,track.nextSibling);
+    W.ring={g,set(p){const f=Math.max(0,Math.min(100,p))/100;c.style.opacity=f<=0?0:1;c.setAttribute('stroke-dasharray',Math.max(.001,Cc*f)+' '+Cc)}}}};
+  const paintWorld=(p,n,L,chk)=>{if(!W.tsp)return;
+   W.tsp.forEach(t=>{let s=t.dataset.t0;s=s.replace(/^\d+(?= de 3 lecciones)/,String(L)).replace(/(conseguidas\s*:\s*)\d+/,'$1'+n);t.textContent=s});
+   if(W.pct){const sp=W.pct.querySelector('tspan')||W.pct;sp.textContent=Math.round(p)+'%';W.pct.style.translate='';try{const o=loc(W.pct,'m3');W.pct.style.translate=(W.pctC-(o.x+o.w/2)).toFixed(2)+'px 0px'}catch(e){}}
+   if(W.ring)W.ring.set(p);W.check.forEach(q=>q.style.display=chk?'':'none');
+   if(W.nodes&&W.nodes.length===3){const N=W.nodes,blue=N[2].f0;N.forEach((o,i)=>{o.c.style.fill=chk?'':(i===0?'rgb(244, 165, 49)':blue)});
+    if(chk&&W.nodePop!==1&&N[0].c.animate){W.nodePop=1}}W.arc.forEach(q=>q.style.display='none')};
+  // el mundo: quieto en lo que ya se vio; al volver de completar el nivel, el aro, el porcentaje y las estrellas se suman con animación
+  const showWorld=()=>{if(!W.tsp)return;const d=st.done,N=d?st.best:0;cancelAnimationFrame(W.raf);(W.tm||[]).forEach(clearTimeout);W.tm=[];
+   const starFill=k=>W.stars.forEach((q,j)=>{q.style.fill=j<k?YEL:'#c4c4c4'});
+   if(!d||W.shown){paintWorld(d?33:0,N,d?1:0,d);starFill(N);return}
+   W.shown=1;paintWorld(0,0,0,false);starFill(0);
+   const t0=performance.now()+350,DUR=1400,ease=x=>1-Math.pow(1-x,3);
+   const step=ts=>{const k=Math.max(0,Math.min(1,(ts-t0)/DUR));paintWorld(33*ease(k),0,0,false);if(k<1){W.raf=requestAnimationFrame(step);return}
+    paintWorld(33,0,1,true);if(W.ring&&W.ring.g.animate){W.ring.g.style.transformBox='fill-box';W.ring.g.style.transformOrigin='50% 50%';W.ring.g.animate([{scale:'1'},{scale:'1.06',offset:.4},{scale:'.99',offset:.7},{scale:'1'}],{duration:480,easing:'ease-out'})}
+    W.check.forEach(q=>{if(!q.animate)return;q.style.transformBox='fill-box';q.style.transformOrigin='50% 50%';q.animate([{scale:'0'},{scale:'1.4',offset:.6},{scale:'1'}],{duration:420,easing:'ease-out'})})};
+   W.raf=requestAnimationFrame(step);
+   for(let j=0;j<N;j++)W.tm.push(setTimeout(()=>{if(cur!=='m3')return;const q=W.stars[j];q.style.fill=YEL;q.classList.remove('spop');void q.getBoundingClientRect();q.classList.add('spop');paintWorld(33,j+1,1,true);try{__sfx('star',.21,1+.14*j)}catch(e){}},2000+j*380))};
   // ----- carrusel de acordes (Primeros acordes mayores) -----
   const K={};
   const prepCarousel=()=>{const k='m3d',w=fwOf(k);if(!w)return;
@@ -18159,7 +18181,7 @@ window.__u3=(()=>{
     PR.forEach(k=>{H[k]=[[...BK2,'m3:back']]});['m3g','m3j','m3l','m3n'].forEach(k=>H[k].push([55,621,212,46,'m3:next']));
     ['m3h','m3i'].forEach(k=>H[k].push([33,212,256,256,'m3:listen']));
     H.m3o=[];H.m3p=[[67,413,189,42,'m3']]},
-   init(){prep();reset();paintWorld();
+   init(){prep();reset();showWorld();
     Object.assign(LBL,{m3modal:'Mundo 3 · Bienvenida',m3:'Mundo 3 · Armonía y acordes',m3a:'M3 N1 · Construcción de acordes',m3b:'M3 N1 · ¿Qué es un acorde?',m3c:'M3 N1 · ¿Cómo se forma?',m3d:'M3 N1 · Primeros acordes mayores (carrusel)',m3e:'M3 N1 · Do: tu turno',m3f:'M3 N1 · Do: ¡Casi!',m3g:'M3 N1 · Do: ¡Correcto!',m3h:'M3 N1 · ¡A tocar! (escuchando)',m3i:'M3 N1 · ¡A tocar! ¡Casi!',m3j:'M3 N1 · ¡A tocar! ¡Correcto!',m3k:'M3 N1 · Sol: tu turno',m3l:'M3 N1 · Sol: ¡Correcto!',m3m:'M3 N1 · Re: tu turno',m3n:'M3 N1 · Re: ¡Correcto!',m3o:'M3 N1 · ¡Lo lograste!',m3p:'M3 N1 · ¡Nivel completado!'});
     Object.assign(BG,{m3o:{css:'#00cf66',top:'#00cf66'},m3p:{css:'#006733',top:'#006733'}});
     // toques en el mástil
@@ -18173,7 +18195,7 @@ window.__u3=(()=>{
      rc.addEventListener('pointerup',ev=>{if(x0==null)return;const dx=X(ev)-x0,xu=X(ev);x0=null;if(Math.abs(dx)>25){K.place(K.idx+(dx<0?1:-1),true);return}if(xu<75)K.place(K.idx-1,true);else if(xu>247)K.place(K.idx+1,true)});
      rc.addEventListener('pointercancel',()=>{x0=null});g.appendChild(rc)}}},
    enter(k){prep();
-    if(k==='m3')paintWorld();
+    if(k==='m3')showWorld();if(W.isl){try{k==='m3'?W.isl.play():W.isl.pause()}catch(e){}}
     floatOn(k==='m3a');listenOn(k==='m3h'||k==='m3i'?k:null);
     if(k==='m3d'){touched=false;K.place(1,false);carAuto(true)}else carAuto(false);
     if(k==='m3e'&&!PR.includes(st.last))reset();
