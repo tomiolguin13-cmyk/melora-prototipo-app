@@ -14377,7 +14377,10 @@ window.__u3=(()=>{
   ['u3e','u3f'].forEach(k=>{C[k]={pill:Lb.mkPill(k)}});
   // sombras de tarjetas: suaves
   ['u3a','u3b','u3c',...FAM,'u3e','u3f'].forEach(k=>{const w=fwOf(k);if(!w)return;
-   w.querySelectorAll('path,rect').forEach(r=>{const cs=getComputedStyle(r);if(!/rgb\(0, 0, 0\)/.test(cs.fill)||cs.fillOpacity!=='1'||cs.opacity!=='1')return;let b;try{b=r.getBBox()}catch(_){return}if(b.width>90&&b.height>30&&b.height<=420)r.style.fillOpacity='.15';else if(b.width>90&&b.height>20&&b.height<=30)r.style.fillOpacity='.16'});
+   // solo es sombra si encima hay una forma del mismo tamaño corrida unos px hacia arriba (así la mano negra y otros dibujos quedan como están)
+   const shapes=[...w.querySelectorAll('path,rect')].map(e=>{let b;try{b=e.getBBox()}catch(_){return null}return [e,b]}).filter(Boolean);
+   const isSh=(r,b)=>shapes.some(([e,q])=>e!==r&&Math.abs(q.width-b.width)<3&&Math.abs(q.height-b.height)<3&&Math.abs(q.x-b.x)<3&&b.y-q.y>1&&b.y-q.y<6&&!/rgb\(0, 0, 0\)/.test(getComputedStyle(e).fill));
+   shapes.forEach(([r,b])=>{const cs=getComputedStyle(r);if(!/rgb\(0, 0, 0\)/.test(cs.fill)||cs.fillOpacity!=='1'||cs.opacity!=='1')return;if(!isSh(r,b))return;if(b.width>90&&b.height>30&&b.height<=420)r.style.fillOpacity='.15';else if(b.width>90&&b.height>20&&b.height<=30)r.style.fillOpacity='.16'});
    w.querySelectorAll('circle').forEach(c=>{const cs=getComputedStyle(c);if(/rgb\(0, 0, 0\)/.test(cs.fill)&&cs.fillOpacity==='1'&&+c.getAttribute('r')>15)c.style.fillOpacity='.14'})});
   // "Siguiente" en "¡Correcto!": el mismo botón verde de las pantallas anteriores
   try{const src=fwOf('u3c'),kids=[...src.children],ti=kids.findIndex(e=>e.tagName==='text'&&/Siguiente/.test(e.textContent));
