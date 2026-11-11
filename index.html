@@ -14174,12 +14174,13 @@ window.__u2=(()=>{
  let REDREL=null;   // la cuerda roja de "Escuchá" es un trazo ondulado: se toma la geometría de la de "Practicar"
  const geo=(k,i)=>{const c=C[k];if(!c||!c.L)return null;const e=c.L[i];
   if(e)return {x1:+e.getAttribute('x1'),y1:+e.getAttribute('y1'),x2:+e.getAttribute('x2'),y2:+e.getAttribute('y2'),el:e,sw:parseFloat(getComputedStyle(e).strokeWidth)};
-  if(i===0){const o=c.L[1],oo=C.u2c&&C.u2c.L,rr=oo&&oo[0],r1=oo&&oo[1];if(!o||!rr||!r1)return null;
-   const d1=+rr.getAttribute('x1')-+r1.getAttribute('x1'),d2=+rr.getAttribute('x2')-+r1.getAttribute('x2');
+  if(i===0){const o=c.L[1],o2=c.L[2];if(!o||!o2)return null;   // la roja va a la misma distancia de la naranja que la naranja de la amarilla (en esta misma pantalla)
+   const d1=+o.getAttribute('x1')-+o2.getAttribute('x1'),d2=+o.getAttribute('x2')-+o2.getAttribute('x2');
    return {x1:+o.getAttribute('x1')+d1,y1:+o.getAttribute('y1'),x2:+o.getAttribute('x2')+d2,y2:+o.getAttribute('y2'),el:null,sw:5.1}}
   return null};
  // la cuerda roja de "Escuchá" (si es un trazo ondulado) y su halo se ocultan: se dibuja la cuerda elegida aparte
  const hideWavy=k=>{const c=C[k];if(!c||!c.L)return;const par=(c.L[1]||c.L[2]).parentNode;
+  fwOf(k).querySelectorAll('polyline').forEach(e=>{let r;try{r=e.getBBox()}catch(_){return}if(r.height>300&&!e.dataset.u2){e.style.display='none';e.dataset.u2='h'}});   // ondas de la cuerda que vibra en el diseño
   [...par.children].forEach(e=>{if(e.tagName==='path'&&!e.dataset.u2){const cs=getComputedStyle(e);if(cs.fill==='none'&&parseFloat(cs.strokeWidth)>2){let r;try{r=e.getBBox()}catch(_){return}if(r.height>150){e.style.display='none';e.dataset.u2='h'}}}})};
  const ovOf=k=>{const c=C[k];if(c.ov)return c.ov;const par=(c.L[1]||c.L[2]).parentNode,g=document.createElementNS(NSV,'g');g.setAttribute('class','u2ov');par.appendChild(g);c.ov=g;return g};
  const drawStr=(k,sel,amp,ph,halo)=>{const c=C[k];if(!c||!c.L)return;const g=ovOf(k);g.innerHTML='';
@@ -14199,8 +14200,13 @@ window.__u2=(()=>{
   const yy=fy+560;let best=0,bd=1e9;for(let i=0;i<6;i++){const g=geo(k,i);if(!g)continue;const x=g.x1+(g.x2-g.x1)*((yy-g.y1)/(g.y2-g.y1));const d=Math.abs(x-u.x);if(d<bd){bd=d;best=i}}return best};
  // ----- textos -----
  const texts=k=>[...fwOf(k).querySelectorAll('text')];
- const setTxt=(t,s)=>{if(!t)return;const sp=[...t.querySelectorAll('tspan')];if(!sp.length){t.textContent=s;return}   // Illustrator parte el texto en pedacitos: se deja uno solo
-  const f=sp[0];f.textContent=s;f.removeAttribute('class');f.setAttribute('x',0);f.setAttribute('y',0);sp.slice(1).forEach(e=>e.remove())};
+ const setTxt=(t,s)=>{if(!t)return;const sp=[...t.querySelectorAll('tspan')];if(!sp.length){t.textContent=s;return}   // Illustrator parte el texto en pedacitos: se deja uno solo (con su misma letra y peso)
+  const f=sp[0],cs=getComputedStyle(f),ff=cs.fontFamily,fw=cs.fontWeight;f.textContent=s;f.removeAttribute('class');f.style.fontFamily=ff;f.style.fontWeight=fw;f.setAttribute('x',0);f.setAttribute('y',0);sp.slice(1).forEach(e=>e.remove())};
+ // texto con partes de distinto peso (ej. "Tocá la cuerda" + "Sol" en negrita): cada parte conserva su letra y su peso
+ const runsOf=t=>{if(t.__runs)return t.__runs;const R=[];[...t.querySelectorAll('tspan')].forEach(x=>{const cs=getComputedStyle(x),key=cs.fontFamily+'|'+cs.fontWeight+'|'+cs.fill;const l=R[R.length-1];if(l&&l.key===key)l.txt+=x.textContent;else R.push({key,ff:cs.fontFamily,fw:cs.fontWeight,fill:cs.fill,txt:x.textContent})});return t.__runs=R};
+ const setRuns=(t,arr,over)=>{if(!t)return;const R=runsOf(t);const NSx='http://www.w3.org/2000/svg';t.querySelectorAll('tspan').forEach(e=>e.remove());
+  arr.forEach((str,i)=>{const r=R[Math.min(i,R.length-1)],o=(over&&over[i])||{},sp=document.createElementNS(NSx,'tspan');if(i===0){sp.setAttribute('x',0);sp.setAttribute('y',0)}
+   sp.style.fontFamily=o.ff||r.ff;sp.style.fontWeight=o.fw||r.fw;sp.style.fill=r.fill;sp.textContent=str;t.appendChild(sp)})};
  const scl=(e,f)=>{if(e.dataset.t0===undefined)e.dataset.t0=e.getAttribute('transform')||'';let b;try{b=e.getBBox()}catch(_){return}const cx=b.x+b.width/2,cy=b.y+b.height/2;   // se achica o agranda desde su centro
   e.setAttribute('transform',e.dataset.t0+(f===1?'':' translate('+cx+' '+cy+') scale('+f+') translate('+(-cx)+' '+(-cy)+')'))};
  const recenter=(t,x0)=>{if(!t)return;try{const b=t.getBBox(),dx=x0-(b.x+b.width/2);t.style.translate=dx.toFixed(2)+'px 0px'}catch(e){}};
@@ -14245,13 +14251,13 @@ window.__u2=(()=>{
    [...s.els.filter(e=>e!==s.halo),s.t].forEach(e=>scl(e,f))});
   const dx=S[i].cx-S[0].cx;halo.style.translate=dx.toFixed(2)+'px 0px'};
  // ----- tarjeta de "Escuchá" -----
- const selInfo=i=>{const T=C.u2b.info;if(!T)return;T.ord.forEach(t=>setTxt(t,ORDN[i]+' cuerda'));T.name.forEach(t=>setTxt(t,/\(/.test(t.dataset.n0||'')?NMD[i]:NM[i]));T.desc.forEach(t=>setTxt(t,DESC[i]))};
+ const selInfo=i=>{const T=C.u2b.info;if(!T)return;T.ord.forEach(t=>setTxt(t,ORDN[i]+' cuerda'));T.name.forEach(t=>{if(/\(/.test(t.dataset.n0||'')){const m=NMD[i].match(/^(.*?) (\(.*\))$/);setRuns(t,[m[1]+' ',m[2]],[{ff:'Fredoka',fw:'600'}])}else setTxt(t,NM[i])});T.desc.forEach(t=>setTxt(t,DESC[i]))};
  const pluck=f=>{try{__n2.h.pluck(f)}catch(e){}},nope=()=>{try{__n2.h.nope()}catch(e){}};
  const showF=k=>{window.__instant=1;try{go(k,0)}finally{window.__instant=0}};
  const shake=k=>{const w=fwOf(k);if(w&&w.animate)w.animate([{translate:'0 0'},{translate:'-4px 0'},{translate:'4px 0'},{translate:'0 0'}],{duration:220})};
  // ----- pantallas de práctica -----
  const subText=()=>'Tocá la cuerda '+QS[qi].t;
- const refreshQ=(anim,delay)=>{FAM.forEach(k=>{const c=C[k];if(!c)return;if(c.sub)setTxt(c.sub,subText()),recenter(c.sub,c.subX);if(c.bar)c.bar.set(okQ/QS.length,anim&&cur===k,delay)});};
+ const refreshQ=(anim,delay)=>{FAM.forEach(k=>{const c=C[k];if(!c)return;if(c.sub){if(runsOf(c.sub).length>1)setRuns(c.sub,['Tocá la cuerda ',QS[qi].t]);else setTxt(c.sub,subText());recenter(c.sub,c.subX)}if(c.bar)c.bar.set(okQ/QS.length,anim&&cur===k,delay)});};
  const resetQ=()=>{okQ=0;qi=0;stars=0;miss=false;answered=false;wrongs=0;FAM.forEach(k=>{if(C[k]&&C[k].bar)C[k].bar.set(0,false)});setPills(0);refreshQ(true,420);ringHide()};
  const ringHide=()=>{const c=C.u2c;if(c&&c.ring)c.ring.parts.forEach(p=>p.style.display='none')};
  const tapC=ev=>{const k=cur;if(!FAM.includes(k)||k==='u2ck')return;const i=nearest(ev,k),q=QS[qi],ok=i===q.a;pluck(FQ[i]);
@@ -14281,7 +14287,7 @@ window.__u2=(()=>{
   ['u2d','u2dp'].forEach(k=>{C[k]={pill:mkPill(k)}});
   // el brillo de la barra de "Escuchá" no cambia; la de práctica sube
  };
- return {C,lib:{setTxt,recenter,mkBar,mkPill},
+ return {C,lib:{setTxt,setRuns,runsOf,recenter,mkBar,mkPill},
   addH(H){const BK2=[14,42,56,52];
    H.u2a=[[...BK2,'u2:back'],[55,621,212,46,'u2b']];
    H.u2b=[[...BK2,'u2:back'],[41+1,528+3,44,44,'u2s:play'],[55,621,212,46,'u2c']];
@@ -15694,6 +15700,8 @@ window.__splashIntro=(()=>{
   btns.forEach((e,i)=>an(e,[{opacity:0,translate:'0px 18px'},{opacity:1,translate:'0px 0px'}],520,1020+Math.floor(i/2)*110));
   spk.forEach((e,i)=>an(e,[{opacity:0,scale:'0',rotate:'-90deg'},{opacity:1,scale:'1.3',rotate:'10deg',offset:.65},{opacity:1,scale:'1',rotate:'0deg'}],600,650+i*140,'ease-out'))};
  return run})();
+(()=>{const W={Light:300,Regular:400,Medium:500,SemiBold:600,Semibold:600,Bold:700};   // "Fredoka-SemiBold" no existe como letra aparte: se usa Fredoka con su peso
+ svg.querySelectorAll('text,tspan').forEach(e=>{const ff=getComputedStyle(e).fontFamily,m=ff.match(/^"?Fredoka-(\w+)/);if(m&&W[m[1]]){e.style.fontFamily='Fredoka';e.style.fontWeight=W[m[1]]}})})();
 __n2.init();__u2.init();__u3.init();
 show('splash');
 __splashIntro();
