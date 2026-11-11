@@ -17996,7 +17996,7 @@ window.__u3=(()=>{
   const RND=[{idle:'m3e',ok:'m3g',casi:'m3f',strum:[[5,3],[4,2],[3,0],[2,1],[1,0]]},{idle:'m3k',ok:'m3l',strum:[[6,3],[5,2],[4,0],[3,0],[2,0],[1,3]]},{idle:'m3m',ok:'m3n',strum:[[4,0],[3,2],[2,3],[1,2]]}];
   const IDLE=RND.map(r=>r.idle),OKS=RND.map(r=>r.ok);
   const OPEN=[64,59,55,50,45,40],freq=(st,fr)=>440*Math.pow(2,(OPEN[st-1]+fr-69)/12);
-  const YEL='#f9d138',GRAYS='#c9c8c8',STEPS=10;
+  const YEL='#f9d138',GRAYS='#c9c8c8',STEPS=12;
   const pluck=f=>{try{__n2.h.pluck(f)}catch(e){}},nope=()=>{try{__n2.h.nope()}catch(e){}};
   const strum=r=>RND[r].strum.forEach(([s,f],i)=>setTimeout(()=>pluck(freq(s,f)),i*55));
   const showF=k=>{window.__instant=1;try{go(k,0)}finally{window.__instant=0}};
@@ -18054,7 +18054,7 @@ window.__u3=(()=>{
     const FR2="Fredoka, system-ui, sans-serif",SW="Switzer-Medium, Switzer";
     ['m3','m3modal'].forEach(k=>F(k,/^Armonía y acordes$/,FR2,500));F('m3',/^2\. Grillas/,FR2,500);
     ['m3h','m3i','m3j'].forEach(k=>F(k,/^Formá Do mayor en tu guitarra/,SW,0));['m3o','m3p'].forEach(k=>F(k,/^Ya sabés/,SW,0))}
-   prepWorld();prepCarousel();prepFloat();prepListen();
+   prepWorld();prepCarousel();prepFloat();prepListen();prepToc();setToc(0);
   };
   // ----- pantalla del Mundo 3: arranca en 0 -----
   const W={};
@@ -18120,7 +18120,7 @@ window.__u3=(()=>{
   const setPills=(n,popIdx)=>{[...PR,'m3o','m3p'].forEach(k=>{const p=C[k]&&C[k].pill;if(!p)return;p.forEach((s,j)=>{s.style.fill=j<n?YEL:GRAYS;s.style.stroke=j<n?YEL:GRAYS;
     if(popIdx===j&&cur===k&&s.animate){s.style.transformBox='fill-box';s.style.transformOrigin='50% 50%';s.animate([{scale:'1'},{scale:'1.7',offset:.4},{scale:'1'}],{duration:480,easing:'ease-out'})}})})};
   const bars=anim=>PR.forEach(k=>{const c=C[k];if(!c||!c.bar)return;c.bar.set(Math.min(1,st.steps/STEPS),anim&&cur===k,0)});
-  const reset=()=>{st.ri=0;st.placed=[];st.wrongs=0;st.tries=0;st.steps=0;st.stars=0;st.busy=0;RND.forEach((R,i)=>render(R.idle,false));setPills(0);bars(false)};
+  const reset=()=>{if(window.__m3setToc)__m3setToc(0);st.ri=0;st.placed=[];st.wrongs=0;st.tries=0;st.steps=0;st.stars=0;st.busy=0;RND.forEach((R,i)=>render(R.idle,false));setPills(0);bars(false)};
   const render=(k,casi,bad)=>{const c=C[k];if(!c||!c.tg)return;const ri=IDLE.indexOf(k),mine=ri===st.ri?st.placed:[];
    [...c.ov.children].forEach(e=>{if(e!==c.miss)e.remove()});
    c.tg.forEach((t,i)=>{const on=mine.includes(i);t.els.forEach(e=>e.style.display=on?'none':'');
@@ -18136,14 +18136,22 @@ window.__u3=(()=>{
    else{st.wrongs++;let best=null,bd=1e9;c.tg.forEach((t,j)=>{if(st.placed.includes(j))return;const d=Math.hypot(t.x-x,t.y-y);if(d<bd){bd=d;best=t}});
     if(c.casiTxt&&best)Lb.setTxt(c.casiTxt,'El dedo '+best.fin+' va en la '+best.st+'.ª cuerda.');render(k,true,cell);setTimeout(nope,120)}};
   const starsFor=ri=>Math.min(allowed(),ri+1);
-  const okEnter=k=>{const ri=OKS.indexOf(k);const n=ri>=0?starsFor(ri):k==='m3j'?Math.min(allowed(),1):st.stars;const up=n>st.stars;st.stars=Math.max(st.stars,n);
+  const okEnter=k=>{const ri=OKS.indexOf(k);const n=ri>=0?starsFor(ri):k==='m3j'?Math.max(st.stars,Math.min(allowed(),1)):st.stars;const up=n>st.stars;st.stars=Math.max(st.stars,n);
    setPills(st.stars,up?st.stars-1:-1);if(window.__sfx&&up)setTimeout(()=>__sfx('star',.21,1.1),160);bars(true);__cont.show(k,true,true)};
-  const listen=()=>{if(st.busy)return;const k=cur;st.busy=1;st.tries++;strum(0);
-   setTimeout(()=>{st.busy=0;if(cur!==k)return;if(st.tries<2){showF('m3i');setTimeout(nope,120)}else{st.steps=Math.max(st.steps,4);showF('m3j');okEnter('m3j')}},1500)};
-  const next=()=>{const m={m3g:'m3h',m3j:'m3k',m3l:'m3m',m3n:'m3o'}[cur];if(!m)return;
+  // ¡A tocar!: las mismas pantallas del tablero para Do, Sol y Re (cambia el nombre del acorde y la pista)
+  const TOC=[{n:'Do mayor',c:'C',d:'5a',f:'3'},{n:'Sol mayor',c:'G',d:'6a',f:'2'},{n:'Re mayor',c:'D',d:'4a',f:'1'}];
+  const TX={};
+  const prepToc=()=>{['m3h','m3i','m3j'].forEach(k=>{const w=fwOf(k);if(!w)return;[...w.querySelectorAll('text')].forEach(e=>{const s=e.textContent.trim();
+    if(/^Formá Do mayor en tu guitarra/.test(s)||/^Rasgueá desde la/.test(s)||/^el dedo \d y probá/.test(s)||/^¡Sonó como un Do mayor/.test(s)){const o=loc(e,k);(TX[k]=TX[k]||[]).push({e,s0:s,cx:o.x+o.w/2,mid:/^Formá/.test(s)})}})})};
+  const setToc=i=>{st.ti=i;const T=TOC[i];Object.keys(TX).forEach(k=>TX[k].forEach(o=>{const s=o.s0.replace('Do mayor (C)',T.n+' ('+T.c+')').replace('Do mayor',T.n).replace(/desde la \d+a/,'desde la '+T.d).replace(/el dedo \d/,'el dedo '+T.f);
+    Lb.setTxt(o.e,s);if(o.mid){o.e.style.translate='';try{const q=loc(o.e,k);o.e.style.translate=(o.cx-(q.x+q.w/2)).toFixed(2)+'px 0px'}catch(_){}}}))};
+  const listen=()=>{if(st.busy)return;const k=cur,ti=st.ti||0;st.busy=1;st.tries++;strum(ti);
+   setTimeout(()=>{st.busy=0;if(cur!==k)return;if(ti===0&&st.tries<2){showF('m3i');setTimeout(nope,120)}else{st.steps=Math.max(st.steps,[4,8,12][ti]);showF('m3j');okEnter('m3j')}},1500)};
+  const next=()=>{const m={m3g:'m3h',m3j:['m3k','m3m','m3o'][st.ti||0],m3l:'m3h',m3n:'m3h'}[cur];if(!m)return;if(m==='m3h')setToc({m3g:0,m3l:1,m3n:2}[cur]);
    if(m==='m3k'){st.ri=1;st.placed=[];st.busy=0}if(m==='m3m'){st.ri=2;st.placed=[];st.busy=0}if(m==='m3h'){st.tries=0;st.busy=0}
    if(m==='m3o'){st.done=true;st.best=Math.max(st.best,st.stars=Math.max(1,Math.min(st.stars,allowed())))}
    IDLE.forEach(q=>render(q,false));go(m,1)};
+  window.__m3setToc=i=>{try{setToc(i)}catch(e){}};
   return {C,K,get st(){return st},
    addH(H){const BK2=[14,42,56,52];
     H.m3=[[...BK2,'mapa'],[65,337,239,69,'m3a']];H.m3modal=[[55,496,212,44,'m3'],[250,150,34,34,'mapa']];
@@ -18196,6 +18204,10 @@ function islandEls(rc,fk){fk=fk||'mapa';
   if(w>=110&&w<=165&&h>=110&&h<=165){const iw=Math.max(0,Math.min(x+w,rc[0]+rc[2])-Math.max(x,rc[0])),ih=Math.max(0,Math.min(y+h,rc[1]+rc[3])-Math.max(y,rc[1])),iou=iw*ih/(w*h+rc[2]*rc[3]-iw*ih);if(iou>bi){bi=iou;best=g}}
   else if(g.children.length===3&&w>=36&&w<=44&&h>=36&&h<=44){bad.push([g,x+w/2,y+h/2])}});
  if(best)list.push(best);bad.forEach(([g,cx,cy])=>{if(cx>rc[0]-8&&cx<rc[0]+rc[2]+8&&cy>rc[1]&&cy<rc[1]+rc[3]+30)list.push(g)});
+  // piezas sueltas de la isla (bandera, mástil, ícono): se mueven con ella
+  if(best&&best.parentNode)[...best.parentNode.children].forEach(e=>{if(e===best||list.includes(e)||e.tagName==='text')return;let b;try{b=e.getBBox()}catch(_){return}if(!b.width&&!b.height)return;
+   const q=absPt(e,b.x,b.y),q2=absPt(e,b.x+b.width,b.y+b.height),w=q2[0]-q[0],h=q2[1]-q[1],cx=(q[0]+q2[0])/2-fx,cy=(q[1]+q2[1])/2-fy;
+   if(w<=60&&h<=70&&cx>rc[0]-10&&cx<rc[0]+rc[2]+10&&cy>rc[1]-50&&cy<rc[1]+rc[3]&&!(w>=36&&w<=44&&h>=36&&h<=44))list.push(e)});
  return ISL[key]=list}
 function islandTap(rc,to,r){
  if(window.__scrolled||SLIDING)return;
@@ -18209,7 +18221,7 @@ function islandTap(rc,to,r){
 const BTNC=new WeakMap();
 function greenIn(g){const f=e=>{const m=/rgb\((\d+), (\d+), (\d+)\)/.exec(getComputedStyle(e).fill);return !!m&&+m[2]>=150&&+m[2]-+m[1]>=40&&+m[2]-+m[3]>=90};
  return f(g)||[...g.querySelectorAll('path,rect,circle')].some(f)}
-function btnBounce(r,to){try{if(!r||!r.getAttribute||(cur==='mapa'&&to==='m1modal')||cur==='practica')return false;let els=BTNC.get(r);
+function btnBounce(r,to){try{if(!r||!r.getAttribute||cur==='mapa'||cur==='practica')return false;let els=BTNC.get(r);
  const w=svg.querySelector('g.fw[data-f="'+cur+'"]');if(!w)return false;
  const _p=absPt(r,+r.getAttribute('x'),+r.getAttribute('y'));if(r._ck!==Math.round(_p[1])){els=null;r._ck=Math.round(_p[1])}   // si la lista está desplazada, la zona táctil se mide donde está ahora
  if(!els){els=[];let rx=_p[0],ry=_p[1],rw=+r.getAttribute('width'),rh=+r.getAttribute('height');const pad=3;
@@ -18345,7 +18357,7 @@ function show(k){if(SLIDING)SLIDING.finish();if((k==='cw'||k==='cf'||k==='mapa')
  if(((prevK==='comW'&&k==='comHub')||(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa'))&&document.startViewTransition&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){   // las ventanas de bienvenida comparten el mismo fondo: solo se funde la ventana, sin mover nada de la pantalla
   NAVDIR=1;svg.style.transition='';svg.style.opacity=1;try{document.startViewTransition(()=>{cur=k;if(window.__m1reset)__m1reset(k);if(window.__prog)__prog(k);core(k);svg.style.opacity=1});return}catch(e){}}
  if(prevK!==k&&!tg&&canSlide(prevK,k)){if(/^m1[bc]?$/.test(prevK)&&k==='mapa')NAVDIR=-1;   // volver: la pantalla anterior entra desde la izquierda
-  if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,(window.__zoomPair&&__zoomPair(prevK,k))?'zoom':(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa')||(prevK==='comW'&&k==='comHub')||(prevK==='mapa'&&k==='m1modal')||(prevK==='mapa'&&k==='m3modal')||(prevK==='m3modal'&&k==='mapa')||(prevK==='m1modal'&&k==='mapa')||(prevK==='c1'&&k==='lg')||(['u2c','u2ck','u2cx'].includes(prevK)&&k==='u2d')||(prevK==='u2dp'&&/^m1/.test(k))||(prevK==='lg'&&k==='lgm')||(prevK==='lgm'&&/^m1/.test(k))||(prevK==='n2c'&&k==='n2d')||(prevK==='n2d'&&/^m1/.test(k))||(['u2a','u2b'].includes(prevK)&&['u2a','u2b'].includes(k))||(['u3a','u3b','u3c'].includes(prevK)&&['u3a','u3b','u3c'].includes(k))||(['u3d','u3r2','u3r3','u3dx','u3dk'].includes(prevK)&&k==='u3e')||(prevK==='u3f'&&/^m1/.test(k))||(['m3a','m3b','m3c','m3d'].includes(prevK)&&['m3a','m3b','m3c','m3d'].includes(k))||(prevK==='m3n'&&k==='m3o')||(prevK==='m3p'&&k==='m3'));return}
+  if(nn){const ia=__nav.ix(prevK),ib=__nav.ix(k);if(ia!==ib)NAVDIR=ib>ia?1:-1}slideTo(prevK,k,(window.__zoomPair&&__zoomPair(prevK,k))?'zoom':(prevK==='cw'&&k==='cf')||((prevK==='cw'||prevK==='cf')&&k==='mapa')||(prevK==='comW'&&k==='comHub')||(prevK==='mapa'&&k==='m1modal')||(prevK==='mapa'&&k==='m3modal')||(prevK==='m3modal'&&k==='mapa')||(prevK==='m1modal'&&k==='mapa')||(prevK==='c1'&&k==='lg')||(['u2c','u2ck','u2cx'].includes(prevK)&&k==='u2d')||(prevK==='u2dp'&&/^m1/.test(k))||(prevK==='lg'&&k==='lgm')||(prevK==='lgm'&&/^m1/.test(k))||(prevK==='n2c'&&k==='n2d')||(prevK==='n2d'&&/^m1/.test(k))||(['u2a','u2b'].includes(prevK)&&['u2a','u2b'].includes(k))||(['u3a','u3b','u3c'].includes(prevK)&&['u3a','u3b','u3c'].includes(k))||(['u3d','u3r2','u3r3','u3dx','u3dk'].includes(prevK)&&k==='u3e')||(prevK==='u3f'&&/^m1/.test(k))||(['m3a','m3b','m3c','m3d'].includes(prevK)&&['m3a','m3b','m3c','m3d'].includes(k))||(prevK==='m3n'&&k==='m3o')||(prevK==='m3j'&&k==='m3o')||(prevK==='m3p'&&k==='m3'));return}
  const pL=FR[prevK]&&FR[prevK][2]>FR[prevK][3],kL=FR[k]&&FR[k][2]>FR[k][3];
  if(prevK!==k&&FR[prevK]&&FR[k]&&pL!==kL&&svg.animate&&!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){   // vertical <-> horizontal: el teléfono "gira"
   NAVDIR=1;const to=kL?1:-1;svg.style.transition='';svg.style.opacity=1;
