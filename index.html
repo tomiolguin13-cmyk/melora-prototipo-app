@@ -18453,9 +18453,9 @@ function islandEls(rc,fk){fk=fk||'mapa';
   else if(g.children.length===3&&w>=36&&w<=44&&h>=36&&h<=44){bad.push([g,x+w/2,y+h/2])}});
  if(best)list.push(best);bad.forEach(([g,cx,cy])=>{if(cx>rc[0]-8&&cx<rc[0]+rc[2]+8&&cy>rc[1]&&cy<rc[1]+rc[3]+30)list.push(g)});
   // piezas sueltas de la isla (bandera, mástil, ícono): se mueven con ella
-  if(best&&best.parentNode)[...best.parentNode.children].forEach(e=>{if(e===best||list.includes(e)||e.tagName==='text')return;let b;try{b=e.getBBox()}catch(_){return}if(!b.width&&!b.height)return;
+  if(best&&best.parentNode){const pick=[];[...best.parentNode.children].forEach(e=>{if(e===best||list.includes(e)||e.tagName==='text')return;let b;try{b=e.getBBox()}catch(_){return}if(!b.width&&!b.height)return;
    const q=absPt(e,b.x,b.y),q2=absPt(e,b.x+b.width,b.y+b.height),w=q2[0]-q[0],h=q2[1]-q[1],cx=(q[0]+q2[0])/2-fx,cy=(q[1]+q2[1])/2-fy;
-   if(w<=60&&h<=70&&cx>rc[0]-10&&cx<rc[0]+rc[2]+10&&cy>rc[1]-50&&cy<rc[1]+rc[3]&&!(w>=36&&w<=44&&h>=36&&h<=44))list.push(e)});
+   if(w<=60&&h<=70&&cx>rc[0]-10&&cx<rc[0]+rc[2]+10&&cy>rc[1]-50&&cy<rc[1]+rc[3]&&!(e.tagName==='g'&&w>=36&&w<=44&&h>=36&&h<=44))pick.push(e)});pick.filter(e=>!pick.some(o=>o!==e&&o.contains(e))).forEach(e=>list.push(e))}
  return ISL[key]=list}
 function islandTap(rc,to,r){
  if(window.__scrolled||SLIDING)return;
@@ -19485,7 +19485,10 @@ window.__tut=(()=>{
  const calm=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
  const grupo=els=>{   // mete la isla y su número en un mismo grupo, sin moverlos de lugar
    const ancla=els[els.length-1],par=ancla.parentNode,g=document.createElementNS(NS,'g');g.setAttribute('class','isla-bloque');par.insertBefore(g,ancla);
-   const inv=g.getCTM().inverse();els.forEach(e=>{const m=inv.multiply(e.getCTM());g.appendChild(e);e.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')')});return g};
+   const rel=e=>{let m=svg.createSVGMatrix(),n=e;const path=[];while(n&&n!==svg){path.unshift(n);n=n.parentNode}   // solo los transform del dibujo (sin animaciones en curso)
+     const ip=path.indexOf(par);for(const x of path.slice(ip+1)){const c=x.transform&&x.transform.baseVal.consolidate();if(c)m=m.multiply(c.matrix)}
+     if(ip<0){const ci=par.getCTM().inverse();m=ci.multiply(e.getCTM())}return m};
+    const ms=els.map(rel);els.forEach((e,i)=>{const m=ms[i];g.appendChild(e);e.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')')});return g};   // las posiciones se toman todas antes de mover nada
  const linea=()=>{const w=svg.querySelector('g.fw[data-f="mapa"]');if(!w)return null;
    return [...w.querySelectorAll('path')].find(e=>{const d=getComputedStyle(e).strokeDasharray;return d&&d!=='none'})||null};
  const clouds=(fk)=>{const w=svg.querySelector('g.fw[data-f="'+(fk||'mapa')+'"]');if(!w)return[];
