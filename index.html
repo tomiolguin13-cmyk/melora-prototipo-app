@@ -15178,7 +15178,13 @@ function slideTo(a,b,fade){
  if(window.__m1reset)__m1reset(b);if(window.__prog)__prog(b);applyBG(b);
  const x1=ox,y1=oy,w1=bw,h1=bh,T=zoom?820:agua?1175:fade?330:365,t0=performance.now(),ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;let raf=0,done=false;
  let bkO=null,bkA=null,bkB=null;
- const finish=()=>{if(done)return;done=true;cancelAnimationFrame(raf);SLIDING=null;if(bkO){bkO.remove();bkA.removeAttribute('visibility');bkB.removeAttribute('visibility');bkO=null}
+ // fondo celeste (introducción) <-> violeta (práctica): el color cambia de forma continua, sin corte entre pantallas
+ const bgOf=(w,k,org)=>{const [,,fw,fh]=FR[k],fx=org[0],fy=org[1];let r=null;w.querySelectorAll('rect,path').forEach(c=>{let b;try{b=c.getBBox()}catch(e){return}if(b.width<fw-6||b.height<fh-6)return;const f=getComputedStyle(c).fill;if(!/^rgb\(/.test(f))return;const q=absPt(c,b.x,b.y);if(Math.abs(q[0]-fx)<4&&Math.abs(q[1]-fy)<4)r=[c,f.match(/\d+/g).map(Number),(r?r[2]:[]).concat([c])]});return r};
+ const BGL=(()=>{try{const A=bgOf(wa,a,[ax,ay]),B=bgOf(wb,b,[ox,oy]),blue=[82,184,231],vio=[118,77,196],eq=(x,y)=>x.every((v,i)=>Math.abs(v-y[i])<4);
+  if(!A||!B)return null;if(!((eq(A[1],blue)&&eq(B[1],vio))||(eq(A[1],vio)&&eq(B[1],blue))))return null;return {els:A[2].concat(B[2]),c0:A[1],c1:B[1]}}catch(e){return null}})();
+ const bgSet=t=>{if(!BGL)return;const c='rgb('+BGL.c0.map((v,i)=>Math.round(v+(BGL.c1[i]-v)*t)).join(',')+')';BGL.els.forEach(e=>e.style.fill=c)};
+ bgSet(0);
+ const finish=()=>{if(done)return;done=true;cancelAnimationFrame(raf);SLIDING=null;if(BGL)BGL.els.forEach(e=>e.style.fill='');if(bkO){bkO.remove();bkA.removeAttribute('visibility');bkB.removeAttribute('visibility');bkO=null}
   // se devuelve todo a su lugar (orden original y posiciones)
   if(W){W.cp.remove();W.espuma.remove()}
   [gA,gB].forEach(o=>{o.list.forEach(w=>{const pl=places.find(p=>p[0]===w),ref=pl&&pl[1],par=o.g.parentNode;par.insertBefore(w,ref&&ref.parentNode===par?ref:o.g)});o.g.remove();o.cp.remove()});if(W)W.wr.remove();
@@ -15196,7 +15202,7 @@ function slideTo(a,b,fade){
   if(ea&&eb){const m=svg.getScreenCTM().inverse().multiply(ea.getScreenCTM());bkO=document.createElementNS(NS2,'g');bkO.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')');bkO.setAttribute('pointer-events','none');bkO.__m=m;
    {const cl2=ea.cloneNode(true);cl2.removeAttribute('transform');bkO.appendChild(cl2)}bkA=ea;bkB=eb;ea.setAttribute('visibility','hidden');eb.setAttribute('visibility','hidden');svg.appendChild(bkO)}}catch(e){bkO=null}}
  SLIDING={finish};
- const step=ts=>{if(done)return;const k=Math.min(1,(ts-t0)/T),e=ease(k);
+ const step=ts=>{if(done)return;const k=Math.min(1,(ts-t0)/T),e=ease(k);bgSet(zoom?ease(Math.min(1,k/.9)):e);
   if(agua){const ola=(lev,amp,fase)=>{let d='M'+x1+' '+(y1+h1+40);for(let x=0;x<=w1+6;x+=6){const yy=lev+amp*Math.sin(x/w1*Math.PI*3.2+fase)+amp*.45*Math.sin(x/w1*Math.PI*7.1-fase*1.7);d+=' L'+(x1+x).toFixed(1)+' '+yy.toFixed(1)}return d+' L'+(x1+w1+6)+' '+(y1+h1+40)+' Z'};
    const amp=11*Math.sin(Math.PI*Math.min(1,k*1.05)),fase=k*9,lev=y1+h1+24-(h1+60)*e;
    W.cpp.setAttribute('d',ola(lev,amp,fase));W.espuma.setAttribute('d',ola(lev-16*(1-k),amp*1.15,fase+1.3))}
