@@ -20631,8 +20631,22 @@ window.__splashIntro=(()=>{
 __n2.init();__u2.init();__u3.init();try{__m3.init()}catch(e){window.__m3err=String(e&&e.stack||e)}
  // rendimiento: solo queda dibujada la pantalla actual (y la que entra mientras dura la transición); las demás se apagan con display:none
  try{const FWS=[...svg.querySelectorAll('g.fw')],byK={};FWS.forEach(f=>{(byK[f.dataset.f]=byK[f.dataset.f]||[]).push(f)});let cT=0,ready=false;
-  const on=k=>{(byK[k]||[]).forEach(f=>f.removeAttribute('display'));if(k==='canciones')(byK.csat||[]).forEach(f=>f.removeAttribute('display'))};
-  const cull=()=>{if(typeof SLIDING!=='undefined'&&SLIDING){cT=setTimeout(cull,300);return}FWS.forEach(f=>{const k=f.dataset.f;if(k===cur||(k==='csat'&&cur==='canciones'))f.removeAttribute('display');else f.setAttribute('display','none')})};
+  // Las pantallas que no se ven se guardan fuera del dibujo principal (en un contenedor apagado): así mover la cámara no obliga
+  // al navegador a recalcular las ~15.000 piezas de todas las pantallas, solo las de la que está a la vista.
+  const NSP='http://www.w3.org/2000/svg',park=document.createElementNS(NSP,'svg');park.id='park';park.setAttribute('width','0');park.setAttribute('height','0');park.style.cssText='position:absolute;width:0;height:0;display:none';document.body.appendChild(park);
+  const HOLD=new Map();FWS.forEach(f=>{const m=document.createComment('fw');f.parentNode.insertBefore(m,f);HOLD.set(f,m)});
+  const qs=svg.querySelector.bind(svg),qsa=svg.querySelectorAll.bind(svg);
+  svg.querySelector=sel=>qs(sel)||park.querySelector(sel);
+  svg.querySelectorAll=sel=>{const b=park.querySelectorAll(sel);if(!b.length)return qsa(sel);return [...qsa(sel),...b]};
+  const unpark=f=>{f.removeAttribute('display');if(f.parentNode===park){const m=HOLD.get(f);m.parentNode.insertBefore(f,m.nextSibling)}};
+  const doPark=f=>{if(f.parentNode!==park)park.appendChild(f)};
+  const on=k=>{(byK[k]||[]).forEach(unpark);if(k==='canciones')(byK.csat||[]).forEach(unpark)};
+  const cull=()=>{if(typeof SLIDING!=='undefined'&&SLIDING){cT=setTimeout(cull,300);return}FWS.forEach(f=>{const k=f.dataset.f;if(k===cur||(k==='csat'&&cur==='canciones'))unpark(f);else doPark(f)})};
+  const TMP=new Set();let TMPt=0;
+  // si algún módulo mide una pieza de una pantalla guardada, esa pantalla vuelve un instante al dibujo para medirla bien
+  [[SVGGraphicsElement.prototype,['getBBox','getCTM','getScreenCTM']],[SVGGeometryElement.prototype,['getTotalLength','getPointAtLength','isPointInFill','isPointInStroke']],[SVGTextContentElement.prototype,['getComputedTextLength','getNumberOfChars','getSubStringLength','getStartPositionOfChar','getExtentOfChar']]].forEach(([P,ns])=>ns.forEach(n=>{const o=P[n];if(!o)return;
+   P[n]=function(...r){if(this.ownerSVGElement!==park&&!(this.parentNode&&this.closest&&this.closest('#park')))return o.apply(this,r);const f=this.closest('g.fw');if(!f||f.parentNode!==park)return o.apply(this,r);unpark(f);TMP.add(f);if(!TMPt)TMPt=setTimeout(()=>{TMPt=0;TMP.forEach(g=>{const k=g.dataset.f;if(k!==cur&&!(k==='csat'&&cur==='canciones')&&!(typeof SLIDING!=='undefined'&&SLIDING))doPark(g)});TMP.clear()},0);return o.apply(this,r)}}));
+  window.__park={on,cull};
   const _go=go;go=function(k,...r){if(ready){on(k);on(cur)}clearTimeout(cT);const o=_go.call(this,k,...r);if(ready){on(cur);cT=setTimeout(cull,1500)}return o};
   // antes de apagar las pantallas se buscan sus fondos (para el cambio de color de las transiciones), de a poco para no trabar
   const BC=window.__bgCand=window.__bgCand||{},keys=Object.keys(FR).filter(k=>byK[k]);let ki=0;
