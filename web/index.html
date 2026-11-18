@@ -18,6 +18,12 @@ a{color:#ffffff}a:hover{color:#efe3f7}
 .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hero-gtr{position:absolute;left:31%;top:2%;height:118%;width:auto;pointer-events:none}
 .hero-txt{position:absolute;left:4.6%;top:48%;transform:translateY(-50%);width:36%;display:flex;flex-direction:column;gap:1.6vw}
+.proba{position:relative;aspect-ratio:1440/612;overflow:hidden;background:#161412}
+.proba-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.proba-txt{position:absolute;left:4.7%;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px}
+.mundos-head{position:relative;aspect-ratio:1440/330;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:0 5vw}
+.mundos-head img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.mundos-head>*:not(img){position:relative;z-index:1}
 .mundo{display:flex;gap:80px;align-items:center;max-width:1280px;margin:0 auto}
 .mundo.inv{flex-direction:row-reverse}
 .mundo-img{flex:0 0 480px;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center}
@@ -33,17 +39,22 @@ a{color:#ffffff}a:hover{color:#efe3f7}
 @media (prefers-reduced-motion:reduce){.btn3d,.tile{animation:none !important}}
 .tile{transition:transform .08s}
 .tile:hover{transform:translateY(-2px)}
-.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.tiles{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.tiles>.tile{flex:0 1 196px;min-width:0}
 .leccion{display:flex;flex-wrap:wrap;gap:40px;align-items:center}
 .navlinks{display:flex;gap:44px}
 @media (max-width:900px){
 .hero{aspect-ratio:auto;background:#f6f4f4}
 .hero-bg{position:static;display:block;width:100%;height:280px;object-fit:cover;object-position:88% 50%}
 .hero-txt{position:static;transform:none;width:auto;padding:32px 20px 28px;gap:16px}
-.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tiles>.tile{flex:1 1 40%}
 .mundos{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
 .hero{min-height:0}
 .navlinks{display:none}
+.proba{aspect-ratio:auto;padding:48px 20px}
+.proba-bg{opacity:.35}
+.proba-txt{position:relative;left:auto;top:auto;transform:none}
+.mundos-head{aspect-ratio:auto;padding:56px 20px}
 .mundo,.mundo.inv{flex-direction:column;gap:28px}
 .mundo-img{flex:none;width:min(320px,80vw)}
 }
@@ -55,7 +66,7 @@ a{color:#ffffff}a:hover{color:#efe3f7}
 <template id="tpl">
 <div style="font-family: Fredoka, system-ui, sans-serif; color: #1d1e1c; background: #f6f4f4; min-height: 100vh">
 
-  <nav style="background: #743c8c; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 5vw; flex-wrap: wrap">
+  <nav style="background: {{navColor}}; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 5vw; flex-wrap: wrap">
     <div style="display: flex; align-items: center; gap: 64px">
       <a href="#inicio" onClick="{{irInicio}}" aria-label="Melora, inicio" style="display: flex; align-items: center">
         <svg viewBox="95 240 700 200" style="height: 36px; width: auto" role="img" aria-label="Melora">
@@ -77,29 +88,23 @@ a{color:#ffffff}a:hover{color:#efe3f7}
   <sc-if value="{{enInicio}}" hint-placeholder-val="{{ true }}">
     <div>
       <section id="inicio" class="hero">
-        <img class="hero-bg" src="img/hero3.webp" alt="">
+        <img class="hero-bg" src="img/hero4.webp" alt="">
         <div class="hero-txt">
           <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: clamp(14px, 1.3vw, 20px); letter-spacing: 0.02em; color: #0f9ad6">APRENDÉ MÚSICA A TU MANERA</p>
-          <h1 class="h1">Tu <span style="color: #743c8c">camino musical</span> empieza hoy.</h1>
+          <h1 class="h1">Tu <span style="color: #734893">camino musical</span> empieza hoy</h1>
           <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; align-self: flex-start">
-            <button class="btn3d" type="button" onClick="{{empezarHero}}" style="font-family: Fredoka, sans-serif; font-weight: 500; font-size: clamp(18px, 1.9vw, 28px); color: #ffffff; background: #21a4de; border: 0; border-radius: 999px; padding: 0.45em 2.4em; box-shadow: 0 4px 0 #0187a8; cursor: pointer; {{bHero}}">Comenzar</button>
-            <span style="font-family: Inter, system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 17px); color: #3c4b57; text-align: center; line-height: 1.35">Descubrí tu nivel<br>en un minuto</span>
+            <button class="btn3d" type="button" onClick="{{empezarHero}}" style="font-family: Fredoka, sans-serif; font-weight: 600; font-size: clamp(18px, 1.9vw, 28px); color: #ffffff; background: #21a4de; border: 0; border-radius: 999px; padding: 0.45em 2.4em; box-shadow: 0 4px 0 #1b86b5; cursor: pointer; {{bHero}}">Comenzar</button>
+            <span style="font-family: Inter, system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 17px); color: #3c4b57; text-align: center; line-height: 1.35">Descubrí tu nivel en un minuto.</span>
           </div>
         </div>
       </section>
 
-      <section id="como-funciona" style="background: #d9effb; padding: 72px 5vw">
-        <div class="leccion" style="max-width: 1280px; margin: 0 auto">
-          <div style="flex: 1 1 340px; display: flex; flex-direction: column; gap: 16px">
-            <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 17px; letter-spacing: 0.02em; color: #0f9ad6">PROBÁ UNA LECCIÓN</p>
-            <h2 style="margin: 0; font-size: clamp(32px, 3.4vw, 48px); line-height: 1.05; font-weight: 600">¿Cómo se siente<br><span style="color: #743c8c">aprender jugando</span>?</h2>
-            <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 19px; line-height: 1.45; color: #3c4b57; max-width: 400px">Tocá la nota en el momento justo y descubrí lo divertido que puede ser aprender guitarra.</p>
-            <a class="btn3d" onClick="{{demo}}" href="../" style="align-self: flex-start; text-decoration: none; font-weight: 500; font-size: 24px; color: #ffffff; background: #743c8c; border-radius: 999px; padding: 12px 40px; box-shadow: 0 4px 0 #4e2660; {{bDemo}}">Probar demo</a>
-          </div>
-          <div style="flex: 3 1 520px; display: flex; align-items: center; gap: 2%; min-width: 0">
-            <img src="img/tel-practica.webp" alt="Práctica de Hotel California en la app" style="width: 66%; height: auto">
-            <img src="img/tel-camino.webp" alt="Pantalla Mi Camino de la app" style="width: 30%; height: auto">
-          </div>
+      <section id="como-funciona" class="proba">
+        <img class="proba-bg" src="img/proba.jpg" alt="Melora en un celular: práctica de Hotel California">
+        <div class="proba-txt">
+          <h2 style="margin: 0; font-size: clamp(32px, 3.2vw, 47px); line-height: 1.08; font-weight: 500; color: #ffffff">¿Cómo se siente<br><span style="color: #3ebbf2">aprender jugando</span>?</h2>
+          <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 20px; line-height: 1.25; color: #ffffff; max-width: 320px">Tocá la nota en el momento justo y descubrí lo divertido que puede ser aprender guitarra.</p>
+          <a class="btn3d" onClick="{{demo}}" href="../" style="align-self: flex-start; margin-top: 22px; text-decoration: none; font-weight: 600; font-size: 26px; color: #ffffff; background: #21a4de; border-radius: 999px; padding: 12px 0; width: 293px; text-align: center; box-shadow: 0 4px 0 #1b86b5; {{bDemo}}">Probar demo</a>
         </div>
       </section>
     </div>
@@ -107,10 +112,10 @@ a{color:#ffffff}a:hover{color:#efe3f7}
 
   <sc-if value="{{enMundos}}" hint-placeholder-val="{{ false }}">
     <div id="mundos">
-      <section style="background: #3fb4ec; padding: 64px 5vw 70px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px">
-        <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.08em; color: #ffffff">MUNDOS</p>
-        <h1 style="margin: 0; font-size: clamp(36px, 4vw, 56px); font-weight: 600; color: #ffffff; line-height: 1.05">Cada mundo, un nuevo desafío</h1>
-        <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 19px; color: #ffffff; max-width: 620px; line-height: 1.45">Explorá nuevos conceptos, practicá y llevá tu música al siguiente nivel.</p>
+      <section class="mundos-head">
+        <img src="img/mundos-head.webp" alt="">
+        <h1 style="margin: 0; font-size: clamp(36px, 4.4vw, 64px); font-weight: 500; color: #ffffff; line-height: 1.05">Cada mundo, un nuevo desafío</h1>
+        <p style="margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 19px; color: #ffffff; max-width: 820px; line-height: 1.45">Explorá nuevos conceptos, practicá y llevá tu música al siguiente nivel.</p>
       </section>
       <sc-for list="{{mundos}}" as="m" hint-placeholder-count="4">
         <section style="{{m.fondo}}" data-mundo="{{m.idx}}">
@@ -138,9 +143,9 @@ a{color:#ffffff}a:hover{color:#efe3f7}
           </div>
         </section>
       </sc-for>
-      <section style="background: #743c8c; padding: 72px 5vw; display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center">
+      <section style="background: #9706c6; padding: 72px 5vw; display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center">
         <h2 style="margin: 0; font-size: clamp(30px, 3vw, 42px); font-weight: 600; color: #ffffff">¿Desde qué mundo arrancás vos?</h2>
-        <button class="btn3d" type="button" onClick="{{empezarMundos}}" style="font-family: Fredoka, sans-serif; font-size: 20px; font-weight: 600; color: #ffffff; background: #96c236; border: 0; border-radius: 999px; padding: 14px 36px; box-shadow: 0 4px 0 #6f9424; cursor: pointer; {{bMundos}}">Hacé el test de nivel</button>
+        <button class="btn3d" type="button" onClick="{{empezarMundos}}" style="font-family: Fredoka, sans-serif; font-size: 24px; font-weight: 600; color: #ffffff; background: #95d12c; border: 0; border-radius: 999px; padding: 13px 0; width: 293px; box-shadow: 0 4px 0 #429e1d; cursor: pointer; {{bMundos}}">Hacer test</button>
       </section>
     </div>
   </sc-if>
@@ -195,7 +200,7 @@ a{color:#ffffff}a:hover{color:#efe3f7}
           <div style="display: flex; flex-direction: column; align-items: center; gap: 22px">
             <h1 style="margin: 0; font-size: clamp(28px, 3.2vw, 40px); font-weight: 600; text-align: center">Analizando tus respuestas...</h1>
             <div style="display: flex; align-items: center; gap: 14px; width: 100%; max-width: 460px">
-              <div style="flex: 1; height: 16px; border-radius: 8px; background: #ece7f0; overflow: hidden"><div style="{{barraStyle}}"></div></div>
+              <div style="flex: 1; height: 16px; border-radius: 8px; background: #d3d3d3; overflow: hidden"><div style="{{barraStyle}}"></div></div>
               <span style="font-weight: 600; font-size: 18px; min-width: 48px; text-align: right">{{pctLabel}}</span>
             </div>
             <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; text-align: left; width: 100%; max-width: 460px">
@@ -292,7 +297,7 @@ class Component extends DCLogic {
       { q: '¿Cuál es tu nivel actual?', b: 'Esto nos ayuda a recomendarte el mejor punto de partida.', o: OBJ },
       { q: '¿Qué guitarra tenés?', b: 'Seleccioná tu instrumento', o: [
         { id: 'criolla', t: 'Criolla / Clásica', img: IMG.criolla }, { id: 'acustica', t: 'Acústica', img: IMG.acustica },
-        { id: 'electrica', t: 'Eléctrica', img: IMG.electrica }, { id: 'no', t: 'No tengo' }] },
+        { id: 'electrica', t: 'Eléctrica', img: IMG.electrica }] },
       { q: '¿Qué te gustaría lograr con la guitarra?', b: 'Elegí la opción que más te motive.', o: OBJ }
     ];
     const paso = s.paso, cur = P[paso];
@@ -329,19 +334,19 @@ class Component extends DCLogic {
     const RUTA = { primeras: 'Primeras canciones', riffs: 'Riffs y solos', acompanar: 'Acordes y acompañamiento', teoria: 'Teoría y lectura' }[s.resp[2]] || '';
     const GTR = { criolla: 'Criolla / Clásica', acustica: 'Acústica', electrica: 'Eléctrica', no: 'Todavía no tengo' }[s.resp[1]] || '';
     const MUNDOS = [
-      { n: 'Mundo 1', t: 'El instrumento y primeras melodías', img: 'img/m1.webp' },
-      { n: 'Mundo 2', t: 'El mástil, teoría y alteraciones', img: 'img/m2.webp' },
-      { n: 'Mundo 3', t: 'Armonía y acordes', img: 'img/m3.webp' },
-      { n: 'Mundo 4', t: 'Escalas, cejilla y círculo de quintas', img: 'img/m4.webp' }
+      { n: 'Mundo 1', t: 'El instrumento y primeras melodías', img: 'img/i1.webp' },
+      { n: 'Mundo 2', t: 'El mástil, teoría y alteraciones', img: 'img/i2.webp' },
+      { n: 'Mundo 3', t: 'Armonía y acordes', img: 'img/i3.webp' },
+      { n: 'Mundo 4', t: 'Escalas, cejilla y círculo de quintas', img: 'img/i4.webp' }
     ];
     const MDATA = [
-      { n: '1', t: 'El instrumento y primeras melodías', d: 'Conocé tu guitarra, aprendé las notas en las cuerdas al aire y tocá tus primeras melodías leyendo tablatura.', c: '#d9772c', tint: '#fbe7d6', img: 'img/m1.webp',
-        L: [['Partes de la guitarra', 'Lección'], ['Notas en cuerdas al aire', 'Lección'], ['Lectura en tablatura y digitación', 'Lección'], ['Canción de práctica: Hotel California (Básico)', 'Canción de práctica'], ['Canción de práctica: Smoke On The Water (Básico)', 'Canción de práctica']] },
-      { n: '2', t: 'El mástil, teoría y alteraciones', d: 'Recorré el mástil nota por nota y entendé cómo funcionan los tonos, los semitonos, los sostenidos y los bemoles.', c: '#7a3fa0', tint: '#efe3f7', img: 'img/m2.webp',
-        L: [['Registro de octavas', 'Lección'], ['Distancias: tonos y semitonos', 'Lección'], ['Sostenidos y bemoles', 'Lección'], ['El diapasón en cifrado americano', 'Lección']] },
-      { n: '3', t: 'Armonía y acordes', d: 'Armá tus primeros acordes, aprendé a pasar de uno a otro y empezá a acompañar canciones completas.', c: '#1f8466', tint: '#d8f0e7', img: 'img/m3.webp',
-        L: [['Construcción de acordes', 'Lección'], ['Grillas y posiciones', 'Lección'], ['Canción de práctica: Juntos a la par', 'Canción de práctica']] },
-      { n: '4', t: 'Escalas, cejilla y círculo de quintas', d: 'Dominá las escalas, la cejilla y el círculo de quintas para tocar en cualquier tono y llevar tu sonido más lejos.', c: '#d1334a', tint: '#fbdfe3', img: 'img/m4.webp',
+      { n: '1', t: 'El instrumento y primeras melodías', d: 'Conocé tu guitarra, aprendé las notas en las cuerdas al aire y tocá tus primeras melodías leyendo tablatura.', c: '#ffac41', tint: '#fbe7d6', img: 'img/i1.webp',
+        L: [['Partes de la guitarra', 'Lección'], ['Notas en cuerdas al aire', 'Lección'], ['Lectura en tablatura y digitación', 'Lección'], ['Canción de Práctica: Hotel California (Básico)', 'Canción de práctica'], ['Canción de Práctica: Smoke On The Water (Básico)', 'Canción de práctica']] },
+      { n: '2', t: 'El mástil, teoría y alteraciones', d: 'Recorré el mástil nota por nota y entendé cómo funcionan los tonos, los semitonos, los sostenidos y los bemoles.', c: '#7a3fa0', chip: '#4c2b8c', tint: '#efe3f7', img: 'img/i2.webp',
+        L: [['Registro de octavas', 'Lección'], ['Distancias: Tonos y semitonos', 'Lección'], ['Sostenidos y bemoles', 'Lección'], ['El diapasón en Cifrado Americano', 'Lección']] },
+      { n: '3', t: 'Armonía y acordes', d: 'Armá tus primeros acordes, aprendé a pasar de uno a otro y empezá a acompañar canciones completas.', c: '#479f35', tint: '#d8f0e7', img: 'img/i3.webp',
+        L: [['Construcción de acordes', 'Lección'], ['Grillas y posiciones', 'Lección'], ['Canción de Práctica: Juntos a la par', 'Canción de práctica']] },
+      { n: '4', t: 'Escalas, cejilla y círculo de quintas', d: 'Dominá las escalas, la cejilla y el círculo de quintas para tocar en cualquier tono y llevar tu sonido más lejos.', c: '#d90d2b', tint: '#fbb5bf', img: 'img/i4.webp',
         L: [['La escala mayor', 'Lección'], ['La cejilla', 'Lección'], ['El círculo de quintas', 'Lección']] }
     ];
     const quieto = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -355,8 +360,8 @@ class Component extends DCLogic {
       fondo: 'padding: 72px 5vw; background: ' + (i % 2 ? '#ffffff' : '#f6f4f4'),
       clase: i % 2 ? 'mundo inv' : 'mundo',
       img: m.img, alt: 'Isla del Mundo ' + m.n,
-      chip: 'align-self: flex-start; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.1em; color: #ffffff; background: ' + m.c + '; border-radius: 999px; padding: 7px 18px',
-      etiqueta: 'MUNDO ' + m.n, titulo: m.t, texto: m.d, nivelesLabel: 'NIVELES (' + m.L.length + ')',
+      chip: 'align-self: flex-start; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.1em; color: #ffffff; background: ' + (m.chip || m.c) + '; border-radius: 999px; padding: 7px 18px',
+      etiqueta: 'MUNDO ' + m.n, titulo: m.t, texto: m.d, nivelesLabel: 'NIVELES',
       niveles: m.L.map(([nombre, tipo], k) => ({ i: k + 1, nombre, tipo,
         li: 'display: flex; align-items: center; gap: 14px; background: #ffffff; border-radius: 999px; padding: 8px 20px 8px 8px; box-shadow: 0 3px 0 #e3dde8; transition: transform .6s ' + EASE + ' ' + (0.45 + k * 0.09).toFixed(2) + 's, opacity .6s ' + EASE + ' ' + (0.45 + k * 0.09).toFixed(2) + 's; ' + (on ? 'opacity: 1; transform: none' : 'opacity: 0; transform: translateX(' + (izq ? 40 : -40) + 'px)'),
         num: 'width: 36px; height: 36px; flex: none; border-radius: 50%; background: ' + m.c + '; color: #ffffff; font-family: Fredoka, sans-serif; font-weight: 600; font-size: 16px; display: flex; align-items: center; justify-content: center' }))
@@ -364,6 +369,7 @@ class Component extends DCLogic {
     const navOn = 'text-decoration: none; border-bottom: 3px solid #ffffff; padding-bottom: 4px', navOff = 'text-decoration: none; padding-bottom: 4px';
     const reset = { vista: 'inicio', paso: 0, resp: [null, null, null], error: false, pct: 0 };
     return {
+      navColor: s.vista === 'mundos' ? '#9706c6' : '#764dc4',
       enInicio: s.vista === 'inicio', enMundos: s.vista === 'mundos', mundos,
       navInicio: s.vista === 'mundos' ? navOff : navOn, navMundos: s.vista === 'mundos' ? navOn : navOff,
       irMundos: () => { clearInterval(this.t); try { window.scrollTo(0, 0); } catch (e) {} this.setState({ vista: 'mundos', paso: 0, error: false, vis: {} }); },
@@ -387,7 +393,7 @@ class Component extends DCLogic {
         if (!s.resp[paso]) return;
         this.boing('sig', () => { if (paso < 2) this.setState({ paso: paso + 1, error: false }); else this.analizar(); });
       },
-      barraStyle: 'height: 100%; border-radius: 8px; background: ' + V + '; width: ' + pct + '%',
+      barraStyle: 'height: 100%; border-radius: 8px; background: #95d12c; width: ' + pct + '%',
       pctLabel: pct + '%', checks, listo: completo, noListo: !completo,
       verResultado: () => this.setState({ vista: 'resultado' }),
       nivel: NIV[0], ruta: RUTA, guitarra: GTR,
